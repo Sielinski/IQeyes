@@ -1,0 +1,28 @@
+Package: IQeyes
+Type: Package
+Title: IQeyes Utility Functions
+Version: 0.1.0
+Author: Ron Sielinski
+Maintainer: Ron Sielinski <ron@iqeyes.ai>
+Description: Functions that support the IQeyes solution.
+License: No license
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat,
+    knitr,
+    rmarkdown
+Imports: 
+    dplyr, 
+    ggplot2,
+    stringr,
+    readr,
+    lubridate,
+    akima,
+    ggforce, 
+    sp
+Depends: 
+    R (>= 4.1.0)
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+VignetteBuilder: knitr
