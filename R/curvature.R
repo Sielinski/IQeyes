@@ -14,11 +14,12 @@
 #' Returns the optical power of the cornea.
 #' @references
 #' \emph{Pentacam Interpretation Guide}, p 9.
-#' @seealso
-#' [IQeyes::anterior_power()], [IQeyes::posterior_power()]
 #' @examples
 #' true_net_power(7, 5)
 #'
+#' @family Curvature
+#'
+#' @export
 true_net_power <- function(R_front, R_back){
   tnp <- ((376 / R_front) - (040 / R_back)) |>
     round(1)
@@ -33,18 +34,19 @@ true_net_power <- function(R_front, R_back){
 #' Anterior power
 #' @description
 #' Calculates the dioptric power of the anterior (front) surface of a cornea
-#' based on its anterior radius.
+#' based on its anterior radius of curvature.
 #' @param R
 #' Front refractive index.
 #' @return
 #' Returns the optical power of the anterior surface of a cornea.
 #' @references
 #' \emph{Pentacam Interpretation Guide}, p 6.
-#' @seealso
-#' [IQeyes::true_net_power()], [IQeyes::posterior_power()]
 #' @examples
 #' anterior_power(7)
 #'
+#' @family Curvature
+#'
+#' @export
 anterior_power <- function(R) 337.5 / R
 
 
@@ -55,20 +57,20 @@ anterior_power <- function(R) 337.5 / R
 #' Posterior power
 #' @description
 #' Calculates the dioptric power of the posterior (rear) surface of a cornea
-#' based on its posterior radius.
+#' based on its posterior radius of curvature.
 #' @param R
 #' Rear refractive index.
 #' @return
 #' Returns the optical power of the posterior surface of a cornea.
 #' @references
 #' \emph{Pentacam Interpretation Guide}, p 7.
-#' @seealso
-#' [IQeyes::true_net_power()], [IQeyes::anterior_power()]
 #' @examples
 #' posterior_power(5)
 #'
-# 1.376/1.336 ≈ 0.30
-posterior_power <- function(R) 30 / R
+#' @family Curvature
+#'
+#' @export
+posterior_power <- function(R) 30 / R  # 1.376/1.336 ≈ 0.30
 
 
 #####################
@@ -89,5 +91,8 @@ posterior_power <- function(R) 30 / R
 #' @examples
 #' kappa_from_radius(7)
 #'
+#' @family Curvature
+#'
+#' @export
 kappa_from_radius <- function(R) 1/R
 

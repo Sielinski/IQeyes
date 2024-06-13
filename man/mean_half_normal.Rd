@@ -17,7 +17,7 @@ Calculates the mean (expected value) of a sample from a half-normal
 distribution.
 }
 \details{
-\code{mean_half_normal} adjusts \code{mean(x)} to account for the characteristics
+\code{mean_half_normal()} uses \code{sd(x)} to account for the characteristics
 of the half-normal distribution
 }
 \examples{
@@ -25,5 +25,14 @@ mean_half_normal(abs(rnorm(10)))
 
 }
 \seealso{
-\code{\link[=sd_half_normal]{sd_half_normal()}}, \code{\link[=mean_folded_normal]{mean_folded_normal()}}, \code{\link[=sd_folded_normal]{sd_folded_normal()}}
+Other Statistical Functions: 
+\code{\link{d_mode}()},
+\code{\link{knee}()},
+\code{\link{mean_folded_normal}()},
+\code{\link{pct_to_z}()},
+\code{\link{sd_folded_normal}()},
+\code{\link{sd_half_normal}()},
+\code{\link{z_score}()},
+\code{\link{z_to_pct}()}
 }
+\concept{Statistical Functions}

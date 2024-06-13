@@ -20,5 +20,16 @@ deg_to_rad(180)
 
 }
 \seealso{
-\code{\link[=rad_to_deg]{rad_to_deg()}}
+Other Coordinate Systems: 
+\code{\link{cartesian_degrees}()},
+\code{\link{cartesian_to_polar}()},
+\code{\link{euclidean_dist}()},
+\code{\link{interpolate_measurements}()},
+\code{\link{polar_to_cartesian}()},
+\code{\link{rad_to_deg}()},
+\code{\link{rotate_shape}()},
+\code{\link{signed_smallest_angle}()},
+\code{\link{smallest_angle}()},
+\code{\link{within_360}()}
 }
+\concept{Coordinate Systems}

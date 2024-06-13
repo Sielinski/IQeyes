@@ -25,5 +25,14 @@ z_score(0.5, mean = 0, sd = 1)
 
 }
 \seealso{
-\code{\link[=pct_to_z]{pct_to_z()}}, \code{\link[=z_to_pct]{z_to_pct()}}
+Other Statistical Functions: 
+\code{\link{d_mode}()},
+\code{\link{knee}()},
+\code{\link{mean_folded_normal}()},
+\code{\link{mean_half_normal}()},
+\code{\link{pct_to_z}()},
+\code{\link{sd_folded_normal}()},
+\code{\link{sd_half_normal}()},
+\code{\link{z_to_pct}()}
 }
+\concept{Statistical Functions}

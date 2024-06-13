@@ -4,8 +4,9 @@ Title: IQeyes Utility Functions
 Version: 0.1.0
 Author: Ron Sielinski
 Maintainer: Ron Sielinski <ron@iqeyes.ai>
-Description: Functions that support the IQeyes solution.
-License: No license
+Description: Functions that support the IQeyes solution by providing utilities 
+    for data manipulation, visualization, and statistical analysis.
+License: Proprietary
 Encoding: UTF-8
 LazyData: true
 Suggests: 
@@ -23,6 +24,6 @@ Imports:
     sp
 Depends: 
     R (>= 4.1.0)
-Roxygen: list(markdown = TRUE)
+Roxygen: list(markdown = TRUE, roclets = c("namespace", "rd"))
 RoxygenNote: 7.3.1
 VignetteBuilder: knitr

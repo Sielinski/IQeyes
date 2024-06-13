@@ -15,8 +15,8 @@ silhouette_compare(shape_A, polygon_A, shape_B, polygon_B, show_plots = F)
 
 \item{polygon_B}{A data frame containing the polygon object for contour B.}
 
-\item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate comparisons being
-made.}
+\item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
+being made.}
 }
 \value{
 The percentage of overlap between the two silhouettes, averaged over both
@@ -30,14 +30,20 @@ objects are created by calling \code{contour_polygon()}.
 }
 \examples{
 silhouette_compare(
-  shape_A = fill_contour(sample_curvature, sample_contour),
+  shape_A = fill_contour(sample_curvature, contour_power = 43),
   polygon_A = contour_polygon(sample_contour),
-  shape_B = fill_contour(sample_curvature, sample_contour),
+  shape_B = fill_contour(sample_curvature, contour_power = 43),
   polygon_B = contour_polygon(sample_contour)
 )
 
 }
 \seealso{
-\code{\link[=fill_contour]{fill_contour()}}, \code{\link[=contour_polygon]{contour_polygon()}},
-\code{\link[=scale_rotate]{scale_rotate()}}, \code{\link[=silhouette_compare_group]{silhouette_compare_group()}}
+Other Contours: 
+\code{\link{contour_polygon}()},
+\code{\link{fill_contour}()},
+\code{\link{get_contour}()},
+\code{\link{get_contour_levels}()},
+\code{\link{scale_rotate}()},
+\code{\link{silhouette_compare_group}()}
 }
+\concept{Contours}

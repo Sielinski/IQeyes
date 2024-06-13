@@ -18,17 +18,13 @@ same columns as \link{sample_curvature}.}
 
 \item{...}{Additional parameters to be passed to \code{scale_rotate()}, specifically
 \code{axs} and \code{r_target}.}
-
-\item{exam_contour}{A data frame containing one row for each point of the contour and the same
-columns as \link{sample_contour}.}
 }
 \value{
 A data frame with the same columns as \link{sample_curvature} containing
-the points of the filled and transformed contour.
+the points of the filled and (if \code{scale_rotate == T}) transformed contour.
 }
 \description{
-Fills a characteristic contour with points, creating a silhouette of its
-shape.
+Fills a contour with points, creating a silhouette of its shape.
 }
 \details{
 Currently only handles the anterior (front) surface of the cornea.
@@ -38,10 +34,17 @@ any additional columns that may have been included as part of the incoming
 \code{exam_curvature}.
 }
 \examples{
-fill_contour(sample_curvature, contour_power = 43, axs = 36.2) |> head()
+fill_contour(sample_curvature, contour_power = 43, axs = 36.2) |>
+  head()
 
 }
 \seealso{
-\code{\link[=scale_rotate]{scale_rotate()}}, \code{\link[=contour_polygon]{contour_polygon()}},
-\code{\link[=silhouette_compare]{silhouette_compare()}}, \code{\link[=silhouette_compare_group]{silhouette_compare_group()}}
+Other Contours: 
+\code{\link{contour_polygon}()},
+\code{\link{get_contour}()},
+\code{\link{get_contour_levels}()},
+\code{\link{scale_rotate}()},
+\code{\link{silhouette_compare}()},
+\code{\link{silhouette_compare_group}()}
 }
+\concept{Contours}

@@ -24,5 +24,14 @@ mean_folded_normal(mu = 3, sigma = 1)
 
 }
 \seealso{
-\code{\link[=sd_folded_normal]{sd_folded_normal()}}, \code{\link[=mean_half_normal]{mean_half_normal()}}, \code{\link[=sd_half_normal]{sd_half_normal()}}
+Other Statistical Functions: 
+\code{\link{d_mode}()},
+\code{\link{knee}()},
+\code{\link{mean_half_normal}()},
+\code{\link{pct_to_z}()},
+\code{\link{sd_folded_normal}()},
+\code{\link{sd_half_normal}()},
+\code{\link{z_score}()},
+\code{\link{z_to_pct}()}
 }
+\concept{Statistical Functions}

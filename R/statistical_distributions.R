@@ -4,7 +4,8 @@
 
 #' Standard deviation of a half-normal distribution
 #' @description
-#' Calculates the standard deviation of sample from a half-normal distribution.
+#' Calculates the standard deviation of a sample from a half-normal
+#' distribution.
 #' @param x
 #' A numeric vector of values from a half-normal distribution.
 #' @return
@@ -12,10 +13,10 @@
 #' @details
 #' \code{sd_half_normal} adjusts \code{sd(x)} to account for the characteristics
 #' of the half-normal distribution
-#' @seealso
-#' [IQeyes::mean_half_normal()], [IQeyes::sd_folded_normal()], [IQeyes::mean_folded_normal()]
 #' @examples
 #' sd_half_normal(abs(rnorm(10)))
+#'
+#' @family Statistical Functions
 #'
 sd_half_normal <- function(x, ...) sd(x, ...) * sqrt(1 - 2 / pi)
 
@@ -33,12 +34,12 @@ sd_half_normal <- function(x, ...) sd(x, ...) * sqrt(1 - 2 / pi)
 #' @return
 #' Returns the mean of \code{x}.
 #' @details
-#' \code{mean_half_normal} adjusts \code{mean(x)} to account for the characteristics
+#' \code{mean_half_normal()} uses \code{sd(x)} to account for the characteristics
 #' of the half-normal distribution
-#' @seealso
-#' [IQeyes::sd_half_normal()], [IQeyes::mean_folded_normal()], [IQeyes::sd_folded_normal()]
 #' @examples
 #' mean_half_normal(abs(rnorm(10)))
+#'
+#' @family Statistical Functions
 #'
 mean_half_normal <- function(x, ...) sd(x, ...) * sqrt(2 / pi)
 
@@ -58,10 +59,10 @@ mean_half_normal <- function(x, ...) sd(x, ...) * sqrt(2 / pi)
 #' Standard deviation of the normal distribution.
 #' @return
 #' Returns the mean.
-#' @seealso
-#' [IQeyes::sd_folded_normal()], [IQeyes::mean_half_normal()], [IQeyes::sd_half_normal()]
 #' @examples
 #' mean_folded_normal(mu = 3, sigma = 1)
+#'
+#' @family Statistical Functions
 #'
 mean_folded_normal <- function(mu, sigma) {
   term1 <- sigma * sqrt(2 / pi) * exp(-mu ^ 2 / (2 * sigma ^ 2))
@@ -85,10 +86,10 @@ mean_folded_normal <- function(mu, sigma) {
 #' Standard deviation of the normal distribution.
 #' @return
 #' Returns the standard deviation.
-#' @seealso
-#' [IQeyes::mean_folded_normal()], [IQeyes::sd_half_normal()], [IQeyes::mean_half_normal()]
 #' @examples
 #' sd_folded_normal(mu = 3, sigma = 1)
+#'
+#' @family Statistical Functions
 #'
 sd_folded_normal <- function(mu, sigma) {
   sqrt(mu ^ 2 + sigma ^ 2 - mean_folded_normal(mu, sigma) ^ 2)
@@ -111,11 +112,11 @@ sd_folded_normal <- function(mu, sigma) {
 #' \code{±z * σ}.
 #' @return
 #' Returns the percentage of a normal distribution.
-#' @seealso
-#' [IQeyes::pct_to_z()], [IQeyes::z_score()]
 #' @examples
 #' z_to_pct(z = 3, two_tail = T)
 #' z_to_pct(c(1, 2, 3), two_tail = F)
+#'
+#' @family Statistical Functions
 #'
 z_to_pct <- function(z, two_tail = T) {
   # use the two_tail parameter to calculate the percentage of values that lie
@@ -145,11 +146,11 @@ z_to_pct <- function(z, two_tail = T) {
 #' \code{±z * σ}.
 #' @return
 #' Returns the z-score for the percentage of values.
-#' @seealso
-#' [IQeyes::z_to_pct()], [IQeyes::z_score()]
 #' @examples
 #' pct_to_z(pct = 0.5, two_tail = F)
 #' pct_to_z(c(-0.5, 0.5), two_tail = T)
+#'
+#' @family Statistical Functions
 #'
 pct_to_z <- function(pct, two_tail = T) {
   if (two_tail) {
@@ -177,11 +178,12 @@ pct_to_z <- function(pct, two_tail = T) {
 #' The standard deviation of the normal distribution
 #' @return
 #' Returns the z-score of \code{x}.
-#' @seealso
-#' [IQeyes::pct_to_z()], [IQeyes::z_to_pct()]
 #' @examples
 #' z_score(0.5, mean = 0, sd = 1)
 #'
+#' @family Statistical Functions
+#'
+#' @export
 z_score <- function(x, mean, sd) {
   (x - mean) / sd
 }
@@ -201,6 +203,9 @@ z_score <- function(x, mean, sd) {
 #' @examples
 #' d_mode(rnorm(1000, mean = 2))
 #'
+#' @family Statistical Functions
+#'
+#' @export
 d_mode <- function(x) {
   if (length(x) == 1) {
     return(x)
@@ -228,6 +233,9 @@ d_mode <- function(x) {
 #' data.frame(x = 1:15, y = sort(rpois(15, 42), decreasing = T)) |>
 #'   knee()
 #'
+#' @family Statistical Functions
+#'
+#' @export
 knee <- function(df) {
   data_pts <- nrow(df)
 

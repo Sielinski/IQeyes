@@ -6,6 +6,9 @@ interpolate_rings <- function(source_dat) {
 
   #source_dat <- sample_curvature
 
+  source_dat <- source_dat |>
+    dplyr::filter(!is.na(measurement))
+
   rings_3d <- ring_diameters
 
   # target the x and y coordinates of the three ring perimeters
@@ -70,6 +73,19 @@ interpolate_rings <- function(source_dat) {
 #' @examples
 #' curvature_meridians(sample_curvature, sample_astig)
 #'
+#' @family Meridians
+#'
+#' @importFrom dplyr cross_join
+#' @importFrom dplyr mutate
+#' @importFrom dplyr inner_join
+#' @importFrom dplyr filter
+#' @importFrom dplyr slice_min
+#' @importFrom dplyr select
+#' @importFrom dplyr slice_max
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyselect all_of
+#'
+#' @export
 curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FRONT', interp = T) {
 
   #exam_curvature <- sample_curvature
@@ -98,7 +114,7 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
            max = ifelse(min > max, max + 360, max))
 
   if (interp) {
-    # interpolate curvature radius measurements along the 3, 5, and 7 mm rings
+    # interpolate measurements along the 3, 5, and 7 mm rings
     # the third dimension is the measurement
     rings_3d <- interpolate_rings(exam_curvature)
   } else {

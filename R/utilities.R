@@ -25,7 +25,17 @@
 #' @return
 #' A data frame containing the file that has been read.
 #'
-# Read a CSV file, convert it column names to variable names and set its data types
+#' @family Utilities
+#'
+#' @importFrom readr read_delim
+#' @importFrom readr locale
+#' @importFrom dplyr select_if
+#' @importFrom lubridate mdy
+#' @importFrom lubridate hms
+#' @importFrom stringr str_to_lower
+#' @importFrom stringr str_trim
+#'
+#' @export
 read_pentacam_csv <- function(file_name,
                               delimiter = ';',
                               keep_ok_only = T,
@@ -38,7 +48,6 @@ read_pentacam_csv <- function(file_name,
       locale = readr::locale(encoding = "windows-1252"),
       col_names = T,
       trim_ws = T,
-      #name_repair = function(x) str_replace_all(x, '(?<=flat)_(?=[:digit:])', ' '),
       show_col_types = F
     )
 
@@ -111,6 +120,12 @@ read_pentacam_csv <- function(file_name,
 #' @examples
 #' convert_name('r4.0 324°')
 #'
+#' @family Utilities
+#'
+#' @importFrom stringr str_replace
+#' @importFrom stringr str_replace_all
+#'
+#' @export
 convert_name <- function(name) {
   name |>
     stringr::str_to_lower() |>

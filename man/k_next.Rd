@@ -28,3 +28,4 @@ Find the secondary peak on a curvature map.
 k_next(sample_curvature)
 
 }
+\concept{K-next}

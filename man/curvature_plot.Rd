@@ -52,14 +52,16 @@ Returns (but does not render) the curvature plot of the anterior surface of a
 cornea by interpolating measurements from \code{COR-PWR.CSV}.
 }
 \details{
-This function doesn't currently work for posterior surfaces because the
-\code{plot_scale} function presumes the color scale is on the "absolute
-scale", which is designed the dioptric power of anterior surfaces.
+This function currently works for anterior surfaces only because
+\code{plot_scale()} presumes the curvature maps uses the Pentacam's American
+scale, which is designed for the dioptric power of anterior surfaces.
 }
 \examples{
 curvature_plot(sample_curvature)
 
 }
 \seealso{
-\code{\link[=plot_scale]{plot_scale()}}
+Other Plots: 
+\code{\link{plot_scale}()}
 }
+\concept{Plots}

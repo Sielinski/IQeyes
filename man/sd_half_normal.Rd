@@ -13,7 +13,8 @@ sd_half_normal(x, ...)
 Returns the standard deviation of \code{x}.
 }
 \description{
-Calculates the standard deviation of sample from a half-normal distribution.
+Calculates the standard deviation of a sample from a half-normal
+distribution.
 }
 \details{
 \code{sd_half_normal} adjusts \code{sd(x)} to account for the characteristics
@@ -24,5 +25,14 @@ sd_half_normal(abs(rnorm(10)))
 
 }
 \seealso{
-\code{\link[=mean_half_normal]{mean_half_normal()}}, \code{\link[=sd_folded_normal]{sd_folded_normal()}}, \code{\link[=mean_folded_normal]{mean_folded_normal()}}
+Other Statistical Functions: 
+\code{\link{d_mode}()},
+\code{\link{knee}()},
+\code{\link{mean_folded_normal}()},
+\code{\link{mean_half_normal}()},
+\code{\link{pct_to_z}()},
+\code{\link{sd_folded_normal}()},
+\code{\link{z_score}()},
+\code{\link{z_to_pct}()}
 }
+\concept{Statistical Functions}

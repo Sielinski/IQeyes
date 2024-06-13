@@ -21,3 +21,9 @@ Rounds \code{x} to the nearest multiple of \code{y}.
 nearest(0.75, 0.2)
 
 }
+\seealso{
+Other Mathematics: 
+\code{\link{logistic}()},
+\code{\link{logit}()}
+}
+\concept{Mathematics}

@@ -22,3 +22,15 @@ data.frame(x = 1:15, y = sort(rpois(15, 42), decreasing = T)) |>
   knee()
 
 }
+\seealso{
+Other Statistical Functions: 
+\code{\link{d_mode}()},
+\code{\link{mean_folded_normal}()},
+\code{\link{mean_half_normal}()},
+\code{\link{pct_to_z}()},
+\code{\link{sd_folded_normal}()},
+\code{\link{sd_half_normal}()},
+\code{\link{z_score}()},
+\code{\link{z_to_pct}()}
+}
+\concept{Statistical Functions}

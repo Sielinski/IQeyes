@@ -14,7 +14,7 @@ Returns the optical power of the anterior surface of a cornea.
 }
 \description{
 Calculates the dioptric power of the anterior (front) surface of a cornea
-based on its anterior radius.
+based on its anterior radius of curvature.
 }
 \examples{
 anterior_power(7)
@@ -24,5 +24,9 @@ anterior_power(7)
 \emph{Pentacam Interpretation Guide}, p 6.
 }
 \seealso{
-\code{\link[=true_net_power]{true_net_power()}}, \code{\link[=posterior_power]{posterior_power()}}
+Other Curvature: 
+\code{\link{kappa_from_radius}()},
+\code{\link{posterior_power}()},
+\code{\link{true_net_power}()}
 }
+\concept{Curvature}

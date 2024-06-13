@@ -19,3 +19,15 @@ Calculates the mode for a vector of numeric values \code{x}.
 d_mode(rnorm(1000, mean = 2))
 
 }
+\seealso{
+Other Statistical Functions: 
+\code{\link{knee}()},
+\code{\link{mean_folded_normal}()},
+\code{\link{mean_half_normal}()},
+\code{\link{pct_to_z}()},
+\code{\link{sd_folded_normal}()},
+\code{\link{sd_half_normal}()},
+\code{\link{z_score}()},
+\code{\link{z_to_pct}()}
+}
+\concept{Statistical Functions}

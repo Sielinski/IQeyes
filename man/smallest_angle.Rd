@@ -20,9 +20,22 @@ Calculates the smallest angle (in degrees) between two radial lines.
 \details{
 The result is essentially the absolute difference between two angles.
 }
-\seealso{
-\code{\link[=signed_smallest_angle]{signed_smallest_angle()}}
-#' @examples
+\examples{
 smallest_angle(45, 90)
 smallest_angle(90, 45)
+
 }
+\seealso{
+Other Coordinate Systems: 
+\code{\link{cartesian_degrees}()},
+\code{\link{cartesian_to_polar}()},
+\code{\link{deg_to_rad}()},
+\code{\link{euclidean_dist}()},
+\code{\link{interpolate_measurements}()},
+\code{\link{polar_to_cartesian}()},
+\code{\link{rad_to_deg}()},
+\code{\link{rotate_shape}()},
+\code{\link{signed_smallest_angle}()},
+\code{\link{within_360}()}
+}
+\concept{Coordinate Systems}

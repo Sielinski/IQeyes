@@ -14,8 +14,8 @@ respectively.}
 \item{theta_deg}{Angle (in degrees) to rotate the shape.}
 }
 \value{
-An \emph{n}x2 matrix containing the points of orininal matrix rotated by
-\empha{theta} degrees.
+An \emph{n}x2 matrix containing the points of original matrix rotated by
+\emph{theta} degrees.
 }
 \description{
 Rotate a shape (i.e., a matrix of points) by a specified angle (in degrees).
@@ -24,3 +24,17 @@ Rotate a shape (i.e., a matrix of points) by a specified angle (in degrees).
 matrix(rep(seq(1:5), 2), ncol = 2) |> rotate_shape(180)
 
 }
+\seealso{
+Other Coordinate Systems: 
+\code{\link{cartesian_degrees}()},
+\code{\link{cartesian_to_polar}()},
+\code{\link{deg_to_rad}()},
+\code{\link{euclidean_dist}()},
+\code{\link{interpolate_measurements}()},
+\code{\link{polar_to_cartesian}()},
+\code{\link{rad_to_deg}()},
+\code{\link{signed_smallest_angle}()},
+\code{\link{smallest_angle}()},
+\code{\link{within_360}()}
+}
+\concept{Coordinate Systems}

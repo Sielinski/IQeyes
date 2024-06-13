@@ -14,7 +14,7 @@ Returns the optical power of the posterior surface of a cornea.
 }
 \description{
 Calculates the dioptric power of the posterior (rear) surface of a cornea
-based on its posterior radius.
+based on its posterior radius of curvature.
 }
 \examples{
 posterior_power(5)
@@ -24,5 +24,9 @@ posterior_power(5)
 \emph{Pentacam Interpretation Guide}, p 7.
 }
 \seealso{
-\code{\link[=true_net_power]{true_net_power()}}, \code{\link[=anterior_power]{anterior_power()}}
+Other Curvature: 
+\code{\link{anterior_power}()},
+\code{\link{kappa_from_radius}()},
+\code{\link{true_net_power}()}
 }
+\concept{Curvature}

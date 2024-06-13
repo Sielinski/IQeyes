@@ -14,7 +14,7 @@ data frame to contain the join fields.}
 \item{axs}{A number. Oftentimes, this should be the angle (in degrees) of the primary
 axis of astigmatism for an exam.}
 
-\item{r_target}{A number defining the target radius of the scaled shape.}
+\item{r_target}{A number defining the target radial length of the scaled shape.}
 }
 \value{
 A data frame containing the same columns as \code{shape} with transformed
@@ -35,11 +35,19 @@ shape, not the end-to-end length of the shape, which is especially
 important for asymmetric shapes.
 }
 \examples{
-scale_rotate(sample_contour, axs = 36.2) |> head()
-scale_rotate(sample_curvature, axs = 36.2) |> head()
+scale_rotate(sample_contour, axs = 36.2) |>
+  head()
+scale_rotate(sample_curvature, axs = 36.2) |>
+  head()
 
 }
 \seealso{
-\code{\link[=fill_contour]{fill_contour()}}, \code{\link[=contour_polygon]{contour_polygon()}}
-\code{\link[=silhouette_compare]{silhouette_compare()}}, \code{\link[=silhouette_compare_group]{silhouette_compare_group()}}
+Other Contours: 
+\code{\link{contour_polygon}()},
+\code{\link{fill_contour}()},
+\code{\link{get_contour}()},
+\code{\link{get_contour_levels}()},
+\code{\link{silhouette_compare}()},
+\code{\link{silhouette_compare_group}()}
 }
+\concept{Contours}

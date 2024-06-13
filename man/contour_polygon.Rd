@@ -23,16 +23,23 @@ points at the same location, representing the starting and ending points of
 the polygon.
 }
 \details{
-A contour is comprised of one or more segments. \code{contour_polygon}
-takes the first point of each segment (based on its ordinal
-position in the original data frame) and appends a replica to the end of the
-the original data frame.
+A contour is comprised of one or more segments, uniquely identified by
+\code{contour_id}. \code{contour_polygon()} takes the first point of each
+segment (based on its ordinal position in the original data frame) and
+appends a replica to the end of the the original data frame.
 }
 \examples{
-contour_polygon(sample_contour) |> head()
+contour_polygon(sample_contour) |>
+   head()
 
 }
 \seealso{
-\code{\link[=fill_contour]{fill_contour()}}, \code{\link[=scale_rotate]{scale_rotate()}}
-\code{\link[=silhouette_compare]{silhouette_compare()}}, \code{\link[=silhouette_compare_group]{silhouette_compare_group()}}
+Other Contours: 
+\code{\link{fill_contour}()},
+\code{\link{get_contour}()},
+\code{\link{get_contour_levels}()},
+\code{\link{scale_rotate}()},
+\code{\link{silhouette_compare}()},
+\code{\link{silhouette_compare_group}()}
 }
+\concept{Contours}

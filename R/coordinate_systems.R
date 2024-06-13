@@ -17,12 +17,13 @@
 #' The angle between with the two lines.
 #' @details
 #' The result is essentially the absolute difference between two angles.
-#' @seealso
-#' [IQeyes::signed_smallest_angle()]
-#' #' @examples
+#' @examples
 #' smallest_angle(45, 90)
 #' smallest_angle(90, 45)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 smallest_angle <- function(angle_1, angle_2) {
   if (is.na(angle_1) || is.na(angle_2)) return(NA)
 
@@ -52,11 +53,12 @@ smallest_angle <- Vectorize(smallest_angle)
 #' The angle (in degrees) between with the two lines.
 #' @details
 #' The result is essentially the signed difference between two angles.
-#' @seealso
-#' [IQeyes::smallest_angle()]
 #' @examples
 #' signed_smallest_angle(45, 90)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 signed_smallest_angle <- function(angle_1, angle_2) {
   if (is.na(angle_1) || is.na(angle_2)) return(NA)
 
@@ -92,6 +94,9 @@ signed_smallest_angle <- Vectorize(signed_smallest_angle)
 #' @examples
 #' polar_to_cartesian(1, 45)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 polar_to_cartesian <- function(radius, angle_deg) {
   # Convert the angle from degrees to radians
   angle_rad <- angle_deg * (pi / 180)
@@ -119,11 +124,12 @@ polar_to_cartesian <- function(radius, angle_deg) {
 #' @return
 #' A data frame with the polar coordinates, the radius (\code{r}) and angle
 #' (\code{theta}) in radians.
-#' @seealso
-#' [IQeyes::cartesian_degrees()]
 #' @examples
 #' cartesian_to_polar(-1, 0)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 cartesian_to_polar <- function(x, y) {
   r <- sqrt(x ^ 2 + y ^ 2) # Calculate radial distance
   theta <- atan2(y, x) # Calculate angle in radians
@@ -146,10 +152,12 @@ cartesian_to_polar <- function(x, y) {
 #' The \emph{y}-axis component.
 #' @return
 #' the angle (\emph{theta}) in degrees.
-#' @seealso
-#' [IQeyes::cartesian_to_polar()]
 #' @examples
 #' cartesian_degrees(2, 2)
+#'
+#' @family Coordinate Systems
+#'
+#' @export
 cartesian_degrees <- function(x, y) {
   theta <- atan2(y, x) # Calculate angle in radians
 
@@ -172,11 +180,12 @@ cartesian_degrees <- function(x, y) {
 #' The angle in degrees.
 #' @return
 #' The angle in radians.
-#' @seealso
-#' [IQeyes::rad_to_deg()]
 #' @examples
 #' deg_to_rad(180)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 deg_to_rad <- function(angle_deg) angle_deg * pi / 180
 
 
@@ -191,11 +200,12 @@ deg_to_rad <- function(angle_deg) angle_deg * pi / 180
 #' The angle in radians.
 #' @return
 #' The angle in degrees.
-#' @seealso
-#' [IQeyes::deg_to_rad()]
 #' @examples
 #' rad_to_deg(pi)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 rad_to_deg <- function(angle_rad) angle_rad * 180 / pi
 
 
@@ -216,6 +226,9 @@ rad_to_deg <- function(angle_rad) angle_rad * 180 / pi
 #' @examples
 #' euclidean_dist(2, 2)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 euclidean_dist <- function(x, y) {
   sqrt(x ^ 2 +y ^ 2)
 }
@@ -240,6 +253,10 @@ euclidean_dist <- function(x, y) {
 #' within_360(551)
 #' within_360(42)
 #' within_360(-22)
+#'
+#' @family Coordinate Systems
+#'
+#' @export
 within_360 <- function(x) {
   if (x >= 360) {
     x - 360
@@ -267,11 +284,14 @@ within_360 <- Vectorize(within_360)
 #' @param theta_deg
 #' Angle (in degrees) to rotate the shape.
 #' @return
-#' An \emph{n}x2 matrix containing the points of orininal matrix rotated by
-#' \empha{theta} degrees.
+#' An \emph{n}x2 matrix containing the points of original matrix rotated by
+#' \emph{theta} degrees.
 #' @examples
 #' matrix(rep(seq(1:5), 2), ncol = 2) |> rotate_shape(180)
 #'
+#' @family Coordinate Systems
+#'
+#' @export
 rotate_shape <- function(points, theta_deg) {
   theta_rad <- deg_to_rad(theta_deg)
 
@@ -311,11 +331,21 @@ rotate_shape <- function(points, theta_deg) {
 #' The interpolated measurements will \emph{not} necessarily include the
 #' original measurements.
 #' @examples
-#' interpolate_measurements(sample_curvature[1:10, c('x', 'y', 'measurement')])
+#' interpolate_measurements(sample_curvature) |>
+#'    head()
 #'
+#' @family Coordinate Systems
+#'
+#' @importFrom dplyr filter
+#' @importFrom akima interp
+#'
+#' @export
 interpolate_measurements <- function(source_dat, ...) {
 
   #source_dat <- sample_curvature
+
+  source_dat <- source_dat |>
+    dplyr::filter(!is.na(measurement))
 
   # Create a grid that spans the extents of the measured x and y axes
   x_range <- with(source_dat, seq(min(x), max(x), length.out = length(unique(x))))

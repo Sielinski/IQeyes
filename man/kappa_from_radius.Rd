@@ -25,3 +25,10 @@ kappa_from_radius(7)
 \references{
 \emph{Pentacam Interpretation Guide}, p 7.
 }
+\seealso{
+Other Curvature: 
+\code{\link{anterior_power}()},
+\code{\link{posterior_power}()},
+\code{\link{true_net_power}()}
+}
+\concept{Curvature}

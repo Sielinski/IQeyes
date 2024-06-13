@@ -99,6 +99,27 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 #' @examples
 #' k_next(sample_curvature)
 #'
+#' @family K-next
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr mutate
+#' @importFrom dplyr rename
+#' @importFrom dplyr rows_update
+#' @importFrom dplyr inner_join
+#' @importFrom dplyr semi_join
+#' @importFrom dplyr anti_join
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_cols
+#' @importFrom dplyr slice
+#' @importFrom dplyr slice_min
+#' @importFrom dplyr slice_max
+#' @importFrom dplyr sample_n
+#' @importFrom dplyr summarize
+#' @importFrom dplyr n
+#' @importFrom tidyselect all_of
+#'
+#' @export
 k_next <- function(exam_curvature, just_points = F) {
 
   # add an identifier flag to the cleansed curvature data

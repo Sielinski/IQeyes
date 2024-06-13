@@ -18,6 +18,7 @@
 #' signed_pct_diff(x = 5, y = 10)
 #' signed_pct_diff(5, 10)
 #'
+#' @export
 signed_pct_diff <- function(x, y) {
   if (x == 0 & y == 0) {
     warning('Either x or y needs to be non-zero.')
@@ -47,6 +48,9 @@ signed_pct_diff <- function(x, y) {
 #' logit(p = 0.5)
 #' logit(1/2)
 #'
+#' @family Mathematics
+#'
+#' @export
 logit <- function(p) {
   if (p < 0 | p > 1) {
     warning('p needs to be between 0 and 1.')
@@ -76,6 +80,9 @@ logit <- function(p) {
 #' logistic(x = 64)
 #' logistic(Inf)
 #'
+#' @family Mathematics
+#'
+#' @export
 logistic <- function(x) {
   1 / (1 + exp(-x))
 }
@@ -97,4 +104,7 @@ logistic <- function(x) {
 #' @examples
 #' nearest(0.75, 0.2)
 #'
+#' @family Mathematics
+#'
+#' @export
 nearest <- function(x, y) round(x / y) * y

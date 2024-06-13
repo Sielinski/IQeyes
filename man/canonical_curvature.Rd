@@ -16,7 +16,7 @@ A data frame with the following columns:
 \item{surface}{'FRONT' or 'BACK' surface of the cornea}
 \item{column_name}{Name of the column in COR-PWR that contained the measurement}
 \item{measurement}{Measured curvature radius}
-\item{ring_diam}{Ring diameter where the measurement was taken}
+\item{ring_diam}{Ring where the measurement was taken}
 \item{angle}{Angle where the measurement was taken}
 \item{x}{x-axis coordinate of the measurement}
 \item{y}{y-axis coordinate of the measurement}

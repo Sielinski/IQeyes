@@ -20,7 +20,19 @@ Calculates the angle (in degrees) formed by the \emph{x}- and
 }
 \examples{
 cartesian_degrees(2, 2)
+
 }
 \seealso{
-\code{\link[=cartesian_to_polar]{cartesian_to_polar()}}
+Other Coordinate Systems: 
+\code{\link{cartesian_to_polar}()},
+\code{\link{deg_to_rad}()},
+\code{\link{euclidean_dist}()},
+\code{\link{interpolate_measurements}()},
+\code{\link{polar_to_cartesian}()},
+\code{\link{rad_to_deg}()},
+\code{\link{rotate_shape}()},
+\code{\link{signed_smallest_angle}()},
+\code{\link{smallest_angle}()},
+\code{\link{within_360}()}
 }
+\concept{Coordinate Systems}

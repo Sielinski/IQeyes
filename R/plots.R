@@ -1,26 +1,30 @@
 ## Color Scale ##
 
 # base version of the color scale used for curvature maps
+# the colors are taken from a screen shot of Pentacam's American scale, using
+# PowerPoint's eye dropper
+# the radius numbers are based on the same constant used by anterior_power()
 absolute_color_scale <- data.frame(
   value = c(10, 20, 30, 32, 34, 36, 38, 40, 42, 44, 46, 50, 60, 70, 80, 90),
-  radius = c(34.5, 22.5, 10.5, 10.0, 9.6, 9.2, 8.8, 8.4, 8.0, 7.6, 7.2, 6.8, 6.2, 5.4, 4.6, 3.8),
+  #radius = c(34.5, 22.5,  10.5,  10.0,  9.6,  9.2,  8.8,  8.4,  8.0,  7.6,  7.2,  6.8,  6.2,  5.4,  4.6,  3.8),
+  radius = c(33.75, 16.88, 11.25, 10.55, 9.93, 9.38, 8.88, 8.44, 8.04, 7.67, 7.34, 6.75, 5.62, 4.82, 4.22, 3.75),
   color = c(
-    '#B428E1',
-    '#8C28B4',
-    '#6E28A0',
-    '#28008C',
-    '#233278',
-    '#1978F0',
-    '#00BEFF',
-    '#00F0FF',
-    '#5AE600',
-    '#FFFF00',
-    '#DCC800',
-    '#DC9600',
-    '#DC5000',
-    '#B40000',
-    '#A03232',
-    '#C86464'
+    '#B428DC',  # 10
+    '#8C28B4',  # 20
+    '#642896',  # 30
+    '#28008C',  # 32
+    '#283CDC',  # 34
+    '#1478F0',  # 36
+    '#00B9FC',  # 38
+    '#00F0FC',  # 40
+    '#5AE600',  # 42
+    '#FFFF00',  # 44
+    '#DCC800',  # 46
+    '#DC9600',  # 50
+    '#DC5000',  # 60
+    '#B40000',  # 70
+    '#A03232',  # 80
+    '#C86464'   # 90
   )
 )
 
@@ -74,8 +78,36 @@ absolute_curvature_scale <- c(seq(34.5, 10.5, by = -3),
   unique()
 
 
-# extract the breaks from the absolute scale that span the min and max of the
-# relevant z-axis (presumed to be in diopters)
+
+################
+## plot_scale
+################
+
+#' Returns breaks on the \emph{z}-axis scale used to plot curvature maps
+#' @description
+#' Returns breaks for \code{z} (presumed to be in diopters) on the dioptric
+#' scale used to plot curvature maps.
+#' @param z
+#' A numeric vector containing curvature measurements (in diopters). Currently
+#' works for \emph{anterior} surfaces only.
+#' @return
+#' A numeric vector containing the breaks on the \emph{z}-axis scale (in
+#' diopters).
+#' @details
+#' The contour levels on a curvature map are defined by the breaks of the
+#' color scale used to generate the map.
+#'
+#' \code{plot_scale()} presumes the curvature maps uses the Pentacam's American
+#' scale, which is designed for the dioptric power of anterior surfaces.
+#' @examples
+#' anterior_power(sample_curvature$measurement) |>
+#'   plot_scale()
+#'
+#' @family Plots
+#'
+#' @importFrom dplyr between
+#'
+#' @export
 plot_scale <- function(z) {
   scale_indices <-
     which(dplyr::between(absolute_scale, min(z, na.rm = T), max(z, na.rm = T)))
@@ -130,14 +162,34 @@ plot_scale <- function(z) {
 #' @return
 #' A ggplot object.
 #' @details
-#' This function doesn't currently work for posterior surfaces because the
-#' \code{plot_scale} function presumes the color scale is on the "absolute
-#' scale", which is designed the dioptric power of anterior surfaces.
-#' @seealso
-#' [IQeyes::plot_scale()]
+#' This function currently works for anterior surfaces only because
+#' \code{plot_scale()} presumes the curvature maps uses the Pentacam's American
+#' scale, which is designed for the dioptric power of anterior surfaces.
 #' @examples
 #' curvature_plot(sample_curvature)
 #'
+#' @family Plots
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr all_of
+#' @importFrom dplyr mutate
+#' @importFrom dplyr filter
+#' @importFrom tidyselect all_of
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_contour_filled
+#' @importFrom ggplot2 guides
+#' @importFrom ggplot2 guide_legend
+#' @importFrom ggplot2 geom_spoke
+#' @importFrom ggplot2 geom_point
+#' @importFrom ggplot2 labs
+#' @importFrom ggplot2 geom_label
+#' @importFrom ggplot2 theme_void
+#' @importFrom ggplot2 scale_fill_grey
+#' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggforce geom_circle
+#'
+#' @export
 curvature_plot <-
   function(exam_curvature,
            basic = F,
@@ -163,8 +215,6 @@ curvature_plot <-
 
     # interpolate data for the entire surface (this returns x, y, z)
     interp_df <- exam_curvature |>
-      dplyr::select(x, y, measurement) |>
-      dplyr::filter(!is.na(measurement)) |>
       interpolate_measurements()
 
         # convert curvature radius (R) to power in diopters
@@ -245,3 +295,4 @@ curvature_plot <-
 
     return(p)
   }
+

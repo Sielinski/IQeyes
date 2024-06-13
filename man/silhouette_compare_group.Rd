@@ -31,8 +31,8 @@ each member of the group. The cluster IDs for individual contours (i.e.,
 members of the group) must be the same in both \code{group_shapes} and
 \code{group_polygons}.}
 
-\item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate comparisons being
-made.}
+\item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
+being made.}
 
 \item{return_detail}{A Boolean. \code{TRUE} to return a list object with two elements:
 \code{closest_fit}, the index of the group member that has the highest
@@ -61,6 +61,12 @@ which means the process for creating \code{group_shapes} requires the
 additional step of appending the \code{cluster} column.
 }
 \seealso{
-\code{\link[=fill_contour]{fill_contour()}}, \code{\link[=contour_polygon]{contour_polygon()}},
-\code{\link[=scale_rotate]{scale_rotate()}}, \code{\link[=silhouette_compare]{silhouette_compare()}}
+Other Contours: 
+\code{\link{contour_polygon}()},
+\code{\link{fill_contour}()},
+\code{\link{get_contour}()},
+\code{\link{get_contour_levels}()},
+\code{\link{scale_rotate}()},
+\code{\link{silhouette_compare}()}
 }
+\concept{Contours}

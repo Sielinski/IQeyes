@@ -27,5 +27,16 @@ signed_smallest_angle(45, 90)
 
 }
 \seealso{
-\code{\link[=smallest_angle]{smallest_angle()}}
+Other Coordinate Systems: 
+\code{\link{cartesian_degrees}()},
+\code{\link{cartesian_to_polar}()},
+\code{\link{deg_to_rad}()},
+\code{\link{euclidean_dist}()},
+\code{\link{interpolate_measurements}()},
+\code{\link{polar_to_cartesian}()},
+\code{\link{rad_to_deg}()},
+\code{\link{rotate_shape}()},
+\code{\link{smallest_angle}()},
+\code{\link{within_360}()}
 }
+\concept{Coordinate Systems}
