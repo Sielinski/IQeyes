@@ -19,8 +19,8 @@ Returns the full range of contours and the number of segments needed to plot
 \code{exam_curvature} on a curvature map.
 }
 \details{
-This function doesn't currently work for posterior surfaces because the
-\code{plot_scale} function presumes the color scale is on the "absolute
+This function doesn't currently work for posterior surfaces because
+\link{plot_scale} presumes the color scale is on the "absolute
 scale", which is designed for the dioptric power of anterior surfaces.
 }
 \examples{

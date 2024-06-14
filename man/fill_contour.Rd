@@ -34,7 +34,7 @@ any additional columns that may have been included as part of the incoming
 \code{exam_curvature}.
 }
 \examples{
-fill_contour(sample_curvature, contour_power = 43, axs = 36.2) |>
+fill_contour(sample_curvature, contour_power = 45.5, axs = 36.2) |>
   head()
 
 }

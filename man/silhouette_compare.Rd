@@ -24,15 +24,15 @@ directions.
 }
 \description{
 Each of silhouettes is defined by two objects, a filled shape and a polygon.
-These objects must be created before calling \code{silhouette_compare()}. The
-filled shapes are created by calling \code{fill_contour()}, and polygon
-objects are created by calling \code{contour_polygon()}.
+These objects must be created before calling \code{silhouette_compare()}.
+The filled shapes are created by calling \link{fill_contour}, and the
+polygon objects are created by calling \link{contour_polygon}.
 }
 \examples{
 silhouette_compare(
-  shape_A = fill_contour(sample_curvature, contour_power = 43),
+  shape_A = fill_contour(sample_curvature, contour_power = 45.5),
   polygon_A = contour_polygon(sample_contour),
-  shape_B = fill_contour(sample_curvature, contour_power = 43),
+  shape_B = fill_contour(sample_curvature, contour_power = 45),
   polygon_B = contour_polygon(sample_contour)
 )
 

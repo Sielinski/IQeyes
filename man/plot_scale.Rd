@@ -26,7 +26,8 @@ color scale used to generate the map.
 scale, which is designed for the dioptric power of anterior surfaces.
 }
 \examples{
-anterior_power(sample_curvature$measurement) |>
+sample_curvature$measurement |>
+  anterior_power() |>
   plot_scale()
 
 }

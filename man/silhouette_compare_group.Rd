@@ -48,15 +48,15 @@ the reference silhouette.
 Every silhouette is defined by two objects, a filled shape and a polygon.
 These objects must be created before calling
 \code{silhouette_compare_group()}. The filled shapes are created by calling
-\code{fill_contour()}, and the polygon objects are created by calling
-\code{contour_polygon()}.
+\link{fill_contour}, and the polygon objects are created by calling
+\link{contour_polygon}.
 
 Each of the comparisons is made in both directions.
 }
 \details{
 Both \code{group_shapes} and \code{group_polygons} require a \code{cluster}
 column. Although the cluster column can be passed into and returned by
-\code{contour_polygon()}, the same cannot be done by \code{fill_contour()},
+\link{contour_polygon}, the same cannot be done by \link{fill_contour},
 which means the process for creating \code{group_shapes} requires the
 additional step of appending the \code{cluster} column.
 }

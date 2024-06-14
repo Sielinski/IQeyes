@@ -11,6 +11,8 @@
 #' \item{exam_date}{Date of the exam}
 #' \item{exam_time}{Time of the exam}
 #' \item{exam_eye}{'RIGHT' or 'LEFT'}
+#' \item{cluster}{Oridinal identifier of the cluster}
+#' \item{shape}{Name of the cluster}
 #' \item{surface}{'FRONT' or 'BACK' surface of the cornea}
 #' \item{column_name}{Name of the column in COR-PWR that contained the measurement}
 #' \item{measurement}{Measured curvature radius}

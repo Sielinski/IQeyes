@@ -8,6 +8,8 @@
 #' \item{index}{Name of the index}
 #' \item{mean}{Mean of the index}
 #' \item{sd}{Standard deviation of the index}
+#' \item{min}{Minimum of the index}
+#' \item{max}{Minimum of the index}
 #' \item{population}{Either "normal" or "abnormal"}
 #' \item{doi}{Digital Object Identifier}
 #' }

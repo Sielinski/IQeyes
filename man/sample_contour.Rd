@@ -12,7 +12,8 @@ A data frame with the following columns:
 \item{pat_id}{Patient ID}
 \item{exam_date}{Date of the exam}
 \item{exam_time}{Time of the exam}
-\item{exam_eye}{'RIGHT' or 'LEFT'}
+\item{surface}{'RIGHT' or 'LEFT'}
+\item{exam_eye}{'FRONT' or 'BACK'}
 \item{x}{x-axis coordinate of a point on the contour}
 \item{y}{y-axis coordinate of a point on the contour}
 \item{contour_id}{Ordinal identifier for each segment of a \emph{n}-segment contour}

@@ -1,5 +1,13 @@
 ## Color Scale ##
 
+# the absolute power scale that is used to determine the contour levels for
+# curvature maps. The scale is not linear
+absolute_scale <- c(seq(10, 30, by = 2.5),
+                    seq(30, 46, by = 0.5),
+                    seq(46, 50, by = 1),
+                    seq(50, 90, by = 2.5)) |> unique()
+
+
 # base version of the color scale used for curvature maps
 # the colors are taken from a screen shot of Pentacam's American scale, using
 # PowerPoint's eye dropper
@@ -28,16 +36,8 @@ absolute_color_scale <- data.frame(
   )
 )
 
-# augment the scale with power values
+# augment the color scale with power values
 absolute_color_scale$power <- anterior_power(absolute_color_scale$radius)
-
-# the absolute power scale that is used for curvature maps is not linear
-absolute_scale <- c(seq(10, 30, by = 2.5),
-                    seq(30, 46, by = 0.5),
-                    seq(46, 50, by = 1),
-                    seq(50, 90, by = 2.5)) |>
-  unique()
-
 
 # extract the range of n colors from the absolute color scale that spans the min
 # and max of a given z-axis (presumed to be in diopters)
@@ -64,19 +64,17 @@ full_color_scale <- c(
 
 # redefine the absolute color scale based on the full fidelity of the
 # absolute scale. calls to plot_color_scale() will come closer to matching the
-# pentacam's output
+# Pentacam's output
 absolute_color_scale <- data.frame(value = absolute_scale,
                                    color = full_color_scale)
 
-
 # the absolute scale when shown in terms of curvature radius
-absolute_curvature_scale <- c(seq(34.5, 10.5, by = -3),
-                              seq(10.5, 10, by = -0.125),
-                              seq(10, 6.8, by = -0.1),
-                              seq(6.8, 6.2, by = -0.15),
-                              seq(6.2, 3.8, by = -0.2)) |>
-  unique()
-
+#absolute_curvature_scale <- c(seq(34.5, 10.5, by = -3),
+#                              seq(10.5, 10, by = -0.125),
+#                              seq(10, 6.8, by = -0.1),
+#                              seq(6.8, 6.2, by = -0.15),
+#                              seq(6.2, 3.8, by = -0.2)) |>
+#  unique()
 
 
 ################
@@ -100,7 +98,8 @@ absolute_curvature_scale <- c(seq(34.5, 10.5, by = -3),
 #' \code{plot_scale()} presumes the curvature maps uses the Pentacam's American
 #' scale, which is designed for the dioptric power of anterior surfaces.
 #' @examples
-#' anterior_power(sample_curvature$measurement) |>
+#' sample_curvature$measurement |>
+#'   anterior_power() |>
 #'   plot_scale()
 #'
 #' @family Plots

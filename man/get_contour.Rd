@@ -11,31 +11,36 @@ get_contour(exam_curvature, add_edge = F, contour_power)
 same columns as \link{sample_curvature}.}
 
 \item{add_edge}{A Boolean. If the contour extends beyond the edge of the scanned cornea,
-\code{TRUE} will add an edge to close the contour. The \code{contour_id} for
-the edge's segment will be \code{0}. If the contour doesn't extend beyond the
-edge of the cornea, no edge will be added.}
+\code{TRUE} will add the edge of the scanned area, connecting the ends of the
+contour and fully enclosing it. The \code{contour_id} for the added edge will
+be \code{0}. If the contour doesn't extend beyond the edge of the cornea, no
+edge will be added.}
 
-\item{contour_power}{A number identifying the power of the contour to return.}
+\item{contour_power}{A number identifying the power of the contour to return. Valid values for an
+exam can be determined by calling \link{get_contour_levels}.}
 }
 \value{
 A data frame containing one row for each point of the contour and the same
 columns as \link{sample_contour}.
 }
 \description{
-Returns the full range of contours and the number of segments needed to plot
-\code{exam_curvature} on a curvature map.
+Returns the \emph{x} and \emph{y} coordinates of the contour for an exam,
+\code{exam_curvature}, at the specified power, \code{contour_power}.
 }
 \details{
 A contour is comprised of one or more segments, uniquely identified by
 \code{contour_id}.
 
-This function doesn't currently work for posterior surfaces because the
-\code{plot_scale} function presumes the color scale is on the "absolute
+This function doesn't currently work for posterior surfaces because
+\link{plot_scale} presumes the color scale is on the "absolute
 scale", which is designed for the dioptric power of anterior surfaces.
 }
 \examples{
-get_contour(sample_curvature, contour_power = 42) |>
+get_contour(sample_curvature, contour_power = 45.5) |>
   head()
+
+curvature_plot(sample_curvature, labels = F) +
+  ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5))
 
 }
 \seealso{

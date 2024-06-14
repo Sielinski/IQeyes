@@ -1,3 +1,16 @@
+## ring_diameters ##
+
+# To find the steepest and flattest meridians on the 3, 5, and 7 mm rings around
+# the apex of cornea, create a data frame (ring_diameters) with radial positions
+# for every integer angle from 0 - 359° on each of the target rings
+ring_diameters <- data.frame(ring_diam = 3, angle = seq(0, 359, 1)) |>
+  dplyr::bind_rows(data.frame(ring_diam = 5, angle = seq(0, 359, 1))) |>
+  dplyr::bind_rows(data.frame(ring_diam = 7, angle = seq(0, 359, 1)))
+
+# Add Cartesian coordinates to ring_diameters
+ring_diameters <- ring_diameters |>
+  dplyr::bind_cols(polar_to_cartesian(ring_diameters$ring_diam / 2, ring_diameters$angle)) |>
+  dplyr::mutate(ring_diam = round(ring_diam, 5), angle = round(angle, 5))
 
 
 # Interpolate an exam's measurements data along 3, 5, and 7 mm diameter rings.

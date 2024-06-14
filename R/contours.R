@@ -1,7 +1,3 @@
-# Establish the max ring_diam to use for finding the characteristic contour
-contour_max_diameter <- 4.5  # Not currently used
-
-
 ##################
 ## scale_rotate
 ##################
@@ -128,7 +124,7 @@ scale_rotate <- function(shape, axs = 0, r_target = 4) {
 #' any additional columns that may have been included as part of the incoming
 #' \code{exam_curvature}.
 #' @examples
-#' fill_contour(sample_curvature, contour_power = 43, axs = 36.2) |>
+#' fill_contour(sample_curvature, contour_power = 45.5, axs = 36.2) |>
 #'   head()
 #'
 #' @family Contours
@@ -278,9 +274,9 @@ contour_polygon <- function(exam_contour) {
 #' Compare the silhouettes of two contours
 #' @description
 #' Each of silhouettes is defined by two objects, a filled shape and a polygon.
-#' These objects must be created before calling \code{silhouette_compare()}. The
-#' filled shapes are created by calling \code{fill_contour()}, and polygon
-#' objects are created by calling \code{contour_polygon()}.
+#' These objects must be created before calling \code{silhouette_compare()}.
+#' The filled shapes are created by calling [IQeyes::fill_contour], and the
+#' polygon objects are created by calling [IQeyes::contour_polygon].
 #' @param shape_A
 #' A data frame containing the filled shape for contour A.
 #' @param polygon_A
@@ -297,9 +293,9 @@ contour_polygon <- function(exam_contour) {
 #' directions.
 #' @examples
 #' silhouette_compare(
-#'   shape_A = fill_contour(sample_curvature, contour_power = 43),
+#'   shape_A = fill_contour(sample_curvature, contour_power = 45.5),
 #'   polygon_A = contour_polygon(sample_contour),
-#'   shape_B = fill_contour(sample_curvature, contour_power = 43),
+#'   shape_B = fill_contour(sample_curvature, contour_power = 45),
 #'   polygon_B = contour_polygon(sample_contour)
 #' )
 #'
@@ -337,14 +333,6 @@ silhouette_compare <- function(shape_A, polygon_A,
   B_to_A_pct <- sum((as.logical(B_to_A))) / length(B_to_A)
 
   if (show_plots) {
-    # plot A to B
-    p <- shape_A |>
-      dplyr::bind_cols(inside = as.logical(A_to_B)) |>
-      ggplot2::ggplot(ggplot2::aes(x, y)) +
-      ggplot2::geom_point(ggplot2::aes(color = inside)) +
-      ggplot2::geom_point(data = polygon_B, color = 'grey') +
-      ggplot2::labs(title = 'A\'s shape with a shadow cast by B\'s contour')
-    print(p)
 
     # plot B to A
     p <- shape_B |>
@@ -352,7 +340,16 @@ silhouette_compare <- function(shape_A, polygon_A,
       ggplot2::ggplot(ggplot2::aes(x, y)) +
       ggplot2::geom_point(ggplot2::aes(color = inside)) +
       ggplot2::geom_point(data = polygon_A, color = 'grey') +
-      ggplot2::labs(title = 'B\'s shape with a shadow cast by A\'s contour')
+      ggplot2::labs(title = 'Intersection of A\'s contour with the filled shape (silhouette) of B')
+    print(p)
+
+    # plot A to B
+    p <- shape_A |>
+      dplyr::bind_cols(inside = as.logical(A_to_B)) |>
+      ggplot2::ggplot(ggplot2::aes(x, y)) +
+      ggplot2::geom_point(ggplot2::aes(color = inside)) +
+      ggplot2::geom_point(data = polygon_B, color = 'grey') +
+      ggplot2::labs(title = 'Intersection of B\'s contour with the filled shape (silhouette) of A')
     print(p)
   }
 
@@ -369,8 +366,8 @@ silhouette_compare <- function(shape_A, polygon_A,
 #' Every silhouette is defined by two objects, a filled shape and a polygon.
 #' These objects must be created before calling
 #' \code{silhouette_compare_group()}. The filled shapes are created by calling
-#' \code{fill_contour()}, and the polygon objects are created by calling
-#' \code{contour_polygon()}.
+#' [IQeyes::fill_contour], and the polygon objects are created by calling
+#' [IQeyes::contour_polygon].
 #'
 #' Each of the comparisons is made in both directions.
 #' @param ref_shape
@@ -401,7 +398,7 @@ silhouette_compare <- function(shape_A, polygon_A,
 #' @details
 #' Both \code{group_shapes} and \code{group_polygons} require a \code{cluster}
 #' column. Although the cluster column can be passed into and returned by
-#' \code{contour_polygon()}, the same cannot be done by \code{fill_contour()},
+#' [IQeyes::contour_polygon], the same cannot be done by [IQeyes::fill_contour],
 #' which means the process for creating \code{group_shapes} requires the
 #' additional step of appending the \code{cluster} column.
 #' @return
@@ -480,7 +477,7 @@ silhouette_compare_group <- function(ref_shape, ref_polygon,
       ggplot2::geom_point(ggplot2::aes(color = inside)) +
       ggplot2::geom_point(data = ref_polygon, color = 'grey') +
       ggplot2::facet_wrap(. ~ cluster) +
-      ggplot2::labs(title = 'The group\'s shapes with a shadow cast by the reference contour')
+      ggplot2::labs(title = 'Intersection of the reference contour with the filled shapes (silhouettes) of the group')
 
     print(p)
 
@@ -498,7 +495,7 @@ silhouette_compare_group <- function(ref_shape, ref_polygon,
       ggplot2::geom_point(ggplot2::aes(color = inside)) +
       ggplot2::geom_point(data = group_polygons, color = 'grey') +
       ggplot2::facet_wrap(. ~ cluster) +
-      ggplot2::labs(title = 'The reference shape with shadows cast by the group\'s contours')
+      ggplot2::labs(title = 'Intersection of the groups\' contours with the filled shape (silhouette) of the reference contour')
 
     print(p)
 
@@ -536,8 +533,8 @@ silhouette_compare_group <- function(ref_shape, ref_polygon,
 #' A table. The table's labels identify the contour levels, and the values in
 #' the table identify the number of segments that comprise the contour.
 #' @details
-#' This function doesn't currently work for posterior surfaces because the
-#' \code{plot_scale} function presumes the color scale is on the "absolute
+#' This function doesn't currently work for posterior surfaces because
+#' [IQeyes::plot_scale] presumes the color scale is on the "absolute
 #' scale", which is designed for the dioptric power of anterior surfaces.
 #' @examples
 #' get_contour_levels(sample_curvature)
@@ -595,7 +592,7 @@ get_contour_levels <- function(exam_curvature) {
 }
 
 
-# This is a helper function for get_contour(): When add_edge == T, get_contour()
+# This is a helper function for get_contour(): When add_edge = T, get_contour()
 # adds the edge of the scanned cornea to the shape. This function returns the
 # index of a boundary edge (min or max) of a vector of Boolean values, as
 # defined by TRUE values.
@@ -611,24 +608,29 @@ find_edge <- function(x, min_max = 'min') {
   }
 }
 
+# Establish the max ring_diam to use for finding the characteristic contour
+contour_max_diameter <- 4.5  # Not currently used
+
 #################
 ## get_contour
 #################
 
 #' Get contour
 #' @description
-#' Returns the full range of contours and the number of segments needed to plot
-#' \code{exam_curvature} on a curvature map.
+#' Returns the \emph{x} and \emph{y} coordinates of the contour for an exam,
+#' \code{exam_curvature}, at the specified power, \code{contour_power}.
 #' @param exam_curvature
 #' A data frame containing one row for each curvature \code{measurement} and the
 #' same columns as [IQeyes::sample_curvature].
 #' @param add_edge
 #' A Boolean. If the contour extends beyond the edge of the scanned cornea,
-#' \code{TRUE} will add an edge to close the contour. The \code{contour_id} for
-#' the edge's segment will be \code{0}. If the contour doesn't extend beyond the
-#'  edge of the cornea, no edge will be added.
+#' \code{TRUE} will add the edge of the scanned area, connecting the ends of the
+#' contour and fully enclosing it. The \code{contour_id} for the added edge will
+#' be \code{0}. If the contour doesn't extend beyond the edge of the cornea, no
+#' edge will be added.
 #' @param contour_power
-#' A number identifying the power of the contour to return.
+#' A number identifying the power of the contour to return. Valid values for an
+#' exam can be determined by calling [IQeyes::get_contour_levels].
 #' @return
 #' A data frame containing one row for each point of the contour and the same
 #' columns as [IQeyes::sample_contour].
@@ -636,12 +638,15 @@ find_edge <- function(x, min_max = 'min') {
 #' A contour is comprised of one or more segments, uniquely identified by
 #' \code{contour_id}.
 #'
-#' This function doesn't currently work for posterior surfaces because the
-#' \code{plot_scale} function presumes the color scale is on the "absolute
+#' This function doesn't currently work for posterior surfaces because
+#' [IQeyes::plot_scale] presumes the color scale is on the "absolute
 #' scale", which is designed for the dioptric power of anterior surfaces.
 #' @examples
-#' get_contour(sample_curvature, contour_power = 42) |>
+#' get_contour(sample_curvature, contour_power = 45.5) |>
 #'   head()
+#'
+#' curvature_plot(sample_curvature, labels = F) +
+#'   ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5))
 #'
 #' @family Contours
 #'
