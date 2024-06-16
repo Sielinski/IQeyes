@@ -51,16 +51,16 @@ read_pentacam_csv <- function(file_name,
       show_col_types = F
     )
 
-  # get rid of duplicates
-  if (!keep_dup_rows) {
-    csv_dat <- csv_dat |>
-      unique()
-  }
-
   # get rid of empty columns
   if (!keep_empty_cols) {
     csv_dat <- csv_dat |>
       dplyr::select_if(function(x) !(all(is.na(x)) | all(x == '')))
+  }
+
+  # get rid of duplicates
+  if (!keep_dup_rows) {
+    csv_dat <- csv_dat |>
+      unique()
   }
 
   # hang onto original column names (in case there's an issue)

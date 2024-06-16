@@ -1,6 +1,6 @@
 library(IQeyes)
 library(readxl)
-library(dplyr)
+#library(dplyr)
 
 ###############################
 ## Define reference datasets
@@ -53,10 +53,10 @@ usethis::use_data(iq_reference_stats, overwrite = T, internal = F)
 
 # a reference data frame, mapping the columns in COR-PWR to polar and Cartesian
 # coordinates
-radii_degrees <- read.csv('data-raw/radii_degrees.csv')
+radii_degrees <- readRDS('data-raw/radii_degrees.RDS')
 
 # measure points from COR-PWR that are adjacent to each other
-adjacent_points_dat<- read.csv('data-raw/adjacent_points_dat.csv')
+adjacent_points_dat<- readRDS('data-raw/adjacent_points_dat.RDS')
 
 ## Store datasets
 usethis::use_data(radii_degrees, overwrite = T, internal = F)
@@ -67,46 +67,44 @@ usethis::use_data(adjacent_points_dat, overwrite = T, internal = F)
 ## Read sample datasets
 ##########################
 
-# function to convert date, times, and factors to their appropriate format
-read_package_data <- function(file_name) {
-
-  #file_name <- 'data-raw/plot_dat.csv'
-  dat <- read.csv(file_name)
-
-  dat$exam_date <- lubridate::ymd(dat$exam_date)
-  dat$exam_time <- lubridate::hms(dat$exam_time)
-
-  if ('d_o_birth' %in% colnames(dat)) dat$d_o_birth <- lubridate::ymd(dat$d_o_birth)
-
-  # establish factors
-  dat$exam_eye <- dat$exam_eye |>
-    stringr::str_to_lower() |>
-    stringr::str_trim(side = 'right') |>
-    factor(levels = c('left', 'right'))
-
-  return(dat)
-}
+# curvature data for the canonical shapes
+# canonical_curvature <- read_package_data('data-raw/canonical_shapes_curvature.csv')
 
 # curvature data for the canonical shapes
-canonical_curvature <- read_package_data('data-raw/canonical_shapes_curvature.csv')
+canonical_shapes <- readRDS('data-raw/canonical_shapes.RDS')
 
-# curvature data for the canonical shapes
-canonical_shapes <- canonical_curvature |>
-  select(all_of(join_fields), cluster, shape) |>
-  unique()
+# curvature data for the canonical polygons
+canonical_polygons <- readRDS('data-raw/canonical_polygons.RDS')
+
+# curvature data for the canonical sihouettes (filled shapes)
+canonical_silhouettes <- readRDS('data-raw/canonical_silhouettes.RDS')
+
 
 # A sample exam's curvature data (from COR-PWR)
-sample_curvature <- read_package_data('data-raw/plot_dat.csv')
+sample_curvature <- readRDS('data-raw/sample_curvature.RDS')
 
 # A sample exam's astigmatism data (from CHAMBER)
-sample_astig <- read_package_data('data-raw/astig_dat.csv')
+sample_astig <- readRDS('data-raw/sample_astig.RDS')
 
 # A sample exam's characteristic contour
-sample_contour <- read_package_data('data-raw/contours_dat.csv')
+sample_contour <- readRDS('data-raw/sample_contour.RDS')
 
 ## Store datasets
 usethis::use_data(canonical_shapes, overwrite = T, internal = F)
-usethis::use_data(canonical_curvature, overwrite = T, internal = F)
+#usethis::use_data(canonical_curvature, overwrite = T, internal = F)
+usethis::use_data(canonical_polygons, overwrite = T, internal = F)
+usethis::use_data(canonical_silhouettes, overwrite = T, internal = F)
+
 usethis::use_data(sample_curvature, overwrite = T, internal = F)
 usethis::use_data(sample_astig, overwrite = T, internal = F)
 usethis::use_data(sample_contour, overwrite = T, internal = F)
+
+
+########################
+## Read fitted models
+########################
+
+# retrieve the model
+cc_fit <- readRDS('data-raw/character_contour_fit.RDS')
+
+usethis::use_data(cc_fit, overwrite = T, internal = F)

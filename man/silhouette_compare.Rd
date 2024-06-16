@@ -7,11 +7,11 @@
 silhouette_compare(shape_A, polygon_A, shape_B, polygon_B, show_plots = F)
 }
 \arguments{
-\item{shape_A}{A data frame containing the filled shape for contour A.}
+\item{shape_A}{A data frame containing the silhouette (filled shape) for contour A.}
 
 \item{polygon_A}{A data frame containing the polygon object for contour A.}
 
-\item{shape_B}{A data frame containing the filled shape for contour B.}
+\item{shape_B}{A data frame containing the silhouette (filled shape) for contour B.}
 
 \item{polygon_B}{A data frame containing the polygon object for contour B.}
 
@@ -23,16 +23,17 @@ The percentage of overlap between the two silhouettes, averaged over both
 directions.
 }
 \description{
-Each of silhouettes is defined by two objects, a filled shape and a polygon.
-These objects must be created before calling \code{silhouette_compare()}.
-The filled shapes are created by calling \link{fill_contour}, and the
-polygon objects are created by calling \link{contour_polygon}.
+Each of silhouettes is defined by two objects, a silhouette (filled shape)
+and a polygon. These objects must be created before calling
+\code{silhouette_compare()}. Silhouettes are created by calling
+\link{fill_contour}, and polygons are created by calling
+\link{contour_polygon}.
 }
 \examples{
 silhouette_compare(
   shape_A = fill_contour(sample_curvature, contour_power = 45.5),
   polygon_A = contour_polygon(sample_contour),
-  shape_B = fill_contour(sample_curvature, contour_power = 45),
+  shape_B = fill_contour(sample_curvature, contour_power = 45.5),
   polygon_B = contour_polygon(sample_contour)
 )
 

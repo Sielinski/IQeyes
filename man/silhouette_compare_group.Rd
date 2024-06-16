@@ -2,7 +2,7 @@
 % Please edit documentation in R/contours.R
 \name{silhouette_compare_group}
 \alias{silhouette_compare_group}
-\title{Compare the silhouette of one contour with a group of silhouettes}
+\title{Compare the silhouette of one exam with a group of silhouettes}
 \usage{
 silhouette_compare_group(
   ref_shape,
@@ -15,18 +15,18 @@ silhouette_compare_group(
 )
 }
 \arguments{
-\item{ref_shape}{A data frame containing the filled shape for the reference contour}
+\item{ref_shape}{A data frame containing the silhouette (filled shape) for the exam.}
 
-\item{ref_polygon}{A data frame containing the polygon object for the reference contour}
+\item{ref_polygon}{A data frame containing the polygon object for the exam.}
 
-\item{group_shapes}{A data frame containing filled shapes for the group of contours.
-\emph{Requires} a \code{cluster} column that uniquely identifies
-each member of the group. The cluster IDs for individual contours (i.e.,
-members of the group) must be the same in both \code{group_shapes} and
-\code{group_polygons}.}
+\item{group_shapes}{A data frame containing silhouettes (filled shapes) for the group of
+contours. The data frame \emph{must} include a \code{cluster} column that
+uniquely identifies each member of the group. The cluster IDs for individual
+contours (i.e., members of the group) must be the same in both
+\code{group_shapes} and \code{group_polygons}.}
 
-\item{group_polygons}{A data frame containing polygon objects for the group of contours.
-\emph{Requires} a \code{cluster} column that uniquely identifies
+\item{group_polygons}{A data frame containing polygons for the group of contours. The data frame
+\emph{must} include a \code{cluster} column that uniquely identifies
 each member of the group. The cluster IDs for individual contours (i.e.,
 members of the group) must be the same in both \code{group_shapes} and
 \code{group_polygons}.}
@@ -34,9 +34,9 @@ members of the group) must be the same in both \code{group_shapes} and
 \item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
 being made.}
 
-\item{return_detail}{A Boolean. \code{TRUE} to return a list object with two elements:
-\code{closest_fit}, the index of the group member that has the highest
-percentage of overlap with the reference silhouette, and
+\item{return_detail}{A Boolean. \code{FALSE} (the default) to return the index of the group member
+that has the highest percentage of overlap with the reference silhouette.
+\code{TRUE} to return a list object with two elements: \code{closest_fit} and
 \code{average_distance}, a vector containing the average percentage of
 overlap between the reference silhouette and every member of the group.}
 }
@@ -45,10 +45,10 @@ The index of the group member that has the highest percentage of overlap with
 the reference silhouette.
 }
 \description{
-Every silhouette is defined by two objects, a filled shape and a polygon.
+Every silhouette is defined by two objects, a silhouette (filled shape) and a polygon.
 These objects must be created before calling
-\code{silhouette_compare_group()}. The filled shapes are created by calling
-\link{fill_contour}, and the polygon objects are created by calling
+\code{silhouette_compare_group()}. Silhouettes (filled shapes) are created by
+calling \link{fill_contour}, and polygons are created by calling
 \link{contour_polygon}.
 
 Each of the comparisons is made in both directions.
@@ -59,6 +59,19 @@ column. Although the cluster column can be passed into and returned by
 \link{contour_polygon}, the same cannot be done by \link{fill_contour},
 which means the process for creating \code{group_shapes} requires the
 additional step of appending the \code{cluster} column.
+
+For convenience, the silhouettes \link{IQeyes:canonical_silhouettes} and polygons
+\link{IQeyes:canonical_polygons} for the canonical shapes are included as
+objects in this package.
+}
+\examples{
+silhouette_compare_group(
+  ref_shape = fill_contour(sample_curvature, contour_power = 45.5),
+  ref_polygon = contour_polygon(sample_contour),
+  group_shapes = canonical_silhouettes,
+  group_polygons = canonical_polygons,
+  show_plots = T
+)#'
 }
 \seealso{
 Other Contours: 
