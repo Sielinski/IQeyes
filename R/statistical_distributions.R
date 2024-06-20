@@ -18,6 +18,7 @@
 #'
 #' @family Statistical Functions
 #'
+#' @export
 sd_half_normal <- function(x, ...) sd(x, ...) * sqrt(1 - 2 / pi)
 
 
@@ -41,6 +42,7 @@ sd_half_normal <- function(x, ...) sd(x, ...) * sqrt(1 - 2 / pi)
 #'
 #' @family Statistical Functions
 #'
+#' @export
 mean_half_normal <- function(x, ...) sd(x, ...) * sqrt(2 / pi)
 
 
@@ -64,6 +66,7 @@ mean_half_normal <- function(x, ...) sd(x, ...) * sqrt(2 / pi)
 #'
 #' @family Statistical Functions
 #'
+#' @export
 mean_folded_normal <- function(mu, sigma) {
   term1 <- sigma * sqrt(2 / pi) * exp(-mu ^ 2 / (2 * sigma ^ 2))
   term2 <- mu * (1 - 2 * pnorm(-mu / sigma))
@@ -91,6 +94,7 @@ mean_folded_normal <- function(mu, sigma) {
 #'
 #' @family Statistical Functions
 #'
+#' @export
 sd_folded_normal <- function(mu, sigma) {
   sqrt(mu ^ 2 + sigma ^ 2 - mean_folded_normal(mu, sigma) ^ 2)
 }
@@ -118,6 +122,7 @@ sd_folded_normal <- function(mu, sigma) {
 #'
 #' @family Statistical Functions
 #'
+#' @export
 z_to_pct <- function(z, two_tail = T) {
   # use the two_tail parameter to calculate the percentage of values that lie
   # within z standard deviations from the mean of a normal distribution (in both
@@ -152,6 +157,7 @@ z_to_pct <- function(z, two_tail = T) {
 #'
 #' @family Statistical Functions
 #'
+#' @export
 pct_to_z <- function(pct, two_tail = T) {
   if (two_tail) {
     upper_tail <- pct + ((1 - pct) / 2)

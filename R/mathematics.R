@@ -27,6 +27,8 @@ signed_pct_diff <- function(x, y) {
   }
 }
 
+signed_pct_diff <- Vectorize(signed_pct_diff)
+
 
 ###########
 ## logit

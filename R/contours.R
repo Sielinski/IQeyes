@@ -28,9 +28,9 @@
 #' shape, not the end-to-end length of the shape, which is especially
 #' important for asymmetric shapes.
 #' @examples
-#' scale_rotate(sample_contour, axs = 36.2) |>
+#' scale_rotate(sample_contour, axs = 33.6) |>
 #'   head()
-#' scale_rotate(sample_curvature, axs = 36.2) |>
+#' scale_rotate(sample_curvature, axs = 33.6) |>
 #'   head()
 #'
 #' @family Contours
@@ -116,7 +116,9 @@ scale_rotate <- function(shape, axs = 0, r_target = 4) {
 #' \code{axs} and \code{r_target}.
 #' @return
 #' A data frame with the same columns as [IQeyes::sample_curvature] containing
-#' the points of the filled and (if \code{scale_rotate == T}) transformed contour.
+#' the points of the filled and (if \code{scale_rotate == T}) transformed
+#' contour. The data frame also includes \code{pct_coverage}, a column
+#' indicating the percentage of the cornea surface contained within the contour.
 #' @details
 #' Currently only handles the anterior (front) surface of the cornea.
 #'
@@ -124,7 +126,8 @@ scale_rotate <- function(shape, axs = 0, r_target = 4) {
 #' any additional columns that may have been included as part of the incoming
 #' \code{exam_curvature}.
 #' @examples
-#' fill_contour(sample_curvature, contour_power = 45.5, axs = 36.2) |>
+#' fill_contour(sample_curvature, contour_power = 45.5, axs = 33.6) |>
+#'   dplyr::select(-all_of(join_fields)) |>
 #'   head()
 #'
 #' @family Contours
@@ -177,19 +180,25 @@ fill_contour <- function(exam_curvature,
                     )
   }
 
+  # calculate dioptric power
   curvature_dat <- curvature_dat |>
     dplyr::mutate(power = anterior_power(measurement))
+
+  n_points_all <- nrow(curvature_dat)
 
   # any point with a power ≥ the contour will be inside the contour
   curvature_dat <- curvature_dat |>
     dplyr::filter(power >= contour_power)
+
+  pct_coverage <- (nrow(curvature_dat) / n_points_all)
 
   # scale and rotate (*after* data frame has been reduced to the target contour)
   if (scale_rotate) curvature_dat <- scale_rotate(curvature_dat, ...)
 
   # put columns back in the same order as a typical curvature data frame
   curvature_dat |>
-    dplyr::select(dplyr::all_of(colnames(sample_curvature)))
+    dplyr::select(dplyr::all_of(colnames(sample_curvature))) |>
+    mutate(pct_coverage = pct_coverage)
 
 }
 
@@ -273,10 +282,10 @@ contour_polygon <- function(exam_contour) {
 
 #' Compare the silhouettes of two contours
 #' @description
-#' Each of silhouettes is defined by two objects, a silhouette (filled shape)
-#' and a polygon. These objects must be created before calling
-#' \code{silhouette_compare()}. Silhouettes are created by calling
-#' [IQeyes::fill_contour], and polygons are created by calling
+#' Each of the silhouettes is defined by two objects, a silhouette (filled
+#' shape) and a polygon (an outline with connected ends). These objects must be
+#' created before calling \code{silhouette_compare()}. Silhouettes are created
+#' by calling [IQeyes::fill_contour], and polygons are created by calling
 #' [IQeyes::contour_polygon].
 #' @param shape_A
 #' A data frame containing the silhouette (filled shape) for contour A.
@@ -287,7 +296,7 @@ contour_polygon <- function(exam_contour) {
 #' @param polygon_B
 #' A data frame containing the polygon object for contour B.
 #' @param show_plots
-#' A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
+#' A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
 #' being made.
 #' @return
 #' The percentage of overlap between the two silhouettes, averaged over both
@@ -335,23 +344,33 @@ silhouette_compare <- function(shape_A, polygon_A,
 
   if (show_plots) {
 
-    # plot B to A
-    p <- shape_B |>
-      dplyr::bind_cols(inside = as.logical(B_to_A)) |>
-      ggplot2::ggplot(ggplot2::aes(x, y)) +
-      ggplot2::geom_point(ggplot2::aes(color = inside)) +
-      ggplot2::geom_point(data = polygon_A, color = 'grey') +
-      ggplot2::labs(title = 'Intersection of A\'s contour with the filled shape (silhouette) of B')
+    p <- ggplot2::ggplot(polygon_A, ggplot2::aes(x, y)) +
+      ggplot2::geom_polygon(fill = 'coral', alpha = 0.5) +
+      ggplot2::geom_polygon(data = polygon_B, fill = 'deepskyblue', alpha = 0.5) +
+      ggplot2::labs(title = 'Intersection of silhouettes')
+
     print(p)
 
-    # plot A to B
-    p <- shape_A |>
-      dplyr::bind_cols(inside = as.logical(A_to_B)) |>
-      ggplot2::ggplot(ggplot2::aes(x, y)) +
-      ggplot2::geom_point(ggplot2::aes(color = inside)) +
-      ggplot2::geom_point(data = polygon_B, color = 'grey') +
-      ggplot2::labs(title = 'Intersection of B\'s contour with the filled shape (silhouette) of A')
-    print(p)
+    if (F) {
+      # plot B to A
+      p <- shape_B |>
+        dplyr::bind_cols(inside = as.logical(B_to_A)) |>
+        ggplot2::ggplot(ggplot2::aes(x, y)) +
+        ggplot2::geom_point(ggplot2::aes(color = inside)) +
+        ggplot2::geom_point(data = polygon_A, color = 'grey') +
+        ggplot2::labs(title = 'Intersection of A\'s contour with the filled shape (silhouette) of B')
+      print(p)
+
+      # plot A to B
+      p <- shape_A |>
+        dplyr::bind_cols(inside = as.logical(A_to_B)) |>
+        ggplot2::ggplot(ggplot2::aes(x, y)) +
+        ggplot2::geom_point(ggplot2::aes(color = inside)) +
+        ggplot2::geom_point(data = polygon_B, color = 'grey') +
+        ggplot2::labs(title = 'Intersection of B\'s contour with the filled shape (silhouette) of A')
+      print(p)
+    }
+
   }
 
   (A_to_B_pct + B_to_A_pct) / 2
@@ -362,13 +381,13 @@ silhouette_compare <- function(shape_A, polygon_A,
 ## silhouette_compare_group
 ##############################
 
-#' Compare the silhouette of one exam with a group of silhouettes
+#' Compare the silhouette of an exam with a group of silhouettes
 #' @description
-#' Every silhouette is defined by two objects, a silhouette (filled shape) and a polygon.
-#' These objects must be created before calling
-#' \code{silhouette_compare_group()}. Silhouettes (filled shapes) are created by
-#' calling [IQeyes::fill_contour], and polygons are created by calling
-#' [IQeyes::contour_polygon].
+#' Every silhouette is defined by two objects, a silhouette (filled shape) and a
+#' polygon (an outline with connected ends). These objects must be created
+#' before calling \code{silhouette_compare_group()}. Silhouettes (filled shapes)
+#' are created by calling [IQeyes::fill_contour], and polygons are created by
+#' calling [IQeyes::contour_polygon].
 #'
 #' Each of the comparisons is made in both directions.
 #' @param ref_shape
@@ -388,7 +407,7 @@ silhouette_compare <- function(shape_A, polygon_A,
 #' members of the group) must be the same in both \code{group_shapes} and
 #' \code{group_polygons}.
 #' @param show_plots
-#' A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
+#' A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
 #' being made.
 #' @param return_detail
 #' A Boolean. \code{FALSE} (the default) to return the index of the group member
@@ -412,13 +431,18 @@ silhouette_compare <- function(shape_A, polygon_A,
 #' The index of the group member that has the highest percentage of overlap with
 #' the reference silhouette.
 #' @examples
+#' sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
+#'   scale_rotate(axs = 33.6)
+#'
 #' silhouette_compare_group(
-#'   ref_shape = fill_contour(sample_curvature, contour_power = 45.5),
-#'   ref_polygon = contour_polygon(sample_contour),
+#'   ref_shape = fill_contour(sample_curvature, contour_power = 45.5, axs = 33.6),
+#'   ref_polygon = sample_polygon,
 #'   group_shapes = canonical_silhouettes,
 #'   group_polygons = canonical_polygons,
-#'   show_plots = T
-#' )#'
+#'   show_plots = T,
+#'   return_detail = T
+#' )
+#'
 #' @family Contours
 #'
 #' @importFrom sp point.in.polygon
@@ -476,42 +500,54 @@ silhouette_compare_group <- function(ref_shape, ref_polygon,
   out_in_pct <- lapply(out_in, function(x) sum(x$inside) / length(x$inside)) |> unlist()
 
   if (show_plots) {
-    # plot out_in
-    out_in_dat <- lapply(out_in, function(x) {
-      item_cluster <- min(x$cluster)
-      # add a column to each cluster's fill, identifying whether the fill's
-      # point is inside the shadow of the reference polygon
-      group_shapes |>
-        dplyr::filter(cluster == item_cluster) |>
-        dplyr::bind_cols(inside = x$inside)
-    }) |>
-      dplyr::bind_rows()
 
-    p <- ggplot2::ggplot(out_in_dat, ggplot2::aes(x, y)) +
-      ggplot2::geom_point(ggplot2::aes(color = inside)) +
-      ggplot2::geom_point(data = ref_polygon, color = 'grey') +
+    p <- ggplot2::ggplot(ref_polygon, ggplot2::aes(x, y)) +
+      ggplot2::geom_polygon(fill = 'coral', alpha = 0.5) +
+      ggplot2::geom_polygon(data = group_polygons, fill = 'deepskyblue', alpha = 0.5) +
       ggplot2::facet_wrap(. ~ cluster) +
-      ggplot2::labs(title = 'Intersection of the reference contour with the silhouettes (filled shapes) of the group')
+      ggplot2::labs(title = 'Intersection of the reference shape with the group')
 
     print(p)
 
-    # plot in_out
-    in_out_dat <- lapply(in_out, function(x) {
-      # add two columns to the reference fill, identifying the cluster of
-      # comparison and whether the fill's point is inside the shadow of that
-      # cluster's polygon
-      ref_shape |>
-        dplyr::bind_cols(inside = x$inside, cluster = x$cluster)
-    }) |>
-      dplyr::bind_rows()
+    if (F) {
 
-    p <- ggplot2::ggplot(in_out_dat, ggplot2::aes(x, y)) +
-      ggplot2::geom_point(ggplot2::aes(color = inside)) +
-      ggplot2::geom_point(data = group_polygons, color = 'grey') +
-      ggplot2::facet_wrap(. ~ cluster) +
-      ggplot2::labs(title = 'Intersection of the groups\' contours with the silhouette (filled shape) of the reference contour')
+      # plot out_in
+      out_in_dat <- lapply(out_in, function(x) {
+        item_cluster <- min(x$cluster)
+        # add a column to each cluster's fill, identifying whether the fill's
+        # point is inside the shadow of the reference polygon
+        group_shapes |>
+          dplyr::filter(cluster == item_cluster) |>
+          dplyr::bind_cols(inside = x$inside)
+      }) |>
+        dplyr::bind_rows()
 
-    print(p)
+      p <- ggplot2::ggplot(out_in_dat, ggplot2::aes(x, y)) +
+        ggplot2::geom_point(ggplot2::aes(color = inside)) +
+        ggplot2::geom_point(data = ref_polygon, color = 'grey') +
+        ggplot2::facet_wrap(. ~ cluster) +
+        ggplot2::labs(title = 'Intersection of the reference contour with the silhouettes (filled shapes) of the group')
+
+      print(p)
+
+      # plot in_out
+      in_out_dat <- lapply(in_out, function(x) {
+        # add two columns to the reference fill, identifying the cluster of
+        # comparison and whether the fill's point is inside the shadow of that
+        # cluster's polygon
+        ref_shape |>
+          dplyr::bind_cols(inside = x$inside, cluster = x$cluster)
+      }) |>
+        dplyr::bind_rows()
+
+      p <- ggplot2::ggplot(in_out_dat, ggplot2::aes(x, y)) +
+        ggplot2::geom_point(ggplot2::aes(color = inside)) +
+        ggplot2::geom_point(data = group_polygons, color = 'grey') +
+        ggplot2::facet_wrap(. ~ cluster) +
+        ggplot2::labs(title = 'Intersection of the groups\' contours with the silhouette (filled shape) of the reference contour')
+
+      print(p)
+    }
 
   }
 

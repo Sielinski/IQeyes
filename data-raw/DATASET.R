@@ -105,6 +105,6 @@ usethis::use_data(sample_contour, overwrite = T, internal = F)
 ########################
 
 # retrieve the model
-cc_fit <- readRDS('data-raw/character_contour_fit.RDS')
+cc_fit <- readRDS('data-raw/characteristic_contour_fit.RDS')
 
 usethis::use_data(cc_fit, overwrite = T, internal = F)

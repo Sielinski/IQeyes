@@ -2,7 +2,7 @@
 % Please edit documentation in R/contours.R
 \name{silhouette_compare_group}
 \alias{silhouette_compare_group}
-\title{Compare the silhouette of one exam with a group of silhouettes}
+\title{Compare the silhouette of an exam with a group of silhouettes}
 \usage{
 silhouette_compare_group(
   ref_shape,
@@ -31,7 +31,7 @@ each member of the group. The cluster IDs for individual contours (i.e.,
 members of the group) must be the same in both \code{group_shapes} and
 \code{group_polygons}.}
 
-\item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
+\item{show_plots}{A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
 being made.}
 
 \item{return_detail}{A Boolean. \code{FALSE} (the default) to return the index of the group member
@@ -45,11 +45,11 @@ The index of the group member that has the highest percentage of overlap with
 the reference silhouette.
 }
 \description{
-Every silhouette is defined by two objects, a silhouette (filled shape) and a polygon.
-These objects must be created before calling
-\code{silhouette_compare_group()}. Silhouettes (filled shapes) are created by
-calling \link{fill_contour}, and polygons are created by calling
-\link{contour_polygon}.
+Every silhouette is defined by two objects, a silhouette (filled shape) and a
+polygon (an outline with connected ends). These objects must be created
+before calling \code{silhouette_compare_group()}. Silhouettes (filled shapes)
+are created by calling \link{fill_contour}, and polygons are created by
+calling \link{contour_polygon}.
 
 Each of the comparisons is made in both directions.
 }
@@ -65,13 +65,18 @@ For convenience, the silhouettes \link{IQeyes:canonical_silhouettes} and polygon
 objects in this package.
 }
 \examples{
+sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
+  scale_rotate(axs = 33.6)
+
 silhouette_compare_group(
-  ref_shape = fill_contour(sample_curvature, contour_power = 45.5),
-  ref_polygon = contour_polygon(sample_contour),
+  ref_shape = fill_contour(sample_curvature, contour_power = 45.5, axs = 33.6),
+  ref_polygon = sample_polygon,
   group_shapes = canonical_silhouettes,
   group_polygons = canonical_polygons,
-  show_plots = T
-)#'
+  show_plots = T,
+  return_detail = T
+)
+
 }
 \seealso{
 Other Contours: 

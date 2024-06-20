@@ -97,7 +97,8 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 #' \code{exam_curvature} with an additional column \code{peak_id} identifying
 #' the peak that each measured point belongs to.
 #' @examples
-#' k_next(sample_curvature)
+#' k_next(sample_curvature) |>
+#'   dplyr::select(-all_of(join_fields))
 #'
 #' @family K-next
 #'
@@ -152,7 +153,7 @@ k_next <- function(exam_curvature, just_points = F) {
     dplyr::select(ring_diam_src, angle_src, measurement_src, ring_diam, angle, measurement)
 
   if (nrow(match_rmin) == 1) {
-    # add to k_max to tracking data frame: need both source and adjacent points
+    # add k_max to tracking data frame: need both source and adjacent points
     k_max_source <- k_max_dat |>
       dplyr::select(ring_diam, angle, measurement) |>
       dplyr::rename(ring_diam_src = ring_diam,

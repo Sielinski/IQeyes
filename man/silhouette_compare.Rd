@@ -15,7 +15,7 @@ silhouette_compare(shape_A, polygon_A, shape_B, polygon_B, show_plots = F)
 
 \item{polygon_B}{A data frame containing the polygon object for contour B.}
 
-\item{show_plots}{A Boolean. \code{TRUE} to render two plots that illustrate the comparisons
+\item{show_plots}{A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
 being made.}
 }
 \value{
@@ -23,10 +23,10 @@ The percentage of overlap between the two silhouettes, averaged over both
 directions.
 }
 \description{
-Each of silhouettes is defined by two objects, a silhouette (filled shape)
-and a polygon. These objects must be created before calling
-\code{silhouette_compare()}. Silhouettes are created by calling
-\link{fill_contour}, and polygons are created by calling
+Each of the silhouettes is defined by two objects, a silhouette (filled
+shape) and a polygon (an outline with connected ends). These objects must be
+created before calling \code{silhouette_compare()}. Silhouettes are created
+by calling \link{fill_contour}, and polygons are created by calling
 \link{contour_polygon}.
 }
 \examples{

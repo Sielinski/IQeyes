@@ -25,7 +25,8 @@ the peak that each measured point belongs to.
 Find the secondary peak on a curvature map.
 }
 \examples{
-k_next(sample_curvature)
+k_next(sample_curvature) |>
+  dplyr::select(-all_of(join_fields))
 
 }
 \concept{K-next}

@@ -21,7 +21,9 @@ same columns as \link{sample_curvature}.}
 }
 \value{
 A data frame with the same columns as \link{sample_curvature} containing
-the points of the filled and (if \code{scale_rotate == T}) transformed contour.
+the points of the filled and (if \code{scale_rotate == T}) transformed
+contour. The data frame also includes \code{pct_coverage}, a column
+indicating the percentage of the cornea surface contained within the contour.
 }
 \description{
 Fills a contour with points, creating a silhouette of its shape.
@@ -34,7 +36,8 @@ any additional columns that may have been included as part of the incoming
 \code{exam_curvature}.
 }
 \examples{
-fill_contour(sample_curvature, contour_power = 45.5, axs = 36.2) |>
+fill_contour(sample_curvature, contour_power = 45.5, axs = 33.6) |>
+  dplyr::select(-all_of(join_fields)) |>
   head()
 
 }
