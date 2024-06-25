@@ -223,7 +223,7 @@ fill_contour <- function(exam_curvature,
 #' extra row for each segment of the contour.
 #' @details
 #' A contour is comprised of one or more segments, uniquely identified by
-#' \code{contour_id}. \code{contour_polygon()} takes the first point of each
+#' \code{segment_id}. \code{contour_polygon()} takes the first point of each
 #' segment (based on its ordinal position in the original data frame) and
 #' appends a replica to the end of the the original data frame.
 #' @examples
@@ -250,13 +250,14 @@ contour_polygon <- function(exam_contour) {
 
   # assign a number to every row of every segment
   contour_rn <- exam_contour |>
-    dplyr::group_by(dplyr::across(tidyselect::all_of(join_fields)), contour_id) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of(join_fields)), segment_id) |>
     dplyr::mutate(rn = dplyr::row_number()) |>
-    dplyr::select(tidyselect::all_of(colnames(exam_contour)), rn)
+    dplyr::select(tidyselect::all_of(colnames(exam_contour)), rn) |>
+    dplyr::ungroup()
 
   # find the first and last row of every segment
   contour_limits <- contour_rn |>
-    dplyr::group_by(dplyr::across(tidyselect::all_of(join_fields)), contour_id) |>
+    dplyr::group_by(dplyr::across(tidyselect::all_of(join_fields)), segment_id) |>
     dplyr::summarize(min_rn = min(rn), max_rn = max(rn)) |>
     dplyr::ungroup()
 
@@ -264,11 +265,11 @@ contour_polygon <- function(exam_contour) {
   # point after the last point
   contour_polygon <- contour_rn |>
     dplyr::filter(rn == 1) |>
-    dplyr::inner_join(contour_limits, by = c(join_fields, 'contour_id')) |>
+    dplyr::inner_join(contour_limits, by = c(join_fields, 'segment_id')) |>
     dplyr::mutate(rn = max_rn + 1) |>
     dplyr::select(colnames(contour_rn)) |>
     dplyr::bind_rows(contour_rn) |>
-    dplyr::arrange(dplyr::across(tidyselect::all_of(join_fields)), contour_id, rn)
+    dplyr::arrange(dplyr::across(tidyselect::all_of(join_fields)), segment_id, rn)
 
   contour_polygon |>
     dplyr::select(tidyselect::all_of(colnames(exam_contour)))
@@ -282,7 +283,7 @@ contour_polygon <- function(exam_contour) {
 
 #' Compare the silhouettes of two contours
 #' @description
-#' Each of the silhouettes is defined by two objects, a silhouette (filled
+#' Each of the silhouettes is defined by two objects, the silhouette (filled
 #' shape) and a polygon (an outline with connected ends). These objects must be
 #' created before calling \code{silhouette_compare()}. Silhouettes are created
 #' by calling [IQeyes::fill_contour], and polygons are created by calling
@@ -296,8 +297,8 @@ contour_polygon <- function(exam_contour) {
 #' @param polygon_B
 #' A data frame containing the polygon object for contour B.
 #' @param show_plots
-#' A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
-#' being made.
+#' A Boolean. \code{TRUE} to render a plot that illustrates the comparison
+#' being made. To access the plot as an object, see [IQeyes:silhouette_plot_old].
 #' @return
 #' The percentage of overlap between the two silhouettes, averaged over both
 #' directions.
@@ -305,7 +306,7 @@ contour_polygon <- function(exam_contour) {
 #' silhouette_compare(
 #'   shape_A = fill_contour(sample_curvature, contour_power = 45.5),
 #'   polygon_A = contour_polygon(sample_contour),
-#'   shape_B = fill_contour(sample_curvature, contour_power = 45.5),
+#'   shape_B = fill_contour(sample_curvature, contour_power = 45),
 #'   polygon_B = contour_polygon(sample_contour)
 #' )
 #'
@@ -313,10 +314,6 @@ contour_polygon <- function(exam_contour) {
 #'
 #' @importFrom sp point.in.polygon
 #' @importFrom dplyr bind_cols
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 labs
 #'
 #' @export
 silhouette_compare <- function(shape_A, polygon_A,
@@ -344,32 +341,8 @@ silhouette_compare <- function(shape_A, polygon_A,
 
   if (show_plots) {
 
-    p <- ggplot2::ggplot(polygon_A, ggplot2::aes(x, y)) +
-      ggplot2::geom_polygon(fill = 'coral', alpha = 0.5) +
-      ggplot2::geom_polygon(data = polygon_B, fill = 'deepskyblue', alpha = 0.5) +
-      ggplot2::labs(title = 'Intersection of silhouettes')
-
+    p <- silhouette_plot_old(polygon_A, polygon_B)
     print(p)
-
-    if (F) {
-      # plot B to A
-      p <- shape_B |>
-        dplyr::bind_cols(inside = as.logical(B_to_A)) |>
-        ggplot2::ggplot(ggplot2::aes(x, y)) +
-        ggplot2::geom_point(ggplot2::aes(color = inside)) +
-        ggplot2::geom_point(data = polygon_A, color = 'grey') +
-        ggplot2::labs(title = 'Intersection of A\'s contour with the filled shape (silhouette) of B')
-      print(p)
-
-      # plot A to B
-      p <- shape_A |>
-        dplyr::bind_cols(inside = as.logical(A_to_B)) |>
-        ggplot2::ggplot(ggplot2::aes(x, y)) +
-        ggplot2::geom_point(ggplot2::aes(color = inside)) +
-        ggplot2::geom_point(data = polygon_B, color = 'grey') +
-        ggplot2::labs(title = 'Intersection of B\'s contour with the filled shape (silhouette) of A')
-      print(p)
-    }
 
   }
 
@@ -381,15 +354,16 @@ silhouette_compare <- function(shape_A, polygon_A,
 ## silhouette_compare_group
 ##############################
 
-#' Compare the silhouette of an exam with a group of silhouettes
+#' Compare the silhouette of one contour with the silhouettes of a group
 #' @description
-#' Every silhouette is defined by two objects, a silhouette (filled shape) and a
-#' polygon (an outline with connected ends). These objects must be created
+#' Every silhouette is defined by two objects, the silhouette (filled shape) and
+#' a polygon (an outline with connected ends). These objects must be created
 #' before calling \code{silhouette_compare_group()}. Silhouettes (filled shapes)
 #' are created by calling [IQeyes::fill_contour], and polygons are created by
 #' calling [IQeyes::contour_polygon].
 #'
 #' Each of the comparisons is made in both directions.
+#'
 #' @param ref_shape
 #' A data frame containing the silhouette (filled shape) for the exam.
 #' @param ref_polygon
@@ -408,31 +382,41 @@ silhouette_compare <- function(shape_A, polygon_A,
 #' \code{group_polygons}.
 #' @param show_plots
 #' A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
-#' being made.
+#' being made. To access the plot as an object, see [IQeyes:silhouette_plot_old].
 #' @param return_detail
 #' A Boolean. \code{FALSE} (the default) to return the index of the group member
 #' that has the highest percentage of overlap with the reference silhouette.
 #' \code{TRUE} to return a list object with two elements: \code{closest_fit} and
-#' \code{average_distance}, a vector containing the average percentage of
+#' \code{overlap}, a vector containing the average percentage of
 #' overlap between the reference silhouette and every member of the group.
 #'
 #' @details
-#' Both \code{group_shapes} and \code{group_polygons} require a \code{cluster}
-#' column. Although the cluster column can be passed into and returned by
-#' [IQeyes::contour_polygon], the same cannot be done by [IQeyes::fill_contour],
-#' which means the process for creating \code{group_shapes} requires the
-#' additional step of appending the \code{cluster} column.
+#' The data frames passed into \code{group_shapes} and \code{group_polygons}
+#' both require a \code{cluster} column. Although a cluster column can be
+#' passed into and returned by [IQeyes::contour_polygon], the same cannot be
+#' done by [IQeyes::fill_contour], which means the process for creating
+#' \code{group_shapes} requires the additional step of appending the
+#' \code{cluster} column.
 #'
 #' For convenience, the silhouettes [IQeyes:canonical_silhouettes] and polygons
 #' [IQeyes:canonical_polygons] for the canonical shapes are included as
 #' objects in this package.
 #'
 #' @return
-#' The index of the group member that has the highest percentage of overlap with
+#' If \code{return_detail = F}, the function returns just the index of the
+#' group member that has the highest percentage of overlap with
 #' the reference silhouette.
+#'
+#' If \code{return_detail = T}, the data frame will be a list object object with
+#' two elements: \code{closest_fit}, the index of the group member with the
+#' highest percentage of overlap, and \code{overlap}, a vector containing the
+#' percentage overlap between the reference silhouette and every member of the
+#' group.
+#'
 #' @examples
 #' sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
-#'   scale_rotate(axs = 33.6)
+#'   scale_rotate(axs = 33.6) |>
+#'   contour_polygon()
 #'
 #' silhouette_compare_group(
 #'   ref_shape = fill_contour(sample_curvature, contour_power = 45.5, axs = 33.6),
@@ -451,11 +435,6 @@ silhouette_compare <- function(shape_A, polygon_A,
 #' @importFrom dplyr group_split
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr bind_rows
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_point
-#' @importFrom ggplot2 labs
-#' @importFrom ggplot2 facet_wrap
 #'
 #' @export
 silhouette_compare_group <- function(ref_shape, ref_polygon,
@@ -501,70 +480,102 @@ silhouette_compare_group <- function(ref_shape, ref_polygon,
 
   if (show_plots) {
 
-    p <- ggplot2::ggplot(ref_polygon, ggplot2::aes(x, y)) +
-      ggplot2::geom_polygon(fill = 'coral', alpha = 0.5) +
-      ggplot2::geom_polygon(data = group_polygons, fill = 'deepskyblue', alpha = 0.5) +
-      ggplot2::facet_wrap(. ~ cluster) +
-      ggplot2::labs(title = 'Intersection of the reference shape with the group')
-
+    p <- silhouette_plot_old(ref_polygon, group_polygons)
     print(p)
-
-    if (F) {
-
-      # plot out_in
-      out_in_dat <- lapply(out_in, function(x) {
-        item_cluster <- min(x$cluster)
-        # add a column to each cluster's fill, identifying whether the fill's
-        # point is inside the shadow of the reference polygon
-        group_shapes |>
-          dplyr::filter(cluster == item_cluster) |>
-          dplyr::bind_cols(inside = x$inside)
-      }) |>
-        dplyr::bind_rows()
-
-      p <- ggplot2::ggplot(out_in_dat, ggplot2::aes(x, y)) +
-        ggplot2::geom_point(ggplot2::aes(color = inside)) +
-        ggplot2::geom_point(data = ref_polygon, color = 'grey') +
-        ggplot2::facet_wrap(. ~ cluster) +
-        ggplot2::labs(title = 'Intersection of the reference contour with the silhouettes (filled shapes) of the group')
-
-      print(p)
-
-      # plot in_out
-      in_out_dat <- lapply(in_out, function(x) {
-        # add two columns to the reference fill, identifying the cluster of
-        # comparison and whether the fill's point is inside the shadow of that
-        # cluster's polygon
-        ref_shape |>
-          dplyr::bind_cols(inside = x$inside, cluster = x$cluster)
-      }) |>
-        dplyr::bind_rows()
-
-      p <- ggplot2::ggplot(in_out_dat, ggplot2::aes(x, y)) +
-        ggplot2::geom_point(ggplot2::aes(color = inside)) +
-        ggplot2::geom_point(data = group_polygons, color = 'grey') +
-        ggplot2::facet_wrap(. ~ cluster) +
-        ggplot2::labs(title = 'Intersection of the groups\' contours with the silhouette (filled shape) of the reference contour')
-
-      print(p)
-    }
 
   }
 
-  average_distance <- (in_out_pct + out_in_pct) / 2
+  overlap <- (in_out_pct + out_in_pct) / 2
 
   # identify the item with the greatest percentage coverage in both directions
-  closest_fit <- which.max(average_distance)
+  closest_fit <- which.max(overlap)
 
   if (return_detail) {
     return(list(
       closest_fit = closest_fit,
-      average_distance = average_distance
+      overlap = overlap
     ))
 
   } else {
     return(closest_fit)
   }
+}
+
+
+#########################
+## silhouette_plot_old
+#########################
+
+#' Plot the overlap of one silhouette with a group of silhouettes
+#' @description
+#' Plot the silhouette of one exam's contour with the silhouettes of a group.
+#'
+#' Plotting requires a polygon (an outline with connected ends) for each of the
+#' shapes. These objects must be created by calling [IQeyes::contour_polygon]
+#' before calling \code{silhouette_plot_old()}.
+#'
+#' @param ref_polygon
+#' A data frame containing the polygon object for the exam.
+#' @param group_polygons
+#' A data frame containing polygons for the group of contours. The data frame
+#' \emph{must} include a \code{cluster} column that uniquely identifies
+#' each member of the group. The cluster IDs for individual contours (i.e.,
+#' members of the group) must be the same in both \code{group_shapes} and
+#' \code{group_polygons}.
+#'
+#'  @details
+#' For convenience, the silhouettes [IQeyes:canonical_silhouettes] and polygons
+#' [IQeyes:canonical_polygons] for the canonical shapes are included as
+#' objects in this package.
+#'
+#' For custom groups, the data frame passed into \code{group_polygons} requires
+#' a \code{cluster} column, which can be passed into and returned by
+#' [IQeyes::contour_polygon].
+#'
+#' @return
+#' A ggplot2 object that that shows the overlapping silhouettes.
+#'
+#' @examples
+#' sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
+#'   scale_rotate(axs = 33.6) |>
+#'   contour_polygon()
+#'
+#' silhouette_plot_old(
+#'   sample_polygon,
+#'   contour_polygon(get_contour(sample_curvature, contour_power = 45))
+#' )
+#'
+#' silhouette_plot_old(
+#'   ref_polygon = sample_polygon,
+#'   group_polygons = canonical_polygons
+#' )
+#'
+#' @family Contours
+#'
+#' @importFrom ggplot2 ggplot
+#' @importFrom ggplot2 aes
+#' @importFrom ggplot2 geom_polygon
+#' @importFrom ggplot2 facet_wrap
+#' @importFrom ggplot2 labs
+#'
+#' @export
+silhouette_plot_old <- function(ref_polygon, group_polygons) {
+
+  if ('cluster' %in% colnames(group_polygons)) {
+    p <- ggplot2::ggplot(ref_polygon, ggplot2::aes(x, y)) +
+      ggplot2::geom_polygon(fill = 'coral', alpha = 0.5) +
+      ggplot2::geom_polygon(data = group_polygons, fill = 'deepskyblue', alpha = 0.5) +
+      ggplot2::facet_wrap(. ~ cluster) +
+      ggplot2::labs(title = 'Overlapping silhouettes')
+
+  } else {
+    p <- ggplot2::ggplot(ref_polygon, ggplot2::aes(x, y)) +
+      ggplot2::geom_polygon(fill = 'coral', alpha = 0.5) +
+      ggplot2::geom_polygon(data = group_polygons, fill = 'deepskyblue', alpha = 0.5) +
+      ggplot2::labs(title = 'Overlapping silhouettes')
+  }
+
+  return(p)
 }
 
 
@@ -675,7 +686,7 @@ contour_max_diameter <- 4.5  # Not currently used
 #' @param add_edge
 #' A Boolean. If the contour extends beyond the edge of the scanned cornea,
 #' \code{TRUE} will add the edge of the scanned area, connecting the ends of the
-#' contour and fully enclosing it. The \code{contour_id} for the added edge will
+#' contour and fully enclosing it. The \code{segment_id} for the added edge will
 #' be \code{0}. If the contour doesn't extend beyond the edge of the cornea, no
 #' edge will be added.
 #' @param contour_power
@@ -686,7 +697,7 @@ contour_max_diameter <- 4.5  # Not currently used
 #' columns as [IQeyes::sample_contour].
 #' @details
 #' A contour is comprised of one or more segments, uniquely identified by
-#' \code{contour_id}.
+#' \code{segment_id}.
 #'
 #' This function doesn't currently work for posterior surfaces because
 #' [IQeyes::plot_scale] presumes the color scale is on the "absolute
@@ -768,121 +779,6 @@ get_contour <- function(exam_curvature, add_edge = F, contour_power) {
     if(is.na(segment_counts[as.character(contour_power)])) warning('No contour at specified power.')
     break_name <- as.character(contour_power)
   }
-  # this is the code that tried to guess the characteristic contour
-  if (F) {
-    #break_name <- NA
-    #
-    ## extract the number of points that comprise each level
-    #point_counts <- sapply(contours_lst, function(x) length(x$x))
-    #bin_counts <- tapply(point_counts, contour_levels, sum)
-    #
-    ## try using k_next to establish characteristic contour:
-    ## get the power values for points that comprise the k_next peak
-    #k_next_points <- k_next(exam_curvature, just_points = T) |>
-    #  #filter(ring_diam <= contour_max_diameter) |>
-    #  filter(peak_id > 1)
-    #
-    ## ensure points are within the interpolated range and add z
-    #k_next_points <- k_next_points |>
-    #  mutate(z = anterior_power(measurement)) |>
-    #  filter(z < max(z_levels), z >= min(z_levels))
-    #
-    ## if k_next still contains points, use bin counts of just those points to
-    ## find the edge of the contour
-    #if (nrow(k_next_points) > 0) {
-    #  # identify the "k_next" peak: look at each secondary peak and identify the
-    #  # one with the most points and the highest power
-    #  next_peak <- k_next_points |>
-    #    summarize(cnt = n(), min_r = min(measurement), .by = peak_id) |>
-    #    # convert radius (R) to power (K) so we can take max
-    #    mutate(max_k = anterior_power(min_r)) |>
-    #    slice_max(data.frame(cnt, max_k), n = 1)
-    #
-    #  # get the power of the points that comprise the peak and bin them
-    #  k_next_points <- k_next_points |>
-    #    filter(peak_id == next_peak$peak_id) |>
-    #    mutate(z = anterior_power(measurement)) |>
-    #    select(x, y, z)
-    #
-    #  # calculate the distance of k_next from the apex
-    #  k_next_r <- k_next_points |>
-    #    mutate(r = cartesian_to_polar(x, y)$r) |>
-    #    slice_max(data.frame(z, r), n = 1, with_ties = F) |>
-    #    select(r)
-    #
-    #  # if k_next is reasonably close to the apex
-    #  if (k_next_r < 4) {
-    #    # bin the points that comprise the k_next peak: this counts the number of
-    #    # points that each contour contains, not the number of points that
-    #    # comprise the contour, which is what the original bin_counts does
-    #    bin_counts <- hist(k_next_points$z, breaks = z_levels, plot = F)$counts
-    #    # histogram bins contain points from the lower bound to the upper bound,
-    #    # and there can be no points above the upper-most upper bound
-    #    names(bin_counts) <- z_levels[-length(z_levels)]
-    #
-    #    # ensure bin_counts and segment_counts align
-    #    bin_counts <- bin_counts[names(segment_counts)]
-    #
-    #    # consider only bins that contains a sufficient number of points (i.e., more
-    #    # than the lower bound of the IQR (exclusive of empty bins)
-    #    iqr_and_above <- bin_counts > quantile(probs = 0.25, bin_counts[bin_counts > 0])
-    #    # setting bin_counts to 0 removes bins from consideration
-    #    if (any(iqr_and_above)) bin_counts[!iqr_and_above] <- 0
-    #
-    #    # if possible, use the largest single-line contour that contains k_next
-    #    one_line_options <- names(bin_counts)[(segment_counts == 1) & (bin_counts > 0)]
-    #    if (length(one_line_options) > 0)
-    #      break_name <- max(one_line_options)
-    #    else
-    #      ## otherwise, use the bin that balances the most points with the fewest lines
-    #      break_name <- which.max(bin_counts / segment_counts) |> names()
-    #  }
-    #}
-    #
-    ## if k_next didn't result in a contour, evaluate other criteria
-    #if (is.na(break_name)) {
-    #  # consider only bins that contains a sufficient number of points: more than
-    #  # the lower bound of the IQR (exclusive of empty bins)
-    #  count_TF <- bin_counts > quantile(probs = 0.25, bin_counts[bin_counts > 0])
-    #
-    #  # consider only levels above the median (more than half of the measured points)
-    #  z_median <- median(plot_dat$z) |>
-    #    round(1)
-    #
-    #  # unless the median is in the highest contour, use the next highest contour
-    #  # (i.e., 'above' the median)
-    #  bin_median <- findInterval(z_median, names(bin_counts))
-    #  if (bin_median < length(bin_counts)) bin_median <- bin_median + 1
-    #
-    #  # create a vector of logical values and set all bins above the median = T
-    #  median_TF <- rep(F, length(bin_counts))
-    #  names(median_TF) <- names(bin_counts)
-    #  median_TF[bin_median:length(bin_counts)] <- T
-    #
-    #  # combine rules
-    #  bin_options <- count_TF & median_TF
-    #
-    #  if (sum(bin_options) == 0) {
-    #    # if the intersection of the two criteria is empty, prioritize the contour
-    #    # above the median (remember that bin_median is already +1)
-    #    break_name <- names(bin_counts)[bin_median]
-    #  } else {
-    #    # from the remaining bin_options, select the one with the most points
-    #    #break_name <- bin_counts[bin_options] |>
-    #    #  which.max() |>
-    #    #  names()
-    #
-    #    # from the remaining options, take the highest power (tightest contour)
-    #    #break_name <- bin_counts[bin_options] |>
-    #    #  names() |>
-    #    #  max()
-    #
-    #    # use the bin that balances the most points with the fewest lines
-    #    break_name <- which.max(bin_counts[bin_options] / segment_counts[bin_options]) |> names()
-    #
-    #  }
-    #}
-  }
 
   # get item(s) from the list of contours that match the identified break_name
   target_items <- lapply(contours_lst, function(i) i$level == break_name) |>
@@ -898,7 +794,7 @@ get_contour <- function(exam_curvature, add_edge = F, contour_power) {
       data.frame(x = contours_lst[[i]]$x,
                  y = contours_lst[[i]]$y,
                  # keep track of the individual contours
-                 contour_id = i,
+                 segment_id = i,
                  # remember the value of the characteristic contour
                  contour = contours_lst[[i]]$level)
     }) |>
@@ -933,14 +829,15 @@ get_contour <- function(exam_curvature, add_edge = F, contour_power) {
 
     outline <- edge_coords |>
       dplyr::filter(contour == as.numeric(break_name)) |>
-      dplyr::mutate(contour_id = 0) |>
-      dplyr::select(x, y, contour_id, contour) |>
+      dplyr::mutate(segment_id = 0) |>
+      dplyr::select(x, y, segment_id, contour) |>
       dplyr::bind_rows(outline)
 
-    #ggplot2::ggplot(outline, ggplot2::aes(x = x, y = y, color = as.factor(contour_id))) + ggplot2::geom_point()
+    #ggplot2::ggplot(outline, ggplot2::aes(x = x, y = y, color = as.factor(segment_id))) + ggplot2::geom_point()
   }
 
   # return exam_record with outline's x- and y-axis values
   exam_record |>
     dplyr::bind_cols(outline)
 }
+

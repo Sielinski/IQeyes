@@ -10,12 +10,12 @@
 #' A data frame containing one row for each curvature \code{measurement} and the
 #' same columns as [IQeyes::sample_curvature].
 #' @return
-#' A data frame with one row for each candidate contour. Each row will contain
-#' the [IQeyes::join_fields], the cornea \code{surface}, and the dioptric power
-#' of the candidate \code{contour}. In addition, each row will contain the
-#' number of \code{segments} that comprise the contour, and the radial distance
-#' of K-max(\code{r_max}) and K-next (\code{r_next}) from the apex of the
-#' curvature map.
+#' An emph{n}-row data frame containing one row for each candidate contour. Each
+#' row will contain the [IQeyes::join_fields], the cornea \code{surface}, and
+#' the dioptric power of the candidate \code{contour}. In addition, each row
+#' will contain the number of \code{segments} that comprise the contour, and the
+#' radial distance of K-max(\code{r_max}) and K-next (\code{r_next}) from the
+#' apex of the curvature map.
 #' @details
 #' The underlying algorithm operates at the segment level. If any contour has a
 #' segment that contains both K-max and K-next, only contours with segments
@@ -98,9 +98,9 @@ candidate_contours <- function(exam_curvature) {
     in_out_combined <- c(0, 0)
 
     # evaluate each individual segment to see if it contains k_max or k_next
-    for (j in unique(polygon_dat$contour_id)) {
+    for (j in unique(polygon_dat$segment_id)) {
       in_out <- with(
-        dplyr::filter(polygon_dat, contour_id == j),
+        dplyr::filter(polygon_dat, segment_id == j),
         sp::point.in.polygon(point_dat$x, point_dat$y, x, y)
       )
       # OR the result for each segment with a combined result for the contour
@@ -136,7 +136,6 @@ candidate_contours <- function(exam_curvature) {
   )
 
   return(dplyr::bind_cols(exam_record, candidates))
-
 }
 
 
@@ -144,8 +143,8 @@ candidate_contours <- function(exam_curvature) {
 ## contour_context
 #####################
 
-#' Identify candidates for the characteristic contour and calculate their
-#' distance from K-max and K-next
+#' Identify candidates for characteristic contour and calculate their distance
+#' from K-max and K-next
 #' @description
 #' Identifies the contours of an exam that are candidates for the
 #' characteristic contour, and calculates the number of \emph{other}
@@ -226,6 +225,10 @@ contour_context <- function(exam_curvature) {
 #' canonical shapes and identifies the canonical shape with the highest
 #' percentage of overlap.
 #'
+#' This is essentially a wrapper function for
+#' [IQeyes::silhouette_compare_group], so it is no less expensive from a
+#' time/compute perspective. See details below.
+#'
 #' @param exam_curvature
 #' A data frame containing one row for each curvature \code{measurement} and the
 #' same columns as [IQeyes::sample_curvature].
@@ -234,14 +237,24 @@ contour_context <- function(exam_curvature) {
 #' exam can be determined by calling [IQeyes::get_contour_levels].
 #' @param exam_astig
 #' A number, the angle (in degrees) of the exam's primary axis of astigmatism.
+#' @param return_detail
+#' A Boolean. \code{FALSE} (the default) to return just the index of the
+#' canonical shape that has the highest percentage of overlap with the reference
+#' silhouette \emph{and} the percentage of overlap. \code{TRUE} to return the
+#' percentage overlap between the reference silhouette and every canonical
+#' shape.
 #'
 #' @return
-#' A data frame containing the [IQeyes::join_fields], corneal \code{surface} and
-#' three additional columns: \code{contour}, the dioptric power of the exam's
-#' contour, \code{closest_fit}, the index of the canonical silhouette that has
-#' the highest percentage of overlap with the exam's silhouette, and
-#' \code{average_distance}, the average percentage of overlap between the exam's
+#' A data frame containing the [IQeyes::join_fields], corneal \code{surface},
+#' and three additional columns: \code{contour}, the dioptric power of the
+#' exam's contour, \code{closest_fit}, the index of the canonical silhouette
+#' that has the highest percentage overlap with the exam's silhouette, and
+#' \code{overlap}, the average percentage of overlap between the exam's
 #' silhouette and the closest fitting member of the group.
+#'
+#' If \code{return_detail = T}, the data frame will include an additional
+#' set of columns, one for each canonical shape, containing the percentage of
+#' overlap between the exam and that shape.
 #'
 #' @details
 #' This function creates all of the necessary objects to perform the comparison.
@@ -254,7 +267,8 @@ contour_context <- function(exam_curvature) {
 #' in this package.
 #'
 #' @examples
-#' closest_silhouette(sample_curvature, exam_power = 45.5, exam_astig = 33.6)
+#' closest_silhouette(sample_curvature, exam_power = 45.5, exam_astig = 33.6, return_detail = T) |>
+#'   dplyr::select(-all_of(join_fields))
 #'
 #' @family Characteristic Contours
 #'
@@ -263,9 +277,9 @@ contour_context <- function(exam_curvature) {
 #' @importFrom tidyselect all_of
 #'
 #' @export
-closest_silhouette <- function(exam_curvature, exam_power, exam_astig) {
+closest_silhouette <- function(exam_curvature, exam_power, exam_astig, return_detail = F) {
 
-  # preserve the exam details (i.e., join fields and surface)
+  # extract the exam details (i.e., join fields and surface)
   exam_record <- exam_curvature |>
     dplyr::select(tidyselect::all_of(join_fields), surface) |>
     unique()
@@ -294,12 +308,25 @@ closest_silhouette <- function(exam_curvature, exam_power, exam_astig) {
   )
 
   # create a single-row data frame for the results
-  dplyr::bind_cols(
-    exam_record,
-    data.frame(
-      contour = exam_power,
-      closest_fit = compare_results$closest_fit,
-      average_distance = compare_results$average_distance[compare_results$closest_fit]
+  base_result <-
+    dplyr::bind_cols(
+      exam_record,
+      data.frame(
+        contour = exam_power,
+        closest_fit = compare_results$closest_fit,
+        overlap = compare_results$overlap[compare_results$closest_fit]
+      )
     )
-  )
+
+  if (return_detail) {
+    # add the shape distances to each of the canonical contours
+    names(compare_results$overlap) <- canonical_shapes$shape
+
+    base_result |>
+      dplyr::bind_cols(t(compare_results$overlap))
+
+  } else {
+    base_result
+  }
+
 }

@@ -24,7 +24,7 @@ the polygon.
 }
 \details{
 A contour is comprised of one or more segments, uniquely identified by
-\code{contour_id}. \code{contour_polygon()} takes the first point of each
+\code{segment_id}. \code{contour_polygon()} takes the first point of each
 segment (based on its ordinal position in the original data frame) and
 appends a replica to the end of the the original data frame.
 }
@@ -40,6 +40,7 @@ Other Contours:
 \code{\link{get_contour_levels}()},
 \code{\link{scale_rotate}()},
 \code{\link{silhouette_compare}()},
-\code{\link{silhouette_compare_group}()}
+\code{\link{silhouette_compare_group}()},
+\code{\link{silhouette_plot_old}()}
 }
 \concept{Contours}

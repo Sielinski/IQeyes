@@ -15,15 +15,15 @@ silhouette_compare(shape_A, polygon_A, shape_B, polygon_B, show_plots = F)
 
 \item{polygon_B}{A data frame containing the polygon object for contour B.}
 
-\item{show_plots}{A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
-being made.}
+\item{show_plots}{A Boolean. \code{TRUE} to render a plot that illustrates the comparison
+being made. To access the plot as an object, see \link{IQeyes:silhouette_plot_old}.}
 }
 \value{
 The percentage of overlap between the two silhouettes, averaged over both
 directions.
 }
 \description{
-Each of the silhouettes is defined by two objects, a silhouette (filled
+Each of the silhouettes is defined by two objects, the silhouette (filled
 shape) and a polygon (an outline with connected ends). These objects must be
 created before calling \code{silhouette_compare()}. Silhouettes are created
 by calling \link{fill_contour}, and polygons are created by calling
@@ -33,7 +33,7 @@ by calling \link{fill_contour}, and polygons are created by calling
 silhouette_compare(
   shape_A = fill_contour(sample_curvature, contour_power = 45.5),
   polygon_A = contour_polygon(sample_contour),
-  shape_B = fill_contour(sample_curvature, contour_power = 45.5),
+  shape_B = fill_contour(sample_curvature, contour_power = 45),
   polygon_B = contour_polygon(sample_contour)
 )
 
@@ -45,6 +45,7 @@ Other Contours:
 \code{\link{get_contour}()},
 \code{\link{get_contour_levels}()},
 \code{\link{scale_rotate}()},
-\code{\link{silhouette_compare_group}()}
+\code{\link{silhouette_compare_group}()},
+\code{\link{silhouette_plot_old}()}
 }
 \concept{Contours}

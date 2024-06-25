@@ -14,7 +14,7 @@
 #' \item{exam_eye}{'FRONT' or 'BACK'}
 #' \item{x}{x-axis coordinate of a point on the contour}
 #' \item{y}{y-axis coordinate of a point on the contour}
-#' \item{contour_id}{Ordinal identifier for each segment of a \emph{n}-segment contour}
+#' \item{segment_id}{Ordinal identifier for each segment of a \emph{n}-segment contour}
 #' \item{contour}{Dioptric power of the contour}
 #' }
 #'

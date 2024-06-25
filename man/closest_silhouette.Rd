@@ -4,7 +4,7 @@
 \alias{closest_silhouette}
 \title{Identify the closest canonical silhouette}
 \usage{
-closest_silhouette(exam_curvature, exam_power, exam_astig)
+closest_silhouette(exam_curvature, exam_power, exam_astig, return_detail = F)
 }
 \arguments{
 \item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
@@ -14,19 +14,33 @@ same columns as \link{sample_curvature}.}
 exam can be determined by calling \link{get_contour_levels}.}
 
 \item{exam_astig}{A number, the angle (in degrees) of the exam's primary axis of astigmatism.}
+
+\item{return_detail}{A Boolean. \code{FALSE} (the default) to return just the index of the
+canonical shape that has the highest percentage of overlap with the reference
+silhouette \emph{and} the percentage of overlap. \code{TRUE} to return the
+percentage overlap between the reference silhouette and every canonical
+shape.}
 }
 \value{
-A data frame containing the \link{join_fields}, corneal \code{surface} and
-three additional columns: \code{contour}, the dioptric power of the exam's
-contour, \code{closest_fit}, the index of the canonical silhouette that has
-the highest percentage of overlap with the exam's silhouette, and
-\code{average_distance}, the average percentage of overlap between the exam's
+A data frame containing the \link{join_fields}, corneal \code{surface},
+and three additional columns: \code{contour}, the dioptric power of the
+exam's contour, \code{closest_fit}, the index of the canonical silhouette
+that has the highest percentage overlap with the exam's silhouette, and
+\code{overlap}, the average percentage of overlap between the exam's
 silhouette and the closest fitting member of the group.
+
+If \code{return_detail = T}, the data frame will include an additional
+set of columns, one for each canonical shape, containing the percentage of
+overlap between the exam and that shape.
 }
 \description{
 Compares the silhouette of an exam's contour to the silhouettes of the
 canonical shapes and identifies the canonical shape with the highest
 percentage of overlap.
+
+This is essentially a wrapper function for
+\link{silhouette_compare_group}, so it is no less expensive from a
+time/compute perspective. See details below.
 }
 \details{
 This function creates all of the necessary objects to perform the comparison.
@@ -39,7 +53,8 @@ to do so. The silhouettes \link{IQeyes:canonical_silhouettes} and polygons
 in this package.
 }
 \examples{
-closest_silhouette(sample_curvature, exam_power = 45.5, exam_astig = 33.6)
+closest_silhouette(sample_curvature, exam_power = 45.5, exam_astig = 33.6, return_detail = T) |>
+  dplyr::select(-all_of(join_fields))
 
 }
 \seealso{

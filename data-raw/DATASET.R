@@ -74,6 +74,9 @@ usethis::use_data(adjacent_points_dat, overwrite = T, internal = F)
 canonical_shapes <- readRDS('data-raw/canonical_shapes.RDS')
 
 # curvature data for the canonical polygons
+canonical_contours <- readRDS('data-raw/canonical_contours.RDS')
+
+# curvature data for the canonical shapes
 canonical_polygons <- readRDS('data-raw/canonical_polygons.RDS')
 
 # curvature data for the canonical sihouettes (filled shapes)
@@ -92,6 +95,7 @@ sample_contour <- readRDS('data-raw/sample_contour.RDS')
 ## Store datasets
 usethis::use_data(canonical_shapes, overwrite = T, internal = F)
 #usethis::use_data(canonical_curvature, overwrite = T, internal = F)
+usethis::use_data(canonical_contours, overwrite = T, internal = F)
 usethis::use_data(canonical_polygons, overwrite = T, internal = F)
 usethis::use_data(canonical_silhouettes, overwrite = T, internal = F)
 
@@ -105,6 +109,6 @@ usethis::use_data(sample_contour, overwrite = T, internal = F)
 ########################
 
 # retrieve the model
-cc_fit <- readRDS('data-raw/characteristic_contour_fit.RDS')
+char_fit <- readRDS('data-raw/characteristic_contour_fit.RDS')
 
-usethis::use_data(cc_fit, overwrite = T, internal = F)
+usethis::use_data(char_fit, overwrite = T, internal = F)

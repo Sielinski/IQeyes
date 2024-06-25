@@ -33,8 +33,8 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
   angles <- source_dat |>
     dplyr::filter(ring_diam == target_diam) |>
     dplyr::filter(!is.na(measurement)) |>
-    dplyr::select(angle) |>
-    unlist() |>
+    pull(angle) |>
+    #unlist() |>
     sort()
 
   # if there's only one angle, either apex or k_max
@@ -89,13 +89,26 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 #' @param just_points
 #' A Boolean. \code{TRUE} to return the points that comprise the primary peak.
 #' @return
+#' If \code{just_points} = \code{T}, \code{k_next()} returns a copy of
+#' \code{exam_curvature} with an additional column \code{peak_id} identifying
+#' the peak that each measured point belongs to.
+#'
 #' If \code{just_points} = \code{F}, \code{k_next()} returns a one-row data
 #' frame containing the \code{join_fields} and a variety of metadata related to
 #' k-next.
 #'
-#' If \code{just_points} = \code{T}, \code{k_next()} returns a copy of
-#' \code{exam_curvature} with an additional column \code{peak_id} identifying
-#' the peak that each measured point belongs to.
+#' \code{max_next_alignment_deg} quantifies the departure from symmetry. When
+#' K-max and K-next are symmetrically aligned, their radial axes are 180° apart.
+#' \code{max_next_alignment_deg} is calculated as 180° \emph{minus} the smallest
+#' angle, so when K-max and K-next are 180° apart, the result is 0°. Generally,
+#' the smallest angle between the K-max and K-next will be less than 180°, and
+#' the departure from symmetry will be larger. If there is no K-next,
+#' \code{max_next_alignment_deg} is \code{NA}.
+#'
+#' @details
+#' The algorithm to identify K-next is based on measured (i.e., not interpreted)
+#' points only, so K-next itself is one of the measured points.
+#'
 #' @examples
 #' k_next(sample_curvature) |>
 #'   dplyr::select(-all_of(join_fields))

@@ -2,7 +2,7 @@
 % Please edit documentation in R/contours.R
 \name{silhouette_compare_group}
 \alias{silhouette_compare_group}
-\title{Compare the silhouette of an exam with a group of silhouettes}
+\title{Compare the silhouette of one contour with the silhouettes of a group}
 \usage{
 silhouette_compare_group(
   ref_shape,
@@ -32,21 +32,28 @@ members of the group) must be the same in both \code{group_shapes} and
 \code{group_polygons}.}
 
 \item{show_plots}{A Boolean. \code{TRUE} to render a plot that illustrates the comparisons
-being made.}
+being made. To access the plot as an object, see \link{IQeyes:silhouette_plot_old}.}
 
 \item{return_detail}{A Boolean. \code{FALSE} (the default) to return the index of the group member
 that has the highest percentage of overlap with the reference silhouette.
 \code{TRUE} to return a list object with two elements: \code{closest_fit} and
-\code{average_distance}, a vector containing the average percentage of
+\code{overlap}, a vector containing the average percentage of
 overlap between the reference silhouette and every member of the group.}
 }
 \value{
-The index of the group member that has the highest percentage of overlap with
+If \code{return_detail = F}, the function returns just the index of the
+group member that has the highest percentage of overlap with
 the reference silhouette.
+
+If \code{return_detail = T}, the data frame will be a list object object with
+two elements: \code{closest_fit}, the index of the group member with the
+highest percentage of overlap, and \code{overlap}, a vector containing the
+percentage overlap between the reference silhouette and every member of the
+group.
 }
 \description{
-Every silhouette is defined by two objects, a silhouette (filled shape) and a
-polygon (an outline with connected ends). These objects must be created
+Every silhouette is defined by two objects, the silhouette (filled shape) and
+a polygon (an outline with connected ends). These objects must be created
 before calling \code{silhouette_compare_group()}. Silhouettes (filled shapes)
 are created by calling \link{fill_contour}, and polygons are created by
 calling \link{contour_polygon}.
@@ -54,11 +61,12 @@ calling \link{contour_polygon}.
 Each of the comparisons is made in both directions.
 }
 \details{
-Both \code{group_shapes} and \code{group_polygons} require a \code{cluster}
-column. Although the cluster column can be passed into and returned by
-\link{contour_polygon}, the same cannot be done by \link{fill_contour},
-which means the process for creating \code{group_shapes} requires the
-additional step of appending the \code{cluster} column.
+The data frames passed into \code{group_shapes} and \code{group_polygons}
+both require a \code{cluster} column. Although a cluster column can be
+passed into and returned by \link{contour_polygon}, the same cannot be
+done by \link{fill_contour}, which means the process for creating
+\code{group_shapes} requires the additional step of appending the
+\code{cluster} column.
 
 For convenience, the silhouettes \link{IQeyes:canonical_silhouettes} and polygons
 \link{IQeyes:canonical_polygons} for the canonical shapes are included as
@@ -66,7 +74,8 @@ objects in this package.
 }
 \examples{
 sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
-  scale_rotate(axs = 33.6)
+  scale_rotate(axs = 33.6) |>
+  contour_polygon()
 
 silhouette_compare_group(
   ref_shape = fill_contour(sample_curvature, contour_power = 45.5, axs = 33.6),
@@ -85,6 +94,7 @@ Other Contours:
 \code{\link{get_contour}()},
 \code{\link{get_contour_levels}()},
 \code{\link{scale_rotate}()},
-\code{\link{silhouette_compare}()}
+\code{\link{silhouette_compare}()},
+\code{\link{silhouette_plot_old}()}
 }
 \concept{Contours}

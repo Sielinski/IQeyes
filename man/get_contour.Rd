@@ -12,7 +12,7 @@ same columns as \link{sample_curvature}.}
 
 \item{add_edge}{A Boolean. If the contour extends beyond the edge of the scanned cornea,
 \code{TRUE} will add the edge of the scanned area, connecting the ends of the
-contour and fully enclosing it. The \code{contour_id} for the added edge will
+contour and fully enclosing it. The \code{segment_id} for the added edge will
 be \code{0}. If the contour doesn't extend beyond the edge of the cornea, no
 edge will be added.}
 
@@ -29,7 +29,7 @@ Returns the \emph{x} and \emph{y} coordinates of the contour for an exam,
 }
 \details{
 A contour is comprised of one or more segments, uniquely identified by
-\code{contour_id}.
+\code{segment_id}.
 
 This function doesn't currently work for posterior surfaces because
 \link{plot_scale} presumes the color scale is on the "absolute
@@ -50,6 +50,7 @@ Other Contours:
 \code{\link{get_contour_levels}()},
 \code{\link{scale_rotate}()},
 \code{\link{silhouette_compare}()},
-\code{\link{silhouette_compare_group}()}
+\code{\link{silhouette_compare_group}()},
+\code{\link{silhouette_plot_old}()}
 }
 \concept{Contours}

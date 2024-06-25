@@ -2,8 +2,8 @@
 % Please edit documentation in R/characteristic_contours.R
 \name{contour_context}
 \alias{contour_context}
-\title{Identify candidates for the characteristic contour and calculate their
-distance from K-max and K-next}
+\title{Identify candidates for characteristic contour and calculate their distance
+from K-max and K-next}
 \usage{
 contour_context(exam_curvature)
 }

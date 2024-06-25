@@ -1,8 +1,8 @@
-#' canonical_polygons
+#' canonical_contours
 #'
-#' Silhouettes (filled shapes) of the canonical contours.
+#' Characteristic contours of the canonical contours.
 #'
-#' @name canonical_polygons
+#' @name canonical_contours
 #' @format A data frame with the following columns:
 #' \describe{
 #' \item{last_name}{Last name of the patient}
@@ -14,10 +14,10 @@
 #' \item{surface}{'FRONT' or 'BACK' surface of the cornea}
 #' \item{x}{x-axis coordinate of the measurement}
 #' \item{y}{y-axis coordinate of the measurement}
-#' \item{contour_id}{Ordinal identifier of the segment(s) that comprise a contour}
+#' \item{segment_id}{Ordinal identifier of the segment(s) that comprise a contour}
 #' \item{contour}{Dioptric power of the contour}
 #' \item{cluster}{Oridinal identifier of the cluster}
 #' \item{shape}{Name of the cluster}
 #' }
 #'
-"canonical_polygons"
+"canonical_contours"
