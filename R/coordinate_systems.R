@@ -312,9 +312,11 @@ rotate_shape <- function(points, theta_deg) {
 #############################
 
 #' Interpolate measurements over an expanded grid
+#'
 #' @description
 #' Interpolates measurements over an expanded
 #' grid of Cartesian coordinates (\emph{x} and \emph{y}).
+#'
 #' @param source_dat
 #' A data frame containing one row for each \code{measurement}. Each row must contain
 #' at least three columns: a set of Cartesian coordinates (\code{x} and
@@ -369,4 +371,107 @@ interpolate_measurements <- function(source_dat, ...) {
     dplyr::filter(!is.na(z))
 
   return(grid)
+}
+
+
+##################
+## quadrant_eye
+##################
+
+#' Quadrant of an eye
+#'
+#' @description
+#' Returns the quadrant of a point based on its \emph{x}- and \emph{y}-axis
+#' position and the \code{exam_eye}.
+
+#' @param x
+#' The x-axis coordinate.
+#' @param y
+#' The y-axis coordinate.
+#' @param exam_eye
+#' A character vector containing either "left" or "right".
+#' @return
+#' A two-character string. See details.
+
+#' @details
+#' The quadrant system for an eye is split on the \emph{y}-axis by the superior
+#' ("S") and the inferior ("I"), and on the \emph{x}-axis by the nasal ("N") and
+#' the temporal ("T"). The superior is always \code{y > 0}, and the inferior is
+#' always \code{y ≤ 0}. The nasal and temporal depend on the eye: For the right
+#' eye, the nasal is \code{x > 0}; for the left eye, the nasal is \code{x ≤ 0}.
+
+#' @examples
+#' quadrant_eye(1, 1, 'left')
+#' quadrant_eye(1, 1, 'right')
+#'
+#' @family Coordinate Systems
+#'
+#' @importFrom dplyr filter
+#'
+#' @export
+quadrant_eye <- function(x, y, exam_eye) {
+
+  if (y > 0) {
+    # superior
+    if (exam_eye == 'right') {
+      quadrant <- dplyr::if_else(x > 0, 'SN', 'ST')
+    } else {
+      # left
+      quadrant <- dplyr::if_else(x >= 0, 'ST', 'SN')
+    }
+  } else {
+    # inferior
+    if (exam_eye == 'right') {
+      quadrant <- dplyr::if_else(x > 0, 'IN', 'IT')
+    } else {
+      # left
+      quadrant <- dplyr::if_else(x >= 0, 'IT', 'IN')
+    }
+  }
+
+  return(quadrant)
+}
+
+quadrant_eye <- Vectorize(quadrant_eye)
+
+
+########################
+## hausdorff_distance
+########################
+
+#' Hausdorff distance
+#' @description
+#' Calculates the Hausdorff distance between two contours.
+#' @param contour_A
+#' A data frame containing contour A.
+#' @param contour_B
+#' A data frame containing contour B.
+#' @return
+#' The Hausdorff distance between the two contours.
+#' @examples
+#' hausdorff_distance(
+#'   contour_A = get_contour(sample_curvature, contour_power = 44),
+#'   contour_B = get_contour(sample_curvature, contour_power = 44.5)
+#' )
+#'
+#' @family Coordinate Systems
+#'
+#' @importFrom pracma hausdorff_dist
+#' @importFrom dplyr select
+#'
+#' @export
+hausdorff_distance <- function(contour_A, contour_B) {
+
+  matrix_A <- contour_A |>
+    dplyr::select(x, y) |>
+    unique() |>
+    as.matrix()
+
+  matrix_B <- contour_B |>
+    dplyr::select(x, y) |>
+    unique() |>
+    as.matrix()
+
+  # The Hausdorff distance is the maximum of these two maximum distances
+  pracma::hausdorff_dist(matrix_A, matrix_B)
 }

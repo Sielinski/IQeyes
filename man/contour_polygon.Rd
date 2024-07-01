@@ -38,9 +38,6 @@ Other Contours:
 \code{\link{fill_contour}()},
 \code{\link{get_contour}()},
 \code{\link{get_contour_levels}()},
-\code{\link{scale_rotate}()},
-\code{\link{silhouette_compare}()},
-\code{\link{silhouette_compare_group}()},
-\code{\link{silhouette_plot_old}()}
+\code{\link{scale_rotate}()}
 }
 \concept{Contours}

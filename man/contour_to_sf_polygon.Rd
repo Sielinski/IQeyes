@@ -10,22 +10,31 @@ contour_to_sf_polygon(contour, required_points = 4)
 \item{contour}{A data frame containing one row for each point of the contour and the same
 columns as \link{sample_contour}. If the contour needs to be scaled and/or
 rotated, the necessary transforms must be performed prior to calling
-\code{contour_polygon}.}
+\code{contour_to_sf_polygon()}.}
+
+\item{required_points}{A number indicating the minimum number of points required to convert a
+segment of the contour to a feature of the polygon. Must be four or more.}
 }
 \value{
-An sf object.
+An sf object. See details.
 }
 \description{
 Converts a contour to an sf polygon object.
 }
 \details{
-If the contour contains segments that are fully enclosed in another segment,
-this function will \emph{subtract} those segments from the resulting polygon.
+Each segment of the contour will become a feature of the polygon. There are
+two exceptions, however: Segments that are fully contained within another
+segment will \emph{subtracted} from the resulting polygon, and segments with
+fewer than \code{required_points} will be disregarded.
 }
 \examples{
 contour_to_sf_polygon(
-  contour = get_contour(sample_curvature, contour_power = 44)
+  contour = get_contour(sample_curvature, contour_power = 44.5)
 )
+
+reference_contours |>
+  dplyr::filter(cluster == 7) |>
+  contour_to_sf_polygon()
 
 }
 \seealso{

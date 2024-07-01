@@ -42,11 +42,17 @@ group.
 \description{
 Calculates the average percentage overlap between the silhouette of an
 individual contour and every member of a group of contours.
+
+Both \code{contour_exam} and \code{contour_group} should be data frames
+containing one row for each point of their respective contours and the same
+columns as \link{sample_contour}. If the contours need to be scaled and/or
+rotated, the necessary transforms must be performed prior to calling
+\code{silhouette_overlap_group()}. See \link{IQeyes:scale_rotate}.
 }
 \examples{
 silhouette_overlap_group(
   contour_exam = get_contour(sample_curvature, contour_power = 45.5),
-  contour_group = canonical_contours,
+  contour_group = reference_contours,
   show_plot = T,
   return_detail = T
 )

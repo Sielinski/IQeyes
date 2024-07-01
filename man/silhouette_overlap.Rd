@@ -7,9 +7,9 @@
 silhouette_overlap(contour_A, contour_B, show_plot = F)
 }
 \arguments{
-\item{contour_A}{A data frame containing the contour A.}
+\item{contour_A}{A data frame containing contour A.}
 
-\item{contour_B}{A data frame containing the contour B.}
+\item{contour_B}{A data frame containing contour B.}
 
 \item{show_plot}{A Boolean. \code{TRUE} to render a plot that illustrates the comparison
 being made. To access the plot as an object, see \link{IQeyes:silhouette_plot}.}
@@ -21,6 +21,12 @@ The average percentage overlap between the two silhouettes.
 Identifies the overlapping area of two silhouettes, calculates the percentage
 of each silhouette's area contained by the overlap, and returns the average
 percentage overlap.
+
+Both \code{contour_A} and \code{contour_B} should be data frames containing
+one row for each point of their respective contours and the same columns as
+\link{sample_contour}. If the contours need to be scaled and/or
+rotated, the necessary transforms must be performed prior to calling
+\code{silhouette_overlap()}. See \link{IQeyes:scale_rotate}.
 }
 \examples{
 silhouette_overlap(

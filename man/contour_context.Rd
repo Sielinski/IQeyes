@@ -37,7 +37,6 @@ contour_context(sample_curvature)
 }
 \seealso{
 Other Characteristic Contours: 
-\code{\link{candidate_contours}()},
-\code{\link{closest_silhouette}()}
+\code{\link{candidate_contours}()}
 }
 \concept{Characteristic Contours}

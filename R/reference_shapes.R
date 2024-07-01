@@ -1,8 +1,8 @@
-#' canonical_shapes
+#' reference_shapes
 #'
-#' A data frame identifying the canonical shapes.
+#' A data frame identifying the reference shapes.
 #'
-#' @name canonical_shapes
+#' @name reference_shapes
 #' @format A data frame with the following columns:
 #' \describe{
 #' \item{last_name}{Last name of the patient}
@@ -15,4 +15,4 @@
 #' \item{shape}{Name of the cluster}
 #' }
 #'
-"canonical_shapes"
+"reference_shapes"

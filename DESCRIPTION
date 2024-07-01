@@ -21,7 +21,8 @@ Imports:
     lubridate,
     akima,
     ggforce, 
-    sp
+    sp, 
+    pracma
 Depends: 
     R (>= 4.1.0)
 Roxygen: list(markdown = TRUE, roclets = c("namespace", "rd"))

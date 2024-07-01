@@ -96,3 +96,4 @@ posterior_power <- function(R) 30 / R  # 1.376/1.336 ≈ 0.30
 #' @export
 kappa_from_radius <- function(R) 1/R
 
+

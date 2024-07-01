@@ -61,6 +61,8 @@ logit <- function(p) {
   }
 }
 
+logit <- Vectorize(logit)
+
 
 ##############
 ## logistic

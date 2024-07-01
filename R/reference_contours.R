@@ -1,8 +1,8 @@
-#' canonical_contours
+#' reference_contours
 #'
-#' Characteristic contours of the canonical contours.
+#' Characteristic contours of the reference shapes.
 #'
-#' @name canonical_contours
+#' @name reference_contours
 #' @format A data frame with the following columns:
 #' \describe{
 #' \item{last_name}{Last name of the patient}
@@ -20,4 +20,4 @@
 #' \item{shape}{Name of the cluster}
 #' }
 #'
-"canonical_contours"
+"reference_contours"

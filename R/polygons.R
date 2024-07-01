@@ -11,19 +11,28 @@
 #' A data frame containing one row for each point of the contour and the same
 #' columns as [IQeyes::sample_contour]. If the contour needs to be scaled and/or
 #' rotated, the necessary transforms must be performed prior to calling
-#' \code{contour_polygon}.
+#' \code{contour_to_sf_polygon()}.
+#' @param required_points
+#' A number indicating the minimum number of points required to convert a
+#' segment of the contour to a feature of the polygon. Must be four or more.
 #'
 #' @return
-#' An sf object.
+#' An sf object. See details.
 #'
 #' @details
-#' If the contour contains segments that are fully enclosed in another segment,
-#' this function will \emph{subtract} those segments from the resulting polygon.
+#' Each segment of the contour will become a feature of the polygon. There are
+#' two exceptions, however: Segments that are fully contained within another
+#' segment will \emph{subtracted} from the resulting polygon, and segments with
+#' fewer than \code{required_points} will be disregarded.
 #'
 #' @examples
 #' contour_to_sf_polygon(
 #'   contour = get_contour(sample_curvature, contour_power = 44.5)
 #' )
+#'
+#' reference_contours |>
+#'   dplyr::filter(cluster == 7) |>
+#'   contour_to_sf_polygon()
 #'
 #' @family Polygons
 #'
@@ -41,10 +50,11 @@
 #' @importFrom dplyr pull
 #' @importFrom dplyr select
 #' @importFrom dplyr group_by
-#' @importFrom purrr reduce
 #'
 #' @export
 contour_to_sf_polygon <- function(contour, required_points = 4) {
+
+  if (required_points < 4) warning('required_points must be greater than 4.')
 
   # ensure that each segment has enough points to become a valid polygon
   valid_segments <- contour |>
@@ -58,69 +68,93 @@ contour_to_sf_polygon <- function(contour, required_points = 4) {
     dplyr::filter(segment_id %in% valid_segments) |>
     dplyr::select(x, y, segment_id)
 
-  # Convert the data frame to an sf object with polygons
-  sf_segments <- df |>
-    sf::st_as_sf(coords = c("x", "y"), crs = NA) |>
-    dplyr::group_by(segment_id) |>
-    dplyr::summarize(do_union = FALSE) |>
-    sf::st_cast("POLYGON")
+  if(nrow(df) == 0) {
+    warning('None of the segments are large enough to convert to a polygon')
 
-  # if necessary, repair the polygon
-  for (i in 1:nrow(sf_segments)) {
-    if (!sf::st_is_valid(sf_segments[i, ]))
-      sf_segments[i, ] <- sf::st_make_valid(sf_segments[i, ])
-  }
+  } else {
+    # Convert the data frame to an sf object with polygons
+    sf_segments <- df |>
+      dplyr::select(x, y, segment_id) |>
+      sf::st_as_sf(coords = c("x", "y"), crs = NA) |>
+      dplyr::group_by(segment_id) |>
+      dplyr::summarize(do_union = FALSE) |>
+      sf::st_cast("POLYGON")
 
-  # Initialize a list to hold the final polygons
-  final_polygons <- list()
+    # if necessary, repair the polygon
+    for (i in 1:nrow(sf_segments)) {
+      if (!sf::st_is_valid(sf_segments[i, ]))
+        sf_segments[i, ] <- sf::st_make_valid(sf_segments[i, ])
+    }
 
-  # go through every polygon
-  for (i in 1:nrow(sf_segments)) {
-    current_polygon <- sf_segments[i, ]
+    # Initialize a list to hold the final polygons
+    final_polygons <- list()
 
-    is_outer <- TRUE
+    # go through every polygon
+    for (i in 1:nrow(sf_segments)) {
+      current_polygon <- sf_segments[i, ]
 
-    # check if the current polygon is enclosed by any other polygon
-    for (j in 1:nrow(sf_segments)) {
-      if (i != j) {
-        test_polygon <- sf_segments[j, ]
-        if (sf::st_contains(test_polygon, current_polygon, sparse = FALSE)) {
-          is_outer <- FALSE
-          break
+      is_outer <- TRUE
+
+      # check if the current polygon is enclosed by any other polygon
+      for (j in 1:nrow(sf_segments)) {
+        if (i != j) {
+          test_polygon <- sf_segments[j, ]
+          if (sf::st_contains(test_polygon, current_polygon, sparse = FALSE)) {
+            is_outer <- FALSE
+            break
+          }
         }
+      }
+
+      # if the polygon is not enclosed by any other polygon, add it to the
+      # list of outer polygons
+      if (is_outer) {
+        final_polygons[[length(final_polygons) + 1]] <- current_polygon
       }
     }
 
-    # if the polygon is not enclosed by any other polygon, add it to the
-    # list of outer polygons
-    if (is_outer) {
-      final_polygons[[length(final_polygons) + 1]] <- current_polygon
-    }
-  }
+    # Combine all outer polygons
+    combined_polygon <- final_polygons |>
+      dplyr::bind_rows()
 
-  # Combine all outer polygons
-  combined_polygon <- purrr::reduce(final_polygons, sf::st_union)
+    # check if all segments have been combined
+    if (nrow(combined_polygon) < nrow(sf_segments)) {
+      # if not, identify the inner segment(s)
+      inner_segments <- sf_segments$segment_id[!sf_segments$segment_id %in% combined_polygon$segment_id]
 
-  # repeat the st_contains test, but now subtract any inner polygons from
-  # the combined polygon
-  for (i in 1:nrow(sf_segments)) {
-    current_polygon <- sf_segments[i, ]
-
-    for (j in 1:nrow(sf_segments)) {
-      if (i != j) {
-        test_polygon <- sf_segments[j, ]
-        if (sf::st_contains(current_polygon, test_polygon, sparse = FALSE)) {
-          combined_polygon <- suppressWarnings(sf::st_difference(combined_polygon, test_polygon))
-        }
+      # remove any identified inner segments
+      for (i in seq_along(inner_segments)) {
+        combined_polygon <- suppressWarnings(sf::st_difference(combined_polygon, sf_segments[inner_segments[i], ]))
       }
+
+      # repeat the st_contains test, but now subtract any inner polygons from
+      # the combined polygon
+      #for (i in 1:nrow(sf_segments)) {
+      #  current_polygon <- sf_segments[i, ]
+      #
+      #  for (j in 1:nrow(sf_segments)) {
+      #    if (i != j) {
+      #      test_polygon <- sf_segments[j, ]
+      #      if (sf::st_contains(current_polygon, test_polygon, sparse = FALSE)) {
+      #        combined_polygon <- suppressWarnings(sf::st_difference(combined_polygon, test_polygon))
+      #      }
+      #    }
+      #  }
+      #}
     }
+
+    # get rid of any unnecessary columns
+    combined_polygon <- combined_polygon |>
+      as.data.frame() |>
+      dplyr::select(geometry) |>
+      sf::st_as_sf()
+
+    # if necessary, repair the polygon
+    # if (!sf::st_is_valid(combined_polygon)) combined_polygon <- sf::st_make_valid(combined_polygon)
+
+    return(combined_polygon)
   }
 
-  # if necessary, repair the polygon
-  if (!sf::st_is_valid(combined_polygon))
-    combined_polygon <- sf::st_make_valid(combined_polygon)
-
-  return(combined_polygon)
 }
 
 
@@ -135,10 +169,16 @@ contour_to_sf_polygon <- function(contour, required_points = 4) {
 #' of each silhouette's area contained by the overlap, and returns the average
 #' percentage overlap.
 #'
+#' Both \code{contour_A} and \code{contour_B} should be data frames containing
+#' one row for each point of their respective contours and the same columns as
+#' [IQeyes::sample_contour]. If the contours need to be scaled and/or
+#' rotated, the necessary transforms must be performed prior to calling
+#' \code{silhouette_overlap()}. See [IQeyes:scale_rotate].
+#'
 #' @param contour_A
-#' A data frame containing the contour A.
+#' A data frame containing contour A.
 #' @param contour_B
-#' A data frame containing the contour B.
+#' A data frame containing contour B.
 #' @param show_plot
 #' A Boolean. \code{TRUE} to render a plot that illustrates the comparison
 #' being made. To access the plot as an object, see [IQeyes:silhouette_plot].
@@ -157,8 +197,6 @@ contour_to_sf_polygon <- function(contour, required_points = 4) {
 #'
 #' @importFrom sf st_intersection
 #' @importFrom sf st_area
-#' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 geom_sf
 #' @importFrom ggplot2 labs
 #'
 #' @export
@@ -172,24 +210,23 @@ silhouette_overlap <- function(contour_A, contour_B, show_plot = F) {
   intersection <- suppressWarnings(sf::st_intersection(poly_A, poly_B))
 
   # Calculate areas
-  area_A <- sf::st_area(poly_A)
-  area_B <- sf::st_area(poly_B)
-  area_intersection <- sf::st_area(intersection)
+  area_A <- sf::st_area(poly_A) |> sum()
+  area_B <- sf::st_area(poly_B) |> sum()
+  area_intersection <- sf::st_area(intersection) |> sum()
 
   if (show_plot) {
-    #p <- ggplot2::ggplot() +
-    #  ggplot2::geom_sf(data = poly_A, fill = 'coral', alpha = 0.3, color = 'black') +
-    #  ggplot2::geom_sf(data = poly_B, fill = 'deepskyblue', alpha = 0.3, color = 'black') +
-    #  ggplot2::labs(title = 'Overlapping silhouettes')
-
-    p <- silhouette_plot(poly_A, poly_B)
+    p <- silhouette_plot(poly_A, poly_B) +
+      ggplot2::labs(title = 'Shape-to-shape comparison')
 
     print(p)
   }
 
   # return the average percentage overlap
   if (length(area_intersection) == 0) {
-    return(0)
+  #if (any(length(area_intersection) == 0,
+  #        length(area_A) == 0,
+  #        length(area_A) == 0)) {
+      return(0)
   } else {
     mean_overlap <- mean(c(area_intersection / area_A, area_intersection / area_B), na.rm = T)
     return(mean_overlap)
@@ -208,6 +245,12 @@ silhouette_overlap <- function(contour_A, contour_B, show_plot = F) {
 #' @description
 #' Calculates the average percentage overlap between the silhouette of an
 #' individual contour and every member of a group of contours.
+#'
+#' Both \code{contour_exam} and \code{contour_group} should be data frames
+#' containing one row for each point of their respective contours and the same
+#' columns as [IQeyes::sample_contour]. If the contours need to be scaled and/or
+#' rotated, the necessary transforms must be performed prior to calling
+#' \code{silhouette_overlap_group()}. See [IQeyes:scale_rotate].
 #'
 #' @param contour_exam
 #' A data frame containing the individual contour.
@@ -239,12 +282,23 @@ silhouette_overlap <- function(contour_A, contour_B, show_plot = F) {
 #' @examples
 #' silhouette_overlap_group(
 #'   contour_exam = get_contour(sample_curvature, contour_power = 45.5),
-#'   contour_group = canonical_contours,
+#'   contour_group = reference_contours,
 #'   show_plot = T,
 #'   return_detail = T
 #' )
 #'
 #' @family Polygons
+#'
+#' @importFrom dplyr group_by
+#' @importFrom dplyr across
+#' @importFrom tidyselect all_of
+#' @importFrom dplyr group_split
+#' @importFrom dplyr bind_rows
+#' @importFrom dplyr select
+#' @importFrom sf st_intersection
+#' @importFrom sf st_as_sf
+#' @importFrom sf st_area
+#' @importFrom ggplot2 labs
 #'
 #' @export
 silhouette_overlap_group <- function(contour_exam, contour_group, show_plot = F, return_detail = F) {
@@ -263,13 +317,21 @@ silhouette_overlap_group <- function(contour_exam, contour_group, show_plot = F,
     intersection <- suppressWarnings(sf::st_intersection(x, poly_exam))
 
     # Calculate areas
-    area_A <- sf::st_area(x)
-    area_B <- sf::st_area(poly_exam)
-    area_intersection <- sf::st_area(intersection)
+    area_A <- sf::st_area(x) |> sum()
+    area_B <- sf::st_area(poly_exam) |> sum()
+    area_intersection <- sf::st_area(intersection) |> sum()
 
     # return the average percentage overlap
     if (length(area_intersection) == 0) {
       return(0)
+    } else if (length(area_intersection) != length(area_B)) {
+      warning(paste0(
+        'Length of the intersection is ',
+        length(area_intersection),
+        ', and length of area_B is ',
+        length(area_B)
+      ))
+      return(area_intersection / area_A)
     } else {
       mean_overlap <- mean(c(area_intersection / area_A, area_intersection / area_B), na.rm = T)
       return(mean_overlap)
@@ -283,13 +345,8 @@ silhouette_overlap_group <- function(contour_exam, contour_group, show_plot = F,
       dplyr::select(cluster, geometry) |>
       sf::st_as_sf()
 
-    p <- silhouette_plot(poly_exam, plot_group)
-
-    #p <- ggplot2::ggplot(data = plot_group) +
-    #  ggplot2::geom_sf(fill = 'deepskyblue', alpha = 0.3, color = 'black') +
-    #  ggplot2::geom_sf(data = poly_exam, fill = 'coral', alpha = 0.3, color = 'black') +
-    #  ggplot2::facet_wrap(~ cluster) +
-    #  ggplot2::labs(title = 'Overlapping silhouettes')
+    p <- silhouette_plot(poly_exam, plot_group) +
+      ggplot2::labs(title = 'Shape-to-shape comparisons')
 
     print(p)
   }
@@ -331,8 +388,8 @@ silhouette_overlap_group <- function(contour_exam, contour_group, show_plot = F,
 #' \code{cluster} column, the plot will be faceted by cluster.
 #'
 #' @details
-#' For convenience, the polygons for the canonical shapes
-#' ([IQeyes:canonical_polygons]) are included in this package.
+#' For convenience, the polygons for the reference shapes
+#' ([IQeyes:reference_polygons]) are included in this package.
 #'
 #' @return
 #' A ggplot2 object that that shows the overlapping silhouettes.
@@ -344,15 +401,14 @@ silhouette_overlap_group <- function(contour_exam, contour_group, show_plot = F,
 #'
 #' silhouette_plot(
 #'   ref_polygon = sample_polygon,
-#'   compare_polygons = canonical_polygons,
+#'   compare_polygons = reference_polygons,
 #'   highlight_cluster = 1
 #' )
 #'
 #' @family Polygons
 #'
 #' @importFrom ggplot2 ggplot
-#' @importFrom ggplot2 aes
-#' @importFrom ggplot2 geom_polygon
+#' @importFrom ggplot2 geom_sf
 #' @importFrom ggplot2 facet_wrap
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 theme
@@ -393,7 +449,6 @@ silhouette_plot <- function(ref_polygon, compare_polygons, highlight_cluster = N
 
   # add the label and remove the x- and y-axis elements
   p <- p +
-    ggplot2::labs(title = 'Overlapping silhouettes') +
     ggplot2::theme(
         axis.title.x = ggplot2::element_blank(),
         axis.title.y = ggplot2::element_blank(),

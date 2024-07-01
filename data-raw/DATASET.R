@@ -70,17 +70,17 @@ usethis::use_data(adjacent_points_dat, overwrite = T, internal = F)
 # curvature data for the canonical shapes
 # canonical_curvature <- read_package_data('data-raw/canonical_shapes_curvature.csv')
 
-# curvature data for the canonical shapes
-canonical_shapes <- readRDS('data-raw/canonical_shapes.RDS')
+# data frame defining the reference shapes
+reference_shapes <- readRDS('data-raw/reference_shapes.RDS')
 
-# curvature data for the canonical polygons
-canonical_contours <- readRDS('data-raw/canonical_contours.RDS')
+# curvature data for the reference contours
+reference_contours <- readRDS('data-raw/reference_contours.RDS')
 
-# curvature data for the canonical shapes
-canonical_polygons <- readRDS('data-raw/canonical_polygons.RDS')
+# polygons for the reference shapes
+reference_polygons <- readRDS('data-raw/reference_polygons.RDS')
 
 # curvature data for the canonical sihouettes (filled shapes)
-canonical_silhouettes <- readRDS('data-raw/canonical_silhouettes.RDS')
+#canonical_silhouettes <- readRDS('data-raw/canonical_silhouettes.RDS')
 
 
 # A sample exam's curvature data (from COR-PWR)
@@ -93,11 +93,11 @@ sample_astig <- readRDS('data-raw/sample_astig.RDS')
 sample_contour <- readRDS('data-raw/sample_contour.RDS')
 
 ## Store datasets
-usethis::use_data(canonical_shapes, overwrite = T, internal = F)
+usethis::use_data(reference_shapes, overwrite = T, internal = F)
 #usethis::use_data(canonical_curvature, overwrite = T, internal = F)
-usethis::use_data(canonical_contours, overwrite = T, internal = F)
-usethis::use_data(canonical_polygons, overwrite = T, internal = F)
-usethis::use_data(canonical_silhouettes, overwrite = T, internal = F)
+usethis::use_data(reference_contours, overwrite = T, internal = F)
+usethis::use_data(reference_polygons, overwrite = T, internal = F)
+#usethis::use_data(canonical_silhouettes, overwrite = T, internal = F)
 
 usethis::use_data(sample_curvature, overwrite = T, internal = F)
 usethis::use_data(sample_astig, overwrite = T, internal = F)
@@ -108,7 +108,7 @@ usethis::use_data(sample_contour, overwrite = T, internal = F)
 ## Read fitted models
 ########################
 
-# retrieve the model
+# identify the characteristic contour
 char_fit <- readRDS('data-raw/characteristic_contour_fit.RDS')
 
 usethis::use_data(char_fit, overwrite = T, internal = F)

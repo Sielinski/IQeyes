@@ -4,7 +4,7 @@
 \alias{silhouette_plot}
 \title{Plot the overlap of one silhouette with one or more silhouettes}
 \usage{
-silhouette_plot(ref_polygon, compare_polygons)
+silhouette_plot(ref_polygon, compare_polygons, highlight_cluster = NULL)
 }
 \arguments{
 \item{ref_polygon}{A data frame containing the polygon object for the exam.}
@@ -24,8 +24,8 @@ calling \link{contour_to_sf_polygon} before calling
 \code{silhouette_plot()}.
 }
 \details{
-For convenience, the polygons for the canonical shapes
-(\link{IQeyes:canonical_polygons}) are included in this package.
+For convenience, the polygons for the reference shapes
+(\link{IQeyes:reference_polygons}) are included in this package.
 }
 \examples{
 sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
@@ -34,7 +34,8 @@ sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45
 
 silhouette_plot(
   ref_polygon = sample_polygon,
-  compare_polygons = canonical_polygons
+  compare_polygons = reference_polygons,
+  highlight_cluster = 1
 )
 
 }

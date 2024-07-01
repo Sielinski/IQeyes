@@ -28,7 +28,7 @@ segment that contains both K-max and K-next, only contours with segments
 containing both points are considered candidates. If no contour has a segment
 that contains both points (or K-next doesn't exist), contours with segments
 containing a single point are considered candidates. In the unlikely case
-that no contours have any segments containing any points, all contours are
+that no contours have segments containing points, all contours are
 considered candidates.
 }
 \examples{
@@ -37,7 +37,6 @@ candidate_contours(sample_curvature)
 }
 \seealso{
 Other Characteristic Contours: 
-\code{\link{closest_silhouette}()},
 \code{\link{contour_context}()}
 }
 \concept{Characteristic Contours}
