@@ -29,8 +29,6 @@ get_contour_levels(sample_curvature)
 }
 \seealso{
 Other Contours: 
-\code{\link{contour_polygon}()},
-\code{\link{fill_contour}()},
 \code{\link{get_contour}()},
 \code{\link{scale_rotate}()}
 }

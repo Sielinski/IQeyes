@@ -45,8 +45,6 @@ curvature_plot(sample_curvature, labels = F) +
 }
 \seealso{
 Other Contours: 
-\code{\link{contour_polygon}()},
-\code{\link{fill_contour}()},
 \code{\link{get_contour_levels}()},
 \code{\link{scale_rotate}()}
 }

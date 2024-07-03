@@ -43,8 +43,6 @@ scale_rotate(sample_curvature, axs = 33.6) |>
 }
 \seealso{
 Other Contours: 
-\code{\link{contour_polygon}()},
-\code{\link{fill_contour}()},
 \code{\link{get_contour}()},
 \code{\link{get_contour_levels}()}
 }

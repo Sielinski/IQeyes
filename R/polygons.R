@@ -36,6 +36,8 @@
 #'
 #' @family Polygons
 #'
+#' @importFrom sf st_sf
+#' @importFrom sf st_sfc
 #' @importFrom sf st_as_sf
 #' @importFrom sf st_cast
 #' @importFrom sf st_contains
@@ -54,7 +56,12 @@
 #' @export
 contour_to_sf_polygon <- function(contour, required_points = 4) {
 
-  if (required_points < 4) warning('required_points must be greater than 4.')
+  # contour <- get_contour(sample_curvature, contour_power = 46)[1:4, ]
+
+  if (required_points < 4) {
+    warning('required_points must be greater than 4: resetting to 4.')
+    required_points <- 4
+  }
 
   # ensure that each segment has enough points to become a valid polygon
   valid_segments <- contour |>
@@ -68,8 +75,13 @@ contour_to_sf_polygon <- function(contour, required_points = 4) {
     dplyr::filter(segment_id %in% valid_segments) |>
     dplyr::select(x, y, segment_id)
 
-  if(nrow(df) == 0) {
+  if(length(valid_segments) == 0) {
     warning('None of the segments are large enough to convert to a polygon')
+
+    empty_sf <- sf::st_sf(
+      geometry = sf::st_sfc()
+    )
+    return(empty_sf)
 
   } else {
     # Convert the data frame to an sf object with polygons
@@ -126,21 +138,6 @@ contour_to_sf_polygon <- function(contour, required_points = 4) {
       for (i in seq_along(inner_segments)) {
         combined_polygon <- suppressWarnings(sf::st_difference(combined_polygon, sf_segments[inner_segments[i], ]))
       }
-
-      # repeat the st_contains test, but now subtract any inner polygons from
-      # the combined polygon
-      #for (i in 1:nrow(sf_segments)) {
-      #  current_polygon <- sf_segments[i, ]
-      #
-      #  for (j in 1:nrow(sf_segments)) {
-      #    if (i != j) {
-      #      test_polygon <- sf_segments[j, ]
-      #      if (sf::st_contains(current_polygon, test_polygon, sparse = FALSE)) {
-      #        combined_polygon <- suppressWarnings(sf::st_difference(combined_polygon, test_polygon))
-      #      }
-      #    }
-      #  }
-      #}
     }
 
     # get rid of any unnecessary columns
