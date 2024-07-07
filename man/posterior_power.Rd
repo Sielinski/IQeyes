@@ -14,7 +14,7 @@ Returns the optical power of the posterior surface of a cornea.
 }
 \description{
 Calculates the dioptric power of the posterior (rear) surface of a cornea
-based on its posterior radius of curvature.
+based on the radius of curvature.
 }
 \examples{
 posterior_power(5)

@@ -13,9 +13,9 @@ convert_name(name)
 A character string containing the converted name.
 }
 \description{
-Converts all characters to lower case, replaces decimals and whitespace with
-an underscore ("_"), replaces symbols with text (e.g., "°" with "deg"), and
-more.
+Converts all characters to lower case, replaces decimals and whitespace
+characters with an underscore ("_"), replaces symbols with text (e.g., "°"
+with "deg"), and more.
 }
 \examples{
 convert_name('r4.0 324°')

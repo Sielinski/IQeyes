@@ -15,7 +15,8 @@ curvature_plot(
   truncate_circle = T,
   circle_dia = 9,
   points = F,
-  greyscale = F
+  greyscale = F,
+  coord_fixed = T
 )
 }
 \arguments{

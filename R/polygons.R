@@ -243,16 +243,19 @@ silhouette_overlap <- function(contour_A, contour_B, show_plot = F) {
 #' Calculates the average percentage overlap between the silhouette of an
 #' individual contour and every member of a group of contours.
 #'
-#' Both \code{contour_exam} and \code{contour_group} should be data frames
-#' containing one row for each point of their respective contours and the same
-#' columns as [IQeyes::sample_contour]. If the contours need to be scaled and/or
+#' The individual exam (\code{contour_exam}) should be a data frame with the
+#' same structure as [IQeyes::sample_contour], containing one row for each point
+#' in the contour. The group (\code{poly_group}) should be a data frame
+#' containing the polygon geometries of the group.
+#'
+#' If the contours need to be scaled and/or
 #' rotated, the necessary transforms must be performed prior to calling
 #' \code{silhouette_overlap_group()}. See [IQeyes:scale_rotate].
 #'
 #' @param contour_exam
 #' A data frame containing the individual contour.
-#' @param contour_group
-#' A data frame containing the group of contours. The data frame
+#' @param poly_group
+#' A data frame containing a group of polygons. The data frame
 #' \emph{must} include a \code{cluster} column that uniquely identifies
 #' each member of the group.
 #' @param show_plot
@@ -278,79 +281,62 @@ silhouette_overlap <- function(contour_A, contour_B, show_plot = F) {
 #'
 #' @examples
 #' silhouette_overlap_group(
-#'   contour_exam = get_contour(sample_curvature, contour_power = 45.5),
-#'   contour_group = reference_contours,
-#'   show_plot = T,
-#'   return_detail = T
+#'  contour_exam = get_contour(sample_curvature, contour_power = 45.5) |> scale_rotate(axs = 33.6),
+#'  show_plot = T,
+#'  return_detail = T
 #' )
 #'
 #' @family Polygons
 #'
 #' @importFrom dplyr group_by
-#' @importFrom dplyr across
-#' @importFrom tidyselect all_of
 #' @importFrom dplyr group_split
-#' @importFrom dplyr bind_rows
-#' @importFrom dplyr select
 #' @importFrom sf st_intersection
 #' @importFrom sf st_as_sf
 #' @importFrom sf st_area
 #' @importFrom ggplot2 labs
 #'
 #' @export
-silhouette_overlap_group <- function(contour_exam, contour_group, show_plot = F, return_detail = F) {
+silhouette_overlap_group <- function(contour_exam,
+                                     poly_group = reference_polygons,
+                                     show_plot = F,
+                                     return_detail = F) {
 
   # convert contours to polygons
   poly_exam <- contour_to_sf_polygon(contour_exam)
 
-  poly_group <- contour_group |>
-    dplyr::group_by(dplyr::across(tidyselect::all_of(join_fields))) |>
-    dplyr::group_split() |>
-    lapply(contour_to_sf_polygon)
-
   # calculate the average overlap of the exam with each member of the group
-  mean_overlap_group <- lapply(poly_group, function(x) {
-    # identify overlap/intersection
-    intersection <- suppressWarnings(sf::st_intersection(x, poly_exam))
+  mean_overlap_group <- poly_group |>
+    dplyr::group_by(cluster) |>
+    dplyr::group_split() |>
+    lapply(function(x) {
+      # identify overlap/intersection
+      intersection <- suppressWarnings(sf::st_intersection(x, poly_exam))
 
-    # Calculate areas
-    area_A <- sf::st_area(x) |> sum()
-    area_B <- sf::st_area(poly_exam) |> sum()
-    area_intersection <- sf::st_area(intersection) |> sum()
+      # Calculate areas
+      area_A <- sf::st_area(x) |> sum()
+      area_B <- sf::st_area(poly_exam) |> sum()
+      area_intersection <- sf::st_area(intersection) |> sum()
 
-    # return the average percentage overlap
-    if (length(area_intersection) == 0) {
-      return(0)
-    } else if (length(area_intersection) != length(area_B)) {
-      warning(paste0(
-        'Length of the intersection is ',
-        length(area_intersection),
-        ', and length of area_B is ',
-        length(area_B)
-      ))
-      return(area_intersection / area_A)
-    } else {
-      mean_overlap <- mean(c(area_intersection / area_A, area_intersection / area_B), na.rm = T)
-      return(mean_overlap)
-    }
-  })
+      # return the average percentage overlap
+      if (length(area_intersection) == 0) {
+        return(0)
+      } else {
+        mean_overlap <- mean(c(area_intersection / area_A, area_intersection / area_B),
+                             na.rm = T)
+        return(mean_overlap)
+      }
+    }) |>
+    unlist()
+
+  closest_fit <- which.max(mean_overlap_group)
 
   # plot
   if (show_plot) {
-    plot_group <- dplyr::bind_rows(poly_group, .id = 'cluster') |>
-      as.data.frame() |>
-      dplyr::select(cluster, geometry) |>
-      sf::st_as_sf()
-
-    p <- silhouette_plot(poly_exam, plot_group) +
+    p <- silhouette_plot(poly_exam, poly_group) +
       ggplot2::labs(title = 'Shape-to-shape comparisons')
 
     print(p)
   }
-
-  mean_overlap_group <- unlist(mean_overlap_group)
-
-  closest_fit <- which.max(mean_overlap_group)
 
   if (return_detail) {
     return(list(

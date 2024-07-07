@@ -110,9 +110,9 @@ read_pentacam_csv <- function(file_name,
 
 #' Convert a Pentacam name to an R-friendly format
 #' @description
-#' Converts all characters to lower case, replaces decimals and whitespace with
-#' an underscore ("_"), replaces symbols with text (e.g., "°" with "deg"), and
-#' more.
+#' Converts all characters to lower case, replaces decimals and whitespace
+#' characters with an underscore ("_"), replaces symbols with text (e.g., "°"
+#' with "deg"), and more.
 #' @param name
 #' A character string containing the file or column name to be converted.
 #' @return

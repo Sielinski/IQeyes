@@ -10,7 +10,7 @@
 #' A data frame containing one row for each curvature \code{measurement} and the
 #' same columns as [IQeyes::sample_curvature].
 #' @return
-#' An emph{n}-row data frame containing one row for each candidate contour. Each
+#' An \emph{n}-row data frame containing one row for each candidate contour. Each
 #' row will contain the [IQeyes::join_fields], the cornea \code{surface}, and
 #' the dioptric power of the candidate \code{contour}. In addition, each row
 #' will contain the number of \code{segments} that comprise the contour, and the
@@ -162,11 +162,16 @@ candidate_contours <- function(exam_curvature) {
 #' @details
 #' When trying to identify an exam's characteristic contour, the actual values
 #' of K-max and K-next don't matter, but the relative context that they create
-#' \emph{is} important. This function quantifies that context by counting the
-#' number of \emph{other} contours that exist between a candidate contour and
-#' K-max and K-next.
+#' is important. This function quantifies that context by counting the number of
+#' \emph{other} contours that exist between a candidate contour and K-max and
+#' K-next.
+#'
+#' Internally, this function calls [IQeyes::k_next] and
+#' [IQeyes::candidate_contours].
+#'
 #' @examples
-#' contour_context(sample_curvature)
+#' contour_context(sample_curvature) |>
+#'   dplyr::select(-tidyselect::all_of(join_fields))
 #'
 #' @family Characteristic Contours
 #'

@@ -37,6 +37,7 @@ Other Coordinate Systems:
 \code{\link{rotate_shape}()},
 \code{\link{signed_smallest_angle}()},
 \code{\link{smallest_angle}()},
+\code{\link{within_2pi}()},
 \code{\link{within_360}()}
 }
 \concept{Coordinate Systems}

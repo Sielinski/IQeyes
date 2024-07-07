@@ -32,7 +32,8 @@ Find the hemi-meridians for an exam at three diameters (3, 5, and 7 mm) and
 four offset angles (0°, 90°, 180°, and 270°).
 }
 \examples{
-curvature_meridians(sample_curvature, sample_astig)
+curvature_meridians(sample_curvature, sample_astig) |>
+  dplyr::select(-tidyselect::all_of(join_fields))
 
 }
 \concept{Meridians}

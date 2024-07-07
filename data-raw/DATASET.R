@@ -58,19 +58,21 @@ radii_degrees <- readRDS('data-raw/radii_degrees.RDS')
 # measure points from COR-PWR that are adjacent to each other
 adjacent_points_dat<- readRDS('data-raw/adjacent_points_dat.RDS')
 
+risk_factors <- read.csv('data-raw/risk_factors.CSV')
+
 ## Store datasets
 usethis::use_data(radii_degrees, overwrite = T, internal = F)
 usethis::use_data(adjacent_points_dat, overwrite = T, internal = F)
+usethis::use_data(risk_factors, overwrite = T, internal = F)
 
 
 ##########################
 ## Read sample datasets
 ##########################
 
-# curvature data for the canonical shapes
-# canonical_curvature <- read_package_data('data-raw/canonical_shapes_curvature.csv')
+## Reference Shapes
 
-# data frame defining the reference shapes
+# cluster IDs and shape names for the reference shapes
 reference_shapes <- readRDS('data-raw/reference_shapes.RDS')
 
 # curvature data for the reference contours
@@ -79,9 +81,8 @@ reference_contours <- readRDS('data-raw/reference_contours.RDS')
 # polygons for the reference shapes
 reference_polygons <- readRDS('data-raw/reference_polygons.RDS')
 
-# curvature data for the canonical sihouettes (filled shapes)
-#canonical_silhouettes <- readRDS('data-raw/canonical_silhouettes.RDS')
 
+## Sample Exam
 
 # A sample exam's curvature data (from COR-PWR)
 sample_curvature <- readRDS('data-raw/sample_curvature.RDS')
@@ -94,10 +95,8 @@ sample_contour <- readRDS('data-raw/sample_contour.RDS')
 
 ## Store datasets
 usethis::use_data(reference_shapes, overwrite = T, internal = F)
-#usethis::use_data(canonical_curvature, overwrite = T, internal = F)
 usethis::use_data(reference_contours, overwrite = T, internal = F)
 usethis::use_data(reference_polygons, overwrite = T, internal = F)
-#usethis::use_data(canonical_silhouettes, overwrite = T, internal = F)
 
 usethis::use_data(sample_curvature, overwrite = T, internal = F)
 usethis::use_data(sample_astig, overwrite = T, internal = F)
@@ -111,4 +110,13 @@ usethis::use_data(sample_contour, overwrite = T, internal = F)
 # identify the characteristic contour
 char_fit <- readRDS('data-raw/characteristic_contour_fit.RDS')
 
+# identify the characteristic contour
+bowtie_fit <- readRDS('data-raw/bowtie_fit.RDS')
+bowtie_roc_coords <- readRDS('data-raw/bowtie_roc_coords.RDS')
+bowtie_features <- readRDS('data-raw/bowtie_features.RDS')
+
+## Store datasets
 usethis::use_data(char_fit, overwrite = T, internal = F)
+usethis::use_data(bowtie_fit, overwrite = T, internal = F)
+usethis::use_data(bowtie_roc_coords, overwrite = T, internal = F)
+usethis::use_data(bowtie_features, overwrite = T, internal = F)

@@ -27,12 +27,16 @@ contours that exist between the candidate contour and K-max and K-next.
 \details{
 When trying to identify an exam's characteristic contour, the actual values
 of K-max and K-next don't matter, but the relative context that they create
-\emph{is} important. This function quantifies that context by counting the
-number of \emph{other} contours that exist between a candidate contour and
-K-max and K-next.
+is important. This function quantifies that context by counting the number of
+\emph{other} contours that exist between a candidate contour and K-max and
+K-next.
+
+Internally, this function calls \link{k_next} and
+\link{candidate_contours}.
 }
 \examples{
-contour_context(sample_curvature)
+contour_context(sample_curvature) |>
+  dplyr::select(-tidyselect::all_of(join_fields))
 
 }
 \seealso{

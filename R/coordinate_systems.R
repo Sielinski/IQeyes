@@ -151,7 +151,7 @@ cartesian_to_polar <- function(x, y) {
 #' @param y
 #' The \emph{y}-axis component.
 #' @return
-#' the angle (\emph{theta}) in degrees.
+#' The angle (\emph{theta}) in degrees.
 #' @examples
 #' cartesian_degrees(2, 2)
 #'
@@ -240,14 +240,14 @@ euclidean_dist <- function(x, y) {
 
 #' Keep an angle within the 0--360° range
 #' @description
-#' Converts an angle from a -360--720° range to a 0--360° range.
-#' @param x
-#' An angle within the -360--720° range.
+#' Converts any angle (in degrees) to the equivalent angle in the 0--360° range.
+#' @param angle
+#' An angle in degrees.
 #' @return
-#' The same angle within the 0--360° range.
+#' The equivalent angle within the 0--360° range.
 #' @details
 #' Adding or subtracting two angles can sometimes result in a new angle that is
-#' outside the 0--360° range. This function converts the result to the same
+#' outside the 0--360° range. This function converts the result to the equivalent
 #' angle within the 0--360° range.
 #' @examples
 #' within_360(551)
@@ -257,17 +257,55 @@ euclidean_dist <- function(x, y) {
 #' @family Coordinate Systems
 #'
 #' @export
-within_360 <- function(x) {
-  if (x >= 360) {
-    x - 360
-  } else if(x < 0) {
-    x + 360
-  } else {
-    x
+within_360 <- function(angle) {
+
+  # Normalize the angle to be within 0 - 360 degrees
+  normalized_angle <- angle %% 360
+  # Handle the case where the angle is negative
+  if (normalized_angle < 0) {
+    normalized_angle <- normalized_angle + 360
   }
+  return(normalized_angle)
 }
 
 within_360 <- Vectorize(within_360)
+
+
+################
+## within_2pi
+################
+
+#' Keep an angle within the 0--2π range
+#' @description
+#' Converts any angle (in radians) to the equivalent angle in the 0--2π range.
+#' @param angle
+#' An angle in radians.
+#' @return
+#' The equivalent angle within the 0--2π range.
+#' @details
+#' Adding or subtracting two angles can sometimes result in a new angle that is
+#' outside the 0--2π range. This function converts the result to the equivalent
+#' angle within the 0--2π range.
+#' @examples
+#' within_2pi(2 * pi)
+#' within_2pi(pi)
+#' within_2pi(-pi)
+#'
+#' @family Coordinate Systems
+#'
+#' @export
+within_2pi <- function(angle) {
+
+  # Normalize the angle to be within 0 - 360 degrees
+  normalized_angle <- angle %% (2 * pi)
+  # Handle the case where the angle is negative
+  if (normalized_angle < 0) {
+    normalized_angle <- normalized_angle + (2 * pi)
+  }
+  return(normalized_angle)
+}
+
+within_2pi <- Vectorize(within_2pi)
 
 
 ##################

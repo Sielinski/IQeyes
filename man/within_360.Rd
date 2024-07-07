@@ -4,20 +4,20 @@
 \alias{within_360}
 \title{Keep an angle within the 0--360° range}
 \usage{
-within_360(x)
+within_360(angle)
 }
 \arguments{
-\item{x}{An angle within the -360--720° range.}
+\item{angle}{An angle in degrees.}
 }
 \value{
-The same angle within the 0--360° range.
+The equivalent angle within the 0--360° range.
 }
 \description{
-Converts an angle from a -360--720° range to a 0--360° range.
+Converts any angle (in degrees) to the equivalent angle in the 0--360° range.
 }
 \details{
 Adding or subtracting two angles can sometimes result in a new angle that is
-outside the 0--360° range. This function converts the result to the same
+outside the 0--360° range. This function converts the result to the equivalent
 angle within the 0--360° range.
 }
 \examples{
@@ -39,6 +39,7 @@ Other Coordinate Systems:
 \code{\link{rad_to_deg}()},
 \code{\link{rotate_shape}()},
 \code{\link{signed_smallest_angle}()},
-\code{\link{smallest_angle}()}
+\code{\link{smallest_angle}()},
+\code{\link{within_2pi}()}
 }
 \concept{Coordinate Systems}

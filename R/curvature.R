@@ -34,7 +34,7 @@ true_net_power <- function(R_front, R_back){
 #' Anterior power
 #' @description
 #' Calculates the dioptric power of the anterior (front) surface of a cornea
-#' based on its anterior radius of curvature.
+#' based on the radius of curvature.
 #' @param R
 #' Front refractive index.
 #' @return
@@ -57,7 +57,7 @@ anterior_power <- function(R) 337.5 / R
 #' Posterior power
 #' @description
 #' Calculates the dioptric power of the posterior (rear) surface of a cornea
-#' based on its posterior radius of curvature.
+#' based on the radius of curvature.
 #' @param R
 #' Rear refractive index.
 #' @return

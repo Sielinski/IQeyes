@@ -186,6 +186,7 @@ plot_scale <- function(z) {
 #' @importFrom ggplot2 theme_void
 #' @importFrom ggplot2 scale_fill_grey
 #' @importFrom ggplot2 scale_fill_manual
+#' @importFrom ggplot2 coord_fixed
 #' @importFrom ggforce geom_circle
 #'
 #' @export
@@ -200,7 +201,8 @@ curvature_plot <-
            truncate_circle = T,
            circle_dia = 9,
            points = F,
-           greyscale = F) {
+           greyscale = F,
+           coord_fixed = T) {
 
     if (nrow(exam_curvature) == 0) warning('No data in exam_curvature.')
 
@@ -239,12 +241,12 @@ curvature_plot <-
 
     breaks_vector <- plot_scale(interp_df$power)
 
-    p <- ggplot2::ggplot(interp_df, ggplot2::aes(x = x, y = y))
+    p <- ggplot2::ggplot()
 
     if (!basic) {
       p <- p +
-        ggplot2::geom_contour_filled(
-          ggplot2::aes(z = power),
+        ggplot2::geom_contour_filled(data = interp_df,
+                                     ggplot2::aes(x = x, y = y, z = power),
           # need breaks to match with color scale
           breaks = breaks_vector,
           show.legend = legend,
@@ -290,6 +292,11 @@ curvature_plot <-
     } else {
       p <- p +
         ggplot2::scale_fill_manual(values = plot_color_scale(interp_df$power, length(breaks_vector)))
+    }
+
+    if (coord_fixed) {
+      p <- p +
+        ggplot2::coord_fixed()
     }
 
     return(p)

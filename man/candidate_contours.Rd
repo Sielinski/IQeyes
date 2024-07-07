@@ -11,7 +11,7 @@ candidate_contours(exam_curvature)
 same columns as \link{sample_curvature}.}
 }
 \value{
-An emph{n}-row data frame containing one row for each candidate contour. Each
+An \emph{n}-row data frame containing one row for each candidate contour. Each
 row will contain the \link{join_fields}, the cornea \code{surface}, and
 the dioptric power of the candidate \code{contour}. In addition, each row
 will contain the number of \code{segments} that comprise the contour, and the

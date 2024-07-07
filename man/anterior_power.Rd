@@ -14,7 +14,7 @@ Returns the optical power of the anterior surface of a cornea.
 }
 \description{
 Calculates the dioptric power of the anterior (front) surface of a cornea
-based on its anterior radius of curvature.
+based on the radius of curvature.
 }
 \examples{
 anterior_power(7)

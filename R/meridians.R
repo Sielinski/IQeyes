@@ -84,7 +84,8 @@ interpolate_rings <- function(source_dat) {
 #' @return
 #' A data frame containing one row for each hemi-meridian.
 #' @examples
-#' curvature_meridians(sample_curvature, sample_astig)
+#' curvature_meridians(sample_curvature, sample_astig) |>
+#'   dplyr::select(-tidyselect::all_of(join_fields))
 #'
 #' @family Meridians
 #'
