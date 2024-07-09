@@ -83,6 +83,25 @@ interpolate_rings <- function(source_dat) {
 #' \code{FALSE} is \emph{not} currently implemented.
 #' @return
 #' A data frame containing one row for each hemi-meridian.
+#'
+#' \describe{
+#'  \item{meridian}{Either the \code{flat} or \code{steep} axis of astigmatism,
+#'  identifying the hemi-meridian's reference axis.}
+#'  \item{offset}{Offset angle (in degrees) from the 3 o'clock position.}
+#'  \item{ring_diam}{Radial end point of the hemi-meridian.}
+#'  \item{angle}{Angle (in degrees) of the hemi-meridian.}
+#'  \item{x}{\emph{x}-axis coordinate of the hemi-meridian's end point.}
+#'  \item{y}{\emph{y}-axis coordinate of the hemi-meridian's end point.}
+#'  \item{z}{Radius of curvature at the hemi-meridian's end point.}
+#'  \item{measurement}{Dioptric power of of the hemi-meridian at its end point.}
+#' }
+#'
+#' @details
+#' This function looks at a 90° window (±45°) around each of the offset angles,
+#' relative to the axis of astigmatism. For the two steep meridians, it finds
+#' the min radius (i.e., max power) within the axes windows at each diameter
+#' ring. For the two flat meridians, it finds the max radius (i.e., min power).
+#'
 #' @examples
 #' curvature_meridians(sample_curvature, sample_astig) |>
 #'   dplyr::select(-tidyselect::all_of(join_fields))

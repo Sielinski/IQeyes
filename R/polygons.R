@@ -402,6 +402,7 @@ silhouette_overlap_group <- function(contour_exam,
 #' @export
 silhouette_plot <- function(ref_polygon, compare_polygons, highlight_cluster = NULL) {
 
+  # if the compare_polygons data frame contains a cluster column, facet the plot
   if ('cluster' %in% colnames(compare_polygons)) {
     p <- ggplot2::ggplot() +
       ggplot2::geom_sf(data = ref_polygon, fill = 'deepskyblue', alpha = 0.3, color = 'black') +

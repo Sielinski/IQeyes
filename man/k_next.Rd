@@ -19,7 +19,28 @@ the peak that each measured point belongs to.
 
 If \code{just_points} = \code{F}, \code{k_next()} returns a one-row data
 frame containing the \code{join_fields} and a variety of metadata related to
-k-next.
+k-next:
+
+\describe{
+\item{k_max}{The dioptric power of K-max}
+\item{k_next}{The dioptric power of K-next}
+\item{ring_diam}{The radial distance of K-next from the vertex.}
+\item{angle}{The radial angle of K-next (in degrees).}
+\item{k_max_coverage}{The percentage of points on the cornea that descend
+from K-max.}
+\item{max_next_alignment_deg}{The angle (in degrees) between K-next and the
+projection of K-max in its opposite direction. See details below.}
+\item{max_next_distance_mm}{The Euclidean distance (in mm) between K-max and
+K-next.}
+\item{peak_count}{Number of peaks found on the cornea.}
+}
+}
+\description{
+Find the secondary peak on a curvature map.
+}
+\details{
+The algorithm to identify K-next is based on measured (i.e., not interpreted)
+points only, so K-next itself is one of the measured points.
 
 \code{max_next_alignment_deg} quantifies the departure from symmetry. When
 K-max and K-next are symmetrically aligned, their radial axes are 180° apart.
@@ -28,13 +49,6 @@ angle, so when K-max and K-next are 180° apart, the result is 0°. Generally,
 the smallest angle between the K-max and K-next will be less than 180°, and
 the departure from symmetry will be larger. If there is no K-next,
 \code{max_next_alignment_deg} is \code{NA}.
-}
-\description{
-Find the secondary peak on a curvature map.
-}
-\details{
-The algorithm to identify K-next is based on measured (i.e., not interpreted)
-points only, so K-next itself is one of the measured points.
 }
 \examples{
 k_next(sample_curvature) |>

@@ -36,6 +36,12 @@ converts the patient's date of birth to a date field (and calculates their
 age at the time of the exam), converts the exam eye to a factor, and converts
 the file's column names to an R-friendly format.
 }
+\details{
+In some CSVs, Pentacam uses uses a semicolon as the delimiter between
+columns, regardless of a user's configuration settings in the Pentacam
+software. This function automatically converts semicolons to the delimiter
+character passed in as a parameter.
+}
 \seealso{
 Other Utilities: 
 \code{\link{convert_name}()}

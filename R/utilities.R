@@ -25,10 +25,18 @@
 #' @return
 #' A data frame containing the file that has been read.
 #'
+#' @details
+#' In some CSVs, Pentacam uses uses a semicolon as the delimiter between
+#' columns, regardless of a user's configuration settings in the Pentacam
+#' software. This function automatically converts semicolons to the delimiter
+#' character passed in as a parameter.
+#'
 #' @family Utilities
 #'
-#' @importFrom readr read_delim
+#' @importFrom readr read_lines
 #' @importFrom readr locale
+#' @importFrom readr write_lines
+#' @importFrom readr read_delim
 #' @importFrom dplyr select_if
 #' @importFrom lubridate mdy
 #' @importFrom lubridate hms
@@ -41,11 +49,34 @@ read_pentacam_csv <- function(file_name,
                               keep_ok_only = T,
                               keep_dup_rows = F,
                               keep_empty_cols = F) {
+
+  # Read the file into a character vector
+  file_lines <- readr::read_lines(file_name,
+                                  locale = readr::locale(encoding = "windows-1252"))
+
+
+  # Replace semicolons in first row with commas
+  file_lines <- gsub(";",
+                        delimiter,
+                        file_lines)
+
+  # Remove trailing commas
+  file_lines <- gsub(paste0(delimiter, "$"),
+                     "",
+                     file_lines)
+
+  # Write the cleaned lines to a temporary file
+  temp_file <- tempfile()
+  readr::write_lines(file_lines, temp_file)
+
+  # Read the cleaned file using read_csv
+  #data <- read_csv(temp_file)
+
   csv_dat <-
     readr::read_delim(
-      file_name,
+      temp_file,
       delim = delimiter,
-      locale = readr::locale(encoding = "windows-1252"),
+      #locale = readr::locale(encoding = "windows-1252"),
       col_names = T,
       trim_ws = T,
       show_col_types = F
@@ -81,19 +112,23 @@ read_pentacam_csv <- function(file_name,
   #}
 
   # convert date/time types
-  csv_dat$d_o_birth <- lubridate::mdy(csv_dat$d_o_birth, quiet = T)
-  csv_dat$exam_date <- lubridate::mdy(csv_dat$exam_date)
-  csv_dat$exam_time <- lubridate::hms(csv_dat$exam_time)
+  if ('exam_date' %in% colnames(csv_dat)) csv_dat$exam_date <- lubridate::mdy(csv_dat$exam_date)
+  if ('exam_time' %in% colnames(csv_dat)) csv_dat$exam_time <- lubridate::hms(csv_dat$exam_time)
 
-  # establish factors
-  csv_dat$exam_eye <- csv_dat$exam_eye |>
-    stringr::str_to_lower() |>
-    stringr::str_trim(side = 'right') |>
-    factor(levels = c('left', 'right'))
+  if ('d_o_birth' %in% colnames(csv_dat)) {
+    csv_dat$d_o_birth <- lubridate::mdy(csv_dat$d_o_birth, quiet = T)
+    # calculate age at time of exam
+    csv_dat$age <- ((csv_dat$exam_date - csv_dat$d_o_birth) / dyears(1)) |>
+      round(0)
+  }
 
-  # calculate age at time of exam
-  csv_dat$age <- ((csv_dat$exam_date - csv_dat$d_o_birth) / dyears(1)) |>
-    round(0)
+  # establish exam_eye as a factor
+  if ('exam_eye' %in% colnames(csv_dat)) {
+    csv_dat$exam_eye <- csv_dat$exam_eye |>
+      stringr::str_to_lower() |>
+      stringr::str_trim(side = 'right') |>
+      factor(levels = c('left', 'right'))
+  }
 
   if (keep_ok_only & "status" %in% colnames(csv_dat)) {
     csv_dat <- csv_dat |>

@@ -6,16 +6,23 @@
 #' @description
 #' Identifies the contours of an exam that are candidates for the
 #' characteristic contour.
+#'
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as [IQeyes::sample_curvature].
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
+#'
 #' @return
 #' An \emph{n}-row data frame containing one row for each candidate contour. Each
-#' row will contain the [IQeyes::join_fields], the cornea \code{surface}, and
-#' the dioptric power of the candidate \code{contour}. In addition, each row
-#' will contain the number of \code{segments} that comprise the contour, and the
-#' radial distance of K-max(\code{r_max}) and K-next (\code{r_next}) from the
-#' apex of the curvature map.
+#' row will contain the [IQeyes::join_fields] and the following fields:
+#'
+#' \describe{
+#'   \item{surface}{The corneal surface. Either \code{front} or \code{back}.}
+#'   \item{contour}{The dioptric power of the candidate contour.}
+#'   \item{segments}{The number of segments (polygons) that comprise the contour.}
+#'   \item{r_max}{The radial distance of K-max from the apex.}
+#'   \item{r_next}{The radial distance of K-next from the apex.}
+#' }
+#'
 #' @details
 #' The underlying algorithm operates at the segment level. If any contour has a
 #' segment that contains both K-max and K-next, only contours with segments
@@ -154,11 +161,15 @@ candidate_contours <- function(exam_curvature) {
 #' same columns as [IQeyes::sample_curvature].
 #' @return
 #' A data frame, containing the output of [IQeyes::candidate_contours] and three
-#' additional columns: \code{k_max_distance}, the number of other contours that
-#' exist between a candidate and K-max, \code{k_next_distance}, the number of
-#' contours that exist between a candidate and K-next, and
-#' \code{k_max_next_distance}, the difference between \code{k_max_distance} and
-#' \code{k_next_distance}.
+#' additional columns:
+#'
+#' \describe{
+#'  \item{k_max_distance}{The number of other contours between a candidate and K-max.}
+#'  \item{k_next_distance}{The number of other contours between a candidate and K-next.}
+#'  \item{k_max_next_distance}{The difference between \code{k_max_distance} and
+#' \code{k_next_distance}.}
+#' }
+#'
 #' @details
 #' When trying to identify an exam's characteristic contour, the actual values
 #' of K-max and K-next don't matter, but the relative context that they create

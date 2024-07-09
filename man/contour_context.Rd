@@ -13,11 +13,14 @@ same columns as \link{sample_curvature}.}
 }
 \value{
 A data frame, containing the output of \link{candidate_contours} and three
-additional columns: \code{k_max_distance}, the number of other contours that
-exist between a candidate and K-max, \code{k_next_distance}, the number of
-contours that exist between a candidate and K-next, and
-\code{k_max_next_distance}, the difference between \code{k_max_distance} and
-\code{k_next_distance}.
+additional columns:
+
+\describe{
+\item{k_max_distance}{The number of other contours between a candidate and K-max.}
+\item{k_next_distance}{The number of other contours between a candidate and K-next.}
+\item{k_max_next_distance}{The difference between \code{k_max_distance} and
+\code{k_next_distance}.}
+}
 }
 \description{
 Identifies the contours of an exam that are candidates for the

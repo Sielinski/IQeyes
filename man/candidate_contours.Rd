@@ -7,16 +7,20 @@
 candidate_contours(exam_curvature)
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \link{sample_curvature}.}
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
+containing one row for each curvature \code{measurement}.}
 }
 \value{
 An \emph{n}-row data frame containing one row for each candidate contour. Each
-row will contain the \link{join_fields}, the cornea \code{surface}, and
-the dioptric power of the candidate \code{contour}. In addition, each row
-will contain the number of \code{segments} that comprise the contour, and the
-radial distance of K-max(\code{r_max}) and K-next (\code{r_next}) from the
-apex of the curvature map.
+row will contain the \link{join_fields} and the following fields:
+
+\describe{
+\item{surface}{The corneal surface. Either \code{front} or \code{back}.}
+\item{contour}{The dioptric power of the candidate contour.}
+\item{segments}{The number of segments (polygons) that comprise the contour.}
+\item{r_max}{The radial distance of K-max from the apex.}
+\item{r_next}{The radial distance of K-next from the apex.}
+}
 }
 \description{
 Identifies the contours of an exam that are candidates for the
