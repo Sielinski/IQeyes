@@ -6,9 +6,10 @@
 \usage{
 curvature_plot(
   exam_curvature,
+  interp = T,
   basic = F,
   grid = F,
-  labels = T,
+  labels = F,
   titles = T,
   axes = T,
   legend = T,
@@ -20,8 +21,10 @@ curvature_plot(
 )
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \link{sample_curvature}.}
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
+containing one row for each curvature \code{measurement}.}
+
+\item{interp}{A Boolean. \code{TRUE} to interpolate measurements.}
 
 \item{basic}{A Boolean. \code{TRUE} to forgo contours and colors.}
 

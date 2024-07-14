@@ -28,6 +28,7 @@ logistic(Inf)
 \code{\link[=logit]{logit()}}
 
 Other Mathematics: 
+\code{\link{array_position}()},
 \code{\link{logit}()},
 \code{\link{nearest}()}
 }

@@ -23,6 +23,7 @@ convert_name('r4.0 324°')
 }
 \seealso{
 Other Utilities: 
+\code{\link{parse_csv_to_list}()},
 \code{\link{read_pentacam_csv}()}
 }
 \concept{Utilities}

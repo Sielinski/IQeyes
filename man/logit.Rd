@@ -28,6 +28,7 @@ logit(1/2)
 \code{\link[=logistic]{logistic()}}
 
 Other Mathematics: 
+\code{\link{array_position}()},
 \code{\link{logistic}()},
 \code{\link{nearest}()}
 }

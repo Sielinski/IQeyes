@@ -133,9 +133,12 @@ plot_scale <- function(z) {
 #' @description
 #' Returns (but does not render) the curvature plot of the anterior surface of a
 #' cornea by interpolating measurements from \code{COR-PWR.CSV}.
+#'
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as [IQeyes::sample_curvature].
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
+#' @param interp
+#' A Boolean. \code{TRUE} to interpolate measurements.
 #' @param basic
 #' A Boolean. \code{TRUE} to forgo contours and colors.
 #' @param grid
@@ -158,12 +161,15 @@ plot_scale <- function(z) {
 #' coordinates of the \emph{measured} points.
 #' @param greyscale
 #' A Boolean. \code{TRUE} to render the contours in greyscale.
+#'
 #' @return
 #' A ggplot object.
+#'
 #' @details
 #' This function currently works for anterior surfaces only because
 #' \code{plot_scale()} presumes the curvature maps uses the Pentacam's American
 #' scale, which is designed for the dioptric power of anterior surfaces.
+#'
 #' @examples
 #' curvature_plot(sample_curvature)
 #'
@@ -192,9 +198,10 @@ plot_scale <- function(z) {
 #' @export
 curvature_plot <-
   function(exam_curvature,
+           interp = T,
            basic = F,
            grid = F,
-           labels = T,
+           labels = F,
            titles = T,
            axes = T,
            legend = T,
@@ -215,19 +222,26 @@ curvature_plot <-
     if (nrow(exam_record) > 1) warning('More than one exam record contained in exam_curvature.')
 
     # interpolate data for the entire surface (this returns x, y, z)
-    interp_df <- exam_curvature |>
-      interpolate_measurements()
+    if (interp) {
+      interp_df <- exam_curvature |>
+        interpolate_measurements()
+    } else {
+      interp_df <- exam_curvature |>
+        select(x, y, measurement) |>
+        rename(z = measurement)
+    }
 
-        # convert curvature radius (R) to power in diopters
+    # convert curvature radius (R) to power in diopters
     if (exam_record$surface == 'FRONT') {
       interp_df <- interp_df |>
         dplyr::mutate(power = round(anterior_power(z), 1))
-      curvature_dat <- exam_curvature |>
+      # calculate power
+      exam_curvature <- exam_curvature |>
         dplyr::mutate(power = round(anterior_power(measurement), 1))
     } else if (exam_record$surface == 'BACK') {
       interp_df <- interp_df |>
         dplyr::mutate(power = round(posterior_power(z), 1))
-      curvature_dat <- exam_curvature |>
+      exam_curvature <- exam_curvature |>
         dplyr::mutate(power = round(posterior_power(measurement), 1))
     }
 
@@ -235,7 +249,7 @@ curvature_plot <-
       radius <- circle_dia / 2
       interp_df <- interp_df |>
         dplyr::filter(sqrt((x ^ 2) + (y ^ 2)) <= radius)
-      curvature_dat <- curvature_dat |>
+      exam_curvature <- exam_curvature |>
         dplyr::filter(sqrt((x ^ 2) + (y ^ 2)) <= radius)
     }
 
@@ -264,7 +278,7 @@ curvature_plot <-
 
     if (points) {
       p <- p +
-        ggplot2::geom_point(data = curvature_dat, ggplot2::aes(x = x, y = y))
+        ggplot2::geom_point(data = exam_curvature, ggplot2::aes(x = x, y = y))
     }
 
     if (titles) {
@@ -278,7 +292,7 @@ curvature_plot <-
 
     if (labels) {
       p <- p +
-        ggplot2::geom_label(data = curvature_dat, ggplot2::aes(x = x, y = y, label = power), size = 2)
+        ggplot2::geom_label(data = exam_curvature, ggplot2::aes(x = x, y = y, label = power), size = 2)
     }
 
     if (!axes) {

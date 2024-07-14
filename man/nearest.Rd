@@ -23,6 +23,7 @@ nearest(0.75, 0.2)
 }
 \seealso{
 Other Mathematics: 
+\code{\link{array_position}()},
 \code{\link{logistic}()},
 \code{\link{logit}()}
 }

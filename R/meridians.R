@@ -1,64 +1,37 @@
-## ring_diameters ##
+# generate radial arms
+generate_radial_arms <- function(radius, grain, angles) {
+  all_points <- data.frame()
 
-# To find the steepest and flattest meridians on the 3, 5, and 7 mm rings around
-# the apex of cornea, create a data frame (ring_diameters) with radial positions
-# for every integer angle from 0 - 359° on each of the target rings
-ring_diameters <- data.frame(ring_diam = 3, angle = seq(0, 359, 1)) |>
-  dplyr::bind_rows(data.frame(ring_diam = 5, angle = seq(0, 359, 1))) |>
-  dplyr::bind_rows(data.frame(ring_diam = 7, angle = seq(0, 359, 1)))
+  for (theta in angles) {
+    theta_rad <- theta * (pi / 180)  # Convert angle to radians
 
-# Add Cartesian coordinates to ring_diameters
-ring_diameters <- ring_diameters |>
-  dplyr::bind_cols(polar_to_cartesian(ring_diameters$ring_diam / 2, ring_diameters$angle)) |>
-  dplyr::mutate(ring_diam = round(ring_diam, 5), angle = round(angle, 5))
+    # Generate points along the radial arm at intervals of 0.1
+    r_values <- seq(0, radius, by = grain)
+    x_values <- (r_values * cos(theta_rad)) |> round(1)
+    y_values <- (r_values * sin(theta_rad)) |> round(1)
 
+    # Create a data frame for the current radial arm
+    radial_arm <- data.frame(x = x_values,
+                             y = y_values,
+                             r = r_values,
+                             theta = rep(theta, length(r_values)))
 
-# Interpolate an exam's measurements data along 3, 5, and 7 mm diameter rings.
-# The data frame ring_diameters needs to be created before calling this function
-interpolate_rings <- function(source_dat) {
-
-  #source_dat <- sample_curvature
-
-  source_dat <- source_dat |>
-    dplyr::filter(!is.na(measurement))
-
-  rings_3d <- ring_diameters
-
-  # target the x and y coordinates of the three ring perimeters
-  xo <- sort(unique(rings_3d$x))
-  yo <- sort(unique(rings_3d$y))
-
-  # interpolate
-  rings_interp <-
-    with(source_dat, akima::interp(
-      x = x,
-      y = y,
-      z = measurement,
-      linear = F,
-      xo = xo,
-      yo = yo,
-      extrap = T,
-      duplicate = 'strip'
-    ))
-
-  # extract z-axis values, which is a 2d matrix: we have to find the
-  # intersection of each point of interest
-  z_dat <- unlist(rings_interp[["z"]])
-
-  # add an empty z-axis
-  rings_3d$z <- NA
-
-  # might be able to do this without the for-loop
-  for (i in 1:nrow(rings_3d)) {
-    #i <- 1
-    rings_3d$z[i] <- z_dat[which(xo == rings_3d$x[i]), which(yo == rings_3d$y[i])]
+    # Combine with all points
+    all_points <- rbind(all_points, radial_arm)
   }
 
-  # remove empty values (although we have extrapolated, so should not be any)
-  rings_3d <- rings_3d |>
-    dplyr::filter(!is.na(z))
-
+  return(all_points)
 }
+
+# define the extent and grain of the radial arm(s)
+radius <- 7
+grain <- 0.1
+# no need to go below 1°: that resolution is already more granular than the
+# the matrix of measurements can support
+angles <- seq(0, 359, by = 1)
+
+# Generate the data frame
+radial_arms <- generate_radial_arms(radius, grain, angles)
 
 
 #########################
@@ -70,11 +43,11 @@ interpolate_rings <- function(source_dat) {
 #' Find the hemi-meridians for an exam at three diameters (3, 5, and 7 mm) and
 #' four offset angles (0°, 90°, 180°, and 270°).
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as \code{sample_curvature}.
+#' A data frame having the same columns as [IQeyes::sample_curvature] and
+#' containing one row for each curvature \code{measurement}.
 #' @param exam_astig
-#' A data frame containing one row for each astigmatism \code{measurement} and
-#' the same columns as \code{sample_astig}.
+#' A data frame having the same columns as [IQeyes::sample_astig] and containing
+#' one row for each of the three ring diameters.
 #' @param cornea_surface
 #' A string, either 'FRONT' or 'BACK', indicating the anterior or posterior
 #' surface of the cornea, respectively.
@@ -108,15 +81,23 @@ interpolate_rings <- function(source_dat) {
 #'
 #' @family Meridians
 #'
-#' @importFrom dplyr cross_join
 #' @importFrom dplyr mutate
 #' @importFrom dplyr inner_join
 #' @importFrom dplyr filter
-#' @importFrom dplyr slice_min
 #' @importFrom dplyr select
-#' @importFrom dplyr slice_max
+#' @importFrom dplyr rename
+#' @importFrom dplyr if_else
+#' @importFrom dplyr cross_join
+#' @importFrom dplyr summarize
 #' @importFrom dplyr bind_rows
+#' @importFrom dplyr group_by
+#' @importFrom dplyr group_split
+#' @importFrom dplyr ungroup
+#' @importFrom tidyr pivot_longer
 #' @importFrom tidyselect all_of
+#'
+#' @importFrom dplyr slice_min
+#' @importFrom dplyr slice_max
 #'
 #' @export
 curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FRONT', interp = T) {
@@ -124,68 +105,165 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
   #exam_curvature <- sample_curvature
   #exam_astig <- sample_astig
 
-  # offset angles are the equivalent of the cardinal directions (N, S, E, W)
-  offset_angles <- c(0, 90, 180, 270)
-
-  # window size is the ± region (in degrees) around each offset angle
-  window_size <- 45
-
-  # create a data frame that defines a 90° window around each of the offset
-  # angles, relative to the axis of astigmatism, for each diameter
-  astig_axes <- exam_astig |>
-    dplyr::cross_join(data.frame(offset = offset_angles)) |>
-    dplyr::mutate(
-      meridian = ifelse(offset %in% c(0, 180), 'flat', 'steep'),
-      mid = within_360(axs + offset),
-      min = mid - window_size,
-      max = mid + window_size
-    )
-
-  # ensure min is >= 0 and min <= max
-  astig_axes <- astig_axes |>
-    dplyr::mutate(min = ifelse(min < 0, min + 360, min),
-           max = ifelse(min > max, max + 360, max))
+  exam_record <- exam_curvature |>
+    dplyr::select(tidyselect::all_of(join_fields)) |>
+    unique()
 
   if (interp) {
-    # interpolate measurements along the 3, 5, and 7 mm rings
-    # the third dimension is the measurement
-    rings_3d <- interpolate_rings(exam_curvature)
-  } else {
-    warning('interp = F is not currently implemented.')
+    # interpolate measurement
+    interp_z <- exam_curvature |>
+      interpolate_measurements() |>
+      dplyr::mutate(surface = cornea_surface)
+
+    exam_curvature <- exam_record  |>
+      dplyr::cross_join(interp_z) |>
+      dplyr::rename(measurement = z)
   }
 
-  # for each meridian, ring_diam, and axes, return the range of angles bounded
-  # by min and max
-  curvature_dat <- astig_axes |>
-    dplyr::inner_join(rings_3d, by = 'ring_diam', relationship = "many-to-many") |>
-    # ensure that the span of values in the angle column increases from min to max
-    dplyr::mutate(angle = ifelse(max > 360, angle + 360, angle)) |>
-    dplyr::filter(angle >= min & angle <= max, .by = c(meridian, ring_diam, offset)) |>
-    # angle_delta allows slice_min to find the angle closest to the primary axes
-    # when two or more measurements have the same value
-    dplyr::mutate(angle_delta = abs(angle - mid))
+  # calculate the power of the points that comprise each radial arm
+  radial_power <- radial_arms |>
+    dplyr::inner_join(exam_curvature, by = c('x', 'y')) |>
+    dplyr::mutate(power = anterior_power(measurement))
 
-  # find the min radius (i.e., max power) within the axes windows of the two steep
-  # meridians for each diameter ring
-  power_dat <- curvature_dat |>
-    dplyr::filter(meridian == 'steep') |>
-    dplyr::slice_min(order_by = data.frame(z, angle_delta), n = 1, by = c(meridian, ring_diam, offset)) |>
-    dplyr::select(tidyselect::all_of(join_fields), meridian, offset, ring_diam, angle, mid, x, y, z)
+  # create the astig windows: goal is to look above and below both the flat and
+  # steep axes (as determined by the Pentacam at the 3, 5, and 7 mm diameters)
+  astig_windows <- exam_astig |>
+    dplyr::select(-all_of(join_fields)) |>
+    # by definition, axs is the flat axis
+    dplyr::rename(flat = axs) |>
+    # get the radii
+    dplyr::mutate(radius = ring_diam / 2,
+                  # calculate the starting radii for these ranges (basically, 1 mm closer
+                  # except for the 3 mm ring, which starts at 0)
+                  starting_radius = radius - dplyr::if_else(radius == 1.5, radius, 1),
+                  # the steep axis is perpendicular
+                  steep = within_360(flat - 90)) |>
+    tidyr::pivot_longer(cols = c(flat, steep), names_to = 'axis', values_to = 'angle') |>
+    # calculate the angle opposite to the axis
+    dplyr::mutate(opposite = within_360(angle + 180),
+           crosses_zero = angle > opposite)
 
-  # find the max radius (i.e., min power) within the axes windows of the two flat
-  # meridians for each diameter ring
-  power_dat <- curvature_dat |>
-    dplyr::filter(meridian == 'flat') |>
-    dplyr::slice_max(order_by = data.frame(z, angle_delta), n = 1, by = c(meridian, ring_diam, offset)) |>
-    dplyr::select(tidyselect::all_of(join_fields), meridian, offset, ring_diam, angle, mid, x, y, z) |>
-    # combine min with max
-    dplyr::bind_rows(power_dat)
+  # get a set of radial arms for each of the three diameters
+  radial_windows <- radial_power |>
+    dplyr::cross_join(astig_windows) |>
+    # Use between_min_max to define the hemispheres: One hemisphere will contain
+    # arms between the min and max, and the other hemisphere will contain arms
+    # that are *not* between min and max. However, when the range of angles
+    # crosses 0°, we need to adjust the logic, using a combination of
+    # crosses_zero and !between_max_min to create the same effect
+    dplyr::mutate(between_min_max = theta >= angle & theta < opposite,
+           between_max_min = theta >= opposite & theta < angle) |>
+    dplyr::mutate(between_min_max = between_min_max | (crosses_zero & !between_max_min)) |>
+    # only need segments of arms between the starting and stopping radii for
+    # each ring
+    dplyr::filter(r >= starting_radius & r <= radius)
 
-  # convert curvature radius to power and ensure angle (and axis) is within 360°
-  power_dat <- power_dat |>
-    dplyr::mutate(measurement = anterior_power(z),
-           angle = within_360(angle)) |>
-    dplyr::select(tidyselect::all_of(join_fields), meridian, offset, ring_diam, angle, x, y, z, measurement)
+  # calculate the mean power of each segment for each range (axis, flip_flop)
+  arm_power <- radial_windows |>
+    dplyr::summarize(mean_power = mean(power), .by = c(theta, axis, between_min_max, radius))
 
-  return(power_dat)
+  # find the min and max arm power (just the power) for each range
+  min_max_power <- arm_power |>
+    dplyr::summarize(min_power = min(mean_power),
+              max_power = max(mean_power),
+              .by = c(axis, between_min_max, radius))
+
+  # find the radial arms that match these power values
+  candidates_flat <- arm_power |>
+    dplyr::inner_join(min_max_power, by = c('axis', 'between_min_max', 'radius', 'mean_power' = 'min_power')) |>
+    # the flat hemi-meridians will be on the either side of the steep axis
+    dplyr::filter(axis == 'steep') |>
+    dplyr::mutate(axis = 'flat') |>
+    dplyr::select(radius, axis, between_min_max, theta, mean_power)
+
+  candidates_steep <- arm_power |>
+    dplyr::inner_join(min_max_power, by = c('axis', 'between_min_max', 'radius', 'mean_power' = 'max_power')) |>
+    # the steep hemi-meridians will be on the either side of the flat axis
+    dplyr::filter(axis == 'flat') |>
+    dplyr::mutate(axis = 'steep') |>
+    dplyr::select(radius, axis, between_min_max, theta, mean_power)
+
+  candidate_angles <- dplyr::bind_rows(candidates_steep, candidates_flat)
+
+  # cluster candidate angles
+  cluster_data <- function(data, group, threshold = 1) {
+
+    if (length(data) == 0) {
+      return(data.frame(group = group,
+                        cluster = NA))
+    }
+
+    # Step 1: Sort the data
+    data <- sort(data)
+    group <- unique(group)
+
+    # Step 2: Initialize clusters
+    clusters <- list()
+    current_cluster <- data[1]
+
+    if (length(data) == 1) {
+      return(data.frame(group = group,
+                        cluster = current_cluster))
+
+    } else {
+      # Step 3: Iterate through the data
+      for (i in 2:length(data)) {
+        if (data[i] - data[i - 1] <= threshold) {
+          current_cluster <- c(current_cluster, data[i])
+        } else {
+          clusters <- c(clusters, list(current_cluster))
+          current_cluster <- data[i]
+        }
+      }
+      clusters <- c(clusters, list(current_cluster)) # Add the last cluster
+
+      # Step 4: Prioritize clusters by proximity to other numbers
+      min_distance <- function(cluster, all_data) {
+        min(sapply(all_data, function(x) min(abs(x - cluster))))
+      }
+
+      clusters <- clusters[order(sapply(clusters, min_distance, all_data = data))]
+
+      cluster_mean <- mean(clusters[[1]]) |> round(0)
+
+      return(data.frame(group = group,
+                        cluster = cluster_mean))
+    }
+  }
+
+  # use simple clustering to identify the preferred angles
+  preferred_angles <- candidate_angles |>
+    dplyr::group_by(radius, axis, between_min_max) |>
+    dplyr::group_split() |>
+    lapply(function(x) cluster_data(x$theta,
+                                    group = paste0(x$radius, '_', x$axis, '_', x$between_min_max))) |>
+    dplyr::bind_rows() |>
+    dplyr::ungroup()
+
+  if (interp) {
+    # if data are interpolated, there's a good chance that we won't have the
+    # power at the ends of the arm segments, so use the arms' averages instead
+    radial_power <- arm_power |>
+      dplyr::select(-axis, -between_min_max) |>
+      unique() |>
+      dplyr::rename(r = radius,
+                    power = mean_power)
+  }
+
+  # define the hemi-meridians
+  meridian_angles <- candidate_angles |>
+    dplyr::mutate(group = paste0(radius, '_', axis, '_', between_min_max)) |>
+    dplyr::inner_join(preferred_angles, by = c('group', 'theta' = 'cluster')) |>
+    # get the power at the ends of the arm segments at the preferred angles
+    dplyr::inner_join(radial_power, by = c('theta', 'radius' = 'r')) |>
+    # get the starting_radius
+    dplyr::inner_join(astig_windows, by = c('radius', 'axis')) |>
+    dplyr::mutate(power = round(power, 1)) |>
+    dplyr::mutate(ring = radius * 2) |>
+    dplyr::select(ring, radius, starting_radius, axis, between_min_max, theta, power) |>
+    dplyr::arrange(ring, axis)
+
+  exam_record |>
+    dplyr::cross_join(meridian_angles)
+
 }

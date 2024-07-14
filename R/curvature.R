@@ -40,7 +40,7 @@ true_net_power <- function(R_front, R_back){
 #' @return
 #' Returns the optical power of the anterior surface of a cornea.
 #' @references
-#' \emph{Pentacam Interpretation Guide}, p 6.
+#' \emph{Pentacam Interpretation Guide}, pp 6-7.
 #' @examples
 #' anterior_power(7)
 #'

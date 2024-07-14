@@ -12,11 +12,11 @@ curvature_meridians(
 )
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \code{sample_curvature}.}
+\item{exam_curvature}{A data frame having the same columns as \link{sample_curvature} and
+containing one row for each curvature \code{measurement}.}
 
-\item{exam_astig}{A data frame containing one row for each astigmatism \code{measurement} and
-the same columns as \code{sample_astig}.}
+\item{exam_astig}{A data frame having the same columns as \link{sample_astig} and containing
+one row for each of the three ring diameters.}
 
 \item{cornea_surface}{A string, either 'FRONT' or 'BACK', indicating the anterior or posterior
 surface of the cornea, respectively.}

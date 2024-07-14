@@ -55,7 +55,7 @@ read_pentacam_csv <- function(file_name,
                                   locale = readr::locale(encoding = "windows-1252"))
 
 
-  # Replace semicolons in first row with commas
+  # Replace semicolons with commas
   file_lines <- gsub(";",
                         delimiter,
                         file_lines)
@@ -69,9 +69,7 @@ read_pentacam_csv <- function(file_name,
   temp_file <- tempfile()
   readr::write_lines(file_lines, temp_file)
 
-  # Read the cleaned file using read_csv
-  #data <- read_csv(temp_file)
-
+  # Read the cleansed file
   csv_dat <-
     readr::read_delim(
       temp_file,
@@ -178,3 +176,211 @@ convert_name <- function(name) {
     stringr::str_replace_all('â', '') |> # introduced by anonymization
     stringr::str_replace('_$', '')  # underscore at the end of column name
 }
+
+
+#######################
+## parse_csv_to_list
+#######################
+
+#' Read a detailed Pentacam CSV into a list
+#' @description
+#' Reads one the Pentacam's exported CSV files into a list object. The list will
+#' contain one element for each section of the file.
+#'
+#' @param file_name
+#' A character string containing the name of the file name to read.
+#' @param delimiter
+#' A character identifying the delimiter that the Pentacam file uses to separate
+#' fields/columns.
+#' @param pachy_flag
+#' A Boolean. \code{TRUE} to indicate that the file contains pachymetry data.
+
+#' @return
+#' A list containing the file that has been read.
+#'
+#' @details
+#' The date and time fields in the \code{patient} and \code{examination}
+#' sections are \emph{not} converted to lubridate date and time types.
+#'
+#' The section \code{cornea edge} contains a bug.
+#'
+#' @family Utilities
+#'
+#' @importFrom readr read_lines
+#' @importFrom readr locale
+#' @importFrom readr write_lines
+#' @importFrom readr read_delim
+#' @importFrom stringr str_detect
+#' @importFrom stringr str_replace
+#' @importFrom stringr str_replace_all
+#' @importFrom stringr str_to_lower
+#'
+#' @export
+# Function to parse the CSV file and create a list object
+parse_csv_to_list <- function(file_name, delimiter = ',', pachy_flag = F) {
+
+  # Read the file into a character vector
+  file_lines <- readr::read_lines(file_name,
+                                  locale = readr::locale(encoding = "windows-1252"))
+
+  # Remove trailing commas
+  file_lines <- gsub(paste0(delimiter, "$"),
+                     "", file_lines)
+
+  # Write the cleansed lines to a temporary file
+  temp_file <- tempfile()
+  readr::write_lines(file_lines, temp_file)
+
+  # Read the cleansed file
+  csv_dat <-
+    readr::read_delim(
+      temp_file,
+      delim = delimiter,
+      col_names = F,
+      na = c("", "NA", "NaN"),
+      show_col_types = F
+    )
+
+  # Initialize an empty list to store the results
+  result_list <- list()
+  # Variables to store current section's metadata and data get set in helper
+  current_section <- NULL
+  in_matrix <- in_XY <- in_metadata <- F
+
+  # this helper function will be called at the end of every section to package
+  # the just completed section into the appropriate data structure, which will
+  # become a list element
+  helper_end_section <- function(in_metadata, in_matrix, in_XY,
+                                 matrix_rows, x_values, y_values, current_meta){
+
+    # Save previous section data, if any
+    if (in_matrix) {
+      # measurement map as a numeric matrix
+      current_matrix <- do.call(rbind, matrix_rows)
+      colnames(current_matrix) <- x_values
+      rownames(current_matrix) <- y_values
+      return(current_matrix)
+    } else if (in_XY) {
+      # X-Y metadata as a matrix
+      if (length(matrix_rows) == 0)  {
+        return(NULL)
+      } else {
+        current_matrix <- do.call(rbind, matrix_rows) |>
+          matrix(ncol = 2, byrow = T, dimnames = list(NULL, c('x', 'y')))
+        return(current_matrix)
+      }
+    } else if (in_metadata) {
+      # metadata as a data frame
+      return(as.data.frame(current_meta, stringsAsFactors = FALSE))
+    } else {
+      return(NULL)
+    }
+  }
+
+  if (pachy_flag) csv_dat[1, 1] <- 'pachymetry'
+
+  # Loop through each row to parse sections
+  for (i in 1:nrow(csv_dat)) {
+    # i <- 1 + i
+    line <- csv_dat[i, ]
+
+    if (all(is.na(line))) next
+
+    # Check if the line identifies a new section
+    if (grepl("^\\[.*\\]$", line[1])) {
+      # Save previous section data, if any
+      list_item <- helper_end_section(in_metadata, in_matrix, in_XY,
+                                      matrix_rows, x_values, y_values, current_meta)
+
+      if (!is.null(list_item)) result_list[[current_section]] <- list_item
+
+      current_section <- line[1] |>
+        stringr::str_replace('\\[', '') |>
+        stringr::str_replace('\\]', '') |>
+        stringr::str_replace_all(' ', '_') |>
+        stringr::str_to_lower()
+      in_matrix <- F
+      in_XY <- F
+      in_metadata <- T
+
+      current_meta <- list()
+
+    } else if (!in_metadata && stringr::str_detect(line[1], '[:alpha:]')) {
+      # Handle matrix initialization
+      # Save previous section data, if any
+      list_item <- helper_end_section(in_metadata, in_matrix, in_XY,
+                                      matrix_rows, x_values, y_values, current_meta)
+
+      if (!is.null(list_item)) result_list[[current_section]] <- list_item
+
+      current_section <- gsub(' ', '_', line[1]) |>
+        tolower() |>
+        paste0('_matrix')
+
+      in_matrix <- T
+      in_XY <- F
+      in_metadata <- F
+
+      matrix_rows <- list()
+      x_values <- line[-1]
+      y_values <- NULL
+
+    } else if (in_metadata &&
+               (line[1] == 'X' && line[2] == 'Y') || (stringr::str_detect(line[1], 'Cornea-Edge X'))) {
+      # Handle the start of an X, Y section within metadata
+      # Save previous section data, if any
+      list_item <- helper_end_section(in_metadata, in_matrix, in_XY,
+                                      matrix_rows, x_values, y_values, current_meta)
+
+      if (!is.null(list_item)) result_list[[current_section]] <- list_item
+
+      if (line[1] == 'X' && line[2] == 'Y') {
+        current_section <- paste0(current_section, '_xy')
+      } else {
+        current_section <- paste0(current_section,
+                                  sub(" .*", "", line[1]) |> tolower(),
+                                  '_xy')
+      }
+
+      in_matrix <- F
+      in_XY <- T
+      in_metadata <- F
+
+      matrix_rows <- list()
+
+    } else if (in_matrix) {
+      # Handle matrix data lines
+      y_values <- c(y_values, as.numeric(line[1]))
+      matrix_rows <- append(matrix_rows, list(as.numeric(line[-1])))
+
+    } else if (in_XY) {
+      # Handle matrix data lines
+      matrix_rows <- append(matrix_rows, list(x = as.numeric(line[1]),
+                                              y = as.numeric(line[2])))
+
+    } else {
+      # Handle typical metadata lines
+      key <- line[1] |>
+        unlist() |>
+        stringr::str_replace('°', '_deg') |>
+        stringr::str_replace('\\[mm³\\]', '') |>
+        stringr::str_replace('@', 'at') |>
+        stringr::str_replace_all(' ', '_') |>
+        stringr::str_to_lower()
+      value <- line[2]
+      names(value) <- key
+
+      current_meta <- append(current_meta, value)
+    }
+
+  }
+
+  # Save the last section data
+  list_item <- helper_end_section(in_metadata, in_matrix, in_XY,
+                                  matrix_rows, x_values, y_values, current_meta)
+
+  if (!is.null(list_item)) result_list[[current_section]] <- list_item
+
+  return(result_list)
+}
+

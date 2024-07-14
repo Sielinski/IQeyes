@@ -388,8 +388,9 @@ interpolate_measurements <- function(source_dat, ...) {
     dplyr::filter(!is.na(measurement))
 
   # Create a grid that spans the extents of the measured x and y axes
-  x_range <- with(source_dat, seq(min(x), max(x), length.out = length(unique(x))))
-  y_range <- with(source_dat, seq(min(y), max(y), length.out = length(unique(y))))
+  #x_range <- with(source_dat, seq(min(x), max(x), length.out = length(unique(x))))
+  #y_range <- with(source_dat, seq(min(y), max(y), length.out = length(unique(y))))
+  y_range <- x_range <- seq(-4.5, 4.5, 0.1)
   grid <- expand.grid(x = x_range, y = y_range)
 
   # Interpolate z values on the grid

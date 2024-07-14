@@ -112,3 +112,55 @@ logistic <- function(x) {
 #'
 #' @export
 nearest <- function(x, y) round(x / y) * y
+
+
+####################
+## array_position
+####################
+
+#' Returns the index/position of a 2d matrix for a given row and column
+#' @description
+#' This function does the inverse of \code{arrayInd(index, dim(array))}.
+#'
+#' @param matrix
+#' A two-dimensional array.
+#' @param row_index
+#' The row number.
+#' @param col_index
+#' The column number.
+#' @param row_label
+#' A character value matching one of the row names of \code{matrix}.
+#' @param col_label
+#' A character value matching one of the column names of \code{matrix}.
+#'
+#' @return
+#' Returns a numeric index (of the matrix).
+#'
+#' @details
+#' Requires both a row and column, which can be provided as a \code{row_index}
+#' and \code{col_index}, as a \code{row_label} and \code{col_label}, or some
+#' combination of an index and a label.
+#'
+#' @examples
+#' # find the index of row 2, column 1
+#' matrix(seq(1:9), nrow = 3, ncol = 3, byrow = T) |>
+#'   array_position(row_index = 2, col_index = 1)
+#'
+#' # find the row and column of index 2
+#' arrayInd(2, dim(matrix(seq(1:9), nrow = 3, ncol = 3, byrow = T)))
+#'
+#' @family Mathematics
+#'
+#' @export
+array_position <- function(matrix, row_index = NULL, col_index = NULL, row_label = NULL, col_label = NULL) {
+
+  # Get the row and column indices
+  if (is.null(row_index) & !is.null(row_label)) row_index <- which(rownames(matrix) == row_label)
+  if (is.null(col_index) & !is.null(col_label)) row_index <- which(rownames(matrix) == col_label)
+
+  if (is.null(row_index) | is.null(col_index)) warning('Must provide both a row and a column.')
+
+  # Calculate the linear index
+  position <- (col_index - 1) * nrow(matrix) + row_index
+  return(position)
+}

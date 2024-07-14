@@ -44,6 +44,7 @@ character passed in as a parameter.
 }
 \seealso{
 Other Utilities: 
-\code{\link{convert_name}()}
+\code{\link{convert_name}()},
+\code{\link{parse_csv_to_list}()}
 }
 \concept{Utilities}
