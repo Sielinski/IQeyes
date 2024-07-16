@@ -152,7 +152,6 @@ k_next <- function(exam_curvature, just_points = F) {
 
   # add an identifier flag to the cleansed curvature data
   source_dat <- exam_curvature |>
-    #dplyr::inner_join(status_ok, by = join_fields) |>
     dplyr::filter(surface == 'FRONT') |>
     dplyr::filter(!is.na(measurement)) |>
     dplyr::mutate(peak_id = 0)

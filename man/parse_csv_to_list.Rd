@@ -2,30 +2,34 @@
 % Please edit documentation in R/utilities.R
 \name{parse_csv_to_list}
 \alias{parse_csv_to_list}
-\title{Read a detailed Pentacam CSV into a list}
+\title{Read an exported Pentacam CSV into a list object}
 \usage{
 parse_csv_to_list(file_name, delimiter = ",", pachy_flag = F)
 }
 \arguments{
 \item{file_name}{A character string containing the name of the file name to read.}
 
-\item{delimiter}{A character identifying the delimiter that the Pentacam file uses to separate
-fields/columns.}
+\item{delimiter}{A single character identifying the delimiter that the Pentacam file uses to
+separate fields/columns.}
 
-\item{pachy_flag}{A Boolean. \code{TRUE} to indicate that the file contains pachymetry data.}
+\item{pachy_flag}{A Boolean. \code{TRUE} to indicate that the file contains pachymetry data.
+Pachymetry files are unique because they don't contain a section header
+in the title row of the map/measurement section. The \code{pachy_flag} must
+be set to \code{TRUE} to properly read a pachymetry file and \code{FALSE} for
+all other file types.}
 }
 \value{
 A list containing the file that has been read.
 }
 \description{
-Reads one the Pentacam's exported CSV files into a list object. The list will
-contain one element for each section of the file.
+Pentacam's exported CSV files contain a single exam and much more detailed
+information than is available in the automatically generated CSV files. This
+function will read the multiple sections of a detailed CSV file into a list
+object. The list will contain one element for each section of the file.
 }
 \details{
 The date and time fields in the \code{patient} and \code{examination}
 sections are \emph{not} converted to lubridate date and time types.
-
-The section \code{cornea edge} contains a bug.
 }
 \seealso{
 Other Utilities: 

@@ -7,7 +7,6 @@
 curvature_plot(
   exam_curvature,
   interp = T,
-  basic = F,
   grid = F,
   labels = F,
   titles = T,
@@ -17,6 +16,7 @@ curvature_plot(
   circle_dia = 9,
   points = F,
   greyscale = F,
+  theme_minimal = T,
   coord_fixed = T
 )
 }
@@ -26,11 +26,10 @@ containing one row for each curvature \code{measurement}.}
 
 \item{interp}{A Boolean. \code{TRUE} to interpolate measurements.}
 
-\item{basic}{A Boolean. \code{TRUE} to forgo contours and colors.}
-
 \item{grid}{A Boolean. \code{TRUE} to include a background grid.}
 
-\item{labels}{A Boolean. \code{TRUE} to label the \emph{measured} curvature points.}
+\item{labels}{A Boolean. \code{TRUE} to label the \emph{measured} curvature points. Only
+works when data are interpreted.}
 
 \item{titles}{A Boolean. \code{TRUE} to include plot title(s).}
 
@@ -43,10 +42,17 @@ containing one row for each curvature \code{measurement}.}
 
 \item{circle_dia}{A number. \code{TRUE} to include a legend/key.}
 
-\item{points}{A Boolean. \code{TRUE} to points on the plot at the \emph{x}- and \emph{x}-
-coordinates of the \emph{measured} points.}
+\item{points}{A Boolean. \code{TRUE} to show points on the plot at the \emph{x}- and
+\emph{x}-coordinates of the \emph{measured} points. Only works when data are
+interpreted.}
 
 \item{greyscale}{A Boolean. \code{TRUE} to render the contours in greyscale.}
+
+\item{theme_minimal}{A Boolean. \code{TRUE} to use ggplot's minimal theme (e.g., no background
+color).}
+
+\item{coord_fixed}{A Boolean. \code{TRUE} to ensure the \emph{x} and \emph{y} axes remain fixed
+(i.e., equal), regardless of differences in the available plot area.}
 }
 \value{
 A ggplot object.

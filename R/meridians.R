@@ -38,10 +38,9 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 ## curvature_meridians
 #########################
 
-#' Find an exam's hemi-meridians
+#' Find an exam's semi-meridians
 #' @description
-#' Find the hemi-meridians for an exam at three diameters (3, 5, and 7 mm) and
-#' four offset angles (0°, 90°, 180°, and 270°).
+#' Find the semi-meridians for an exam at three diameters (3, 5, and 7 mm).
 #' @param exam_curvature
 #' A data frame having the same columns as [IQeyes::sample_curvature] and
 #' containing one row for each curvature \code{measurement}.
@@ -53,27 +52,29 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' surface of the cornea, respectively.
 #' @param interp
 #' A Boolean. \code{TRUE} to interpolate measurements along the rings.
-#' \code{FALSE} is \emph{not} currently implemented.
 #' @return
-#' A data frame containing one row for each hemi-meridian.
+#' A data frame containing one row for each semi-meridian.
 #'
 #' \describe{
-#'  \item{meridian}{Either the \code{flat} or \code{steep} axis of astigmatism,
-#'  identifying the hemi-meridian's reference axis.}
-#'  \item{offset}{Offset angle (in degrees) from the 3 o'clock position.}
-#'  \item{ring_diam}{Radial end point of the hemi-meridian.}
-#'  \item{angle}{Angle (in degrees) of the hemi-meridian.}
-#'  \item{x}{\emph{x}-axis coordinate of the hemi-meridian's end point.}
-#'  \item{y}{\emph{y}-axis coordinate of the hemi-meridian's end point.}
-#'  \item{z}{Radius of curvature at the hemi-meridian's end point.}
-#'  \item{measurement}{Dioptric power of of the hemi-meridian at its end point.}
+#'  \item{ring}{Ring diameter of the semi-meridian.}
+#'  \item{radius}{Ending radius of the semi-meridian segment.}
+#'  \item{starting_radius}{Starting radius of the semi-meridian segment.}
+#'  \item{axis}{Either the \code{flat} or \code{steep} axis of astigmatism,
+#'  identifying the semi-meridian's reference axis.}
+#'  \item{between_min_max}{A Boolean identifying whether the semi-meridian was
+#'  found within a 180° window (±90°) of the opposite angle of astigmatism (or
+#'  the reflective "hemisphere").}
+#'  \item{theta}{Offset angle (in degrees) from the 3 o'clock position.}
+#'  \item{power}{Dioptric power of of the semi-meridian. When actual
+#'  measurement data are used, \code{power} will be the power at the end radius
+#'  of the semi-meridian segment. When interpreted data are used, \code{power}
+#'  will be the average power of the semi-meridian segment. }
 #' }
 #'
 #' @details
-#' This function looks at a 90° window (±45°) around each of the offset angles,
-#' relative to the axis of astigmatism. For the two steep meridians, it finds
-#' the min radius (i.e., max power) within the axes windows at each diameter
-#' ring. For the two flat meridians, it finds the max radius (i.e., min power).
+#' This function identifies the radial arms with the highest and lowest average
+#' power within 180° windows (±90°) of the axes of astigmatism (as determined
+#' by the Pentacam) at the 3, 5, and 7 mm ring diameters.
 #'
 #' @examples
 #' curvature_meridians(sample_curvature, sample_astig) |>
@@ -171,14 +172,14 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
   # find the radial arms that match these power values
   candidates_flat <- arm_power |>
     dplyr::inner_join(min_max_power, by = c('axis', 'between_min_max', 'radius', 'mean_power' = 'min_power')) |>
-    # the flat hemi-meridians will be on the either side of the steep axis
+    # the flat semi-meridians will be on the either side of the steep axis
     dplyr::filter(axis == 'steep') |>
     dplyr::mutate(axis = 'flat') |>
     dplyr::select(radius, axis, between_min_max, theta, mean_power)
 
   candidates_steep <- arm_power |>
     dplyr::inner_join(min_max_power, by = c('axis', 'between_min_max', 'radius', 'mean_power' = 'max_power')) |>
-    # the steep hemi-meridians will be on the either side of the flat axis
+    # the steep semi-meridians will be on the either side of the flat axis
     dplyr::filter(axis == 'flat') |>
     dplyr::mutate(axis = 'steep') |>
     dplyr::select(radius, axis, between_min_max, theta, mean_power)
@@ -250,7 +251,7 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
                     power = mean_power)
   }
 
-  # define the hemi-meridians
+  # define the semi-meridians
   meridian_angles <- candidate_angles |>
     dplyr::mutate(group = paste0(radius, '_', axis, '_', between_min_max)) |>
     dplyr::inner_join(preferred_angles, by = c('group', 'theta' = 'cluster')) |>

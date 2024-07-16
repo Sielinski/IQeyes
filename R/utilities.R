@@ -9,6 +9,7 @@
 #' converts the patient's date of birth to a date field (and calculates their
 #' age at the time of the exam), converts the exam eye to a factor, and converts
 #' the file's column names to an R-friendly format.
+#'
 #' @param file_name
 #' A character string containing the name of the file name to read.
 #' @param delimiter
@@ -22,6 +23,7 @@
 #' @param keep_empty_cols
 #' A Boolean. \code{TRUE} to return all columns, even when none of the
 #' records/rows contain values.
+#'
 #' @return
 #' A data frame containing the file that has been read.
 #'
@@ -182,27 +184,32 @@ convert_name <- function(name) {
 ## parse_csv_to_list
 #######################
 
-#' Read a detailed Pentacam CSV into a list
+#' Read an exported Pentacam CSV into a list object
+#'
 #' @description
-#' Reads one the Pentacam's exported CSV files into a list object. The list will
-#' contain one element for each section of the file.
+#' Pentacam's exported CSV files contain a single exam and much more detailed
+#' information than is available in the automatically generated CSV files. This
+#' function will read the multiple sections of a detailed CSV file into a list
+#' object. The list will contain one element for each section of the file.
 #'
 #' @param file_name
 #' A character string containing the name of the file name to read.
 #' @param delimiter
-#' A character identifying the delimiter that the Pentacam file uses to separate
-#' fields/columns.
+#' A single character identifying the delimiter that the Pentacam file uses to
+#' separate fields/columns.
 #' @param pachy_flag
 #' A Boolean. \code{TRUE} to indicate that the file contains pachymetry data.
-
+#' Pachymetry files are unique because they don't contain a section header
+#' in the title row of the map/measurement section. The \code{pachy_flag} must
+#' be set to \code{TRUE} to properly read a pachymetry file and \code{FALSE} for
+#' all other file types.
+#'
 #' @return
 #' A list containing the file that has been read.
 #'
 #' @details
 #' The date and time fields in the \code{patient} and \code{examination}
 #' sections are \emph{not} converted to lubridate date and time types.
-#'
-#' The section \code{cornea edge} contains a bug.
 #'
 #' @family Utilities
 #'
@@ -256,10 +263,14 @@ parse_csv_to_list <- function(file_name, delimiter = ',', pachy_flag = F) {
     # Save previous section data, if any
     if (in_matrix) {
       # measurement map as a numeric matrix
-      current_matrix <- do.call(rbind, matrix_rows)
-      colnames(current_matrix) <- x_values
-      rownames(current_matrix) <- y_values
-      return(current_matrix)
+      if (length(matrix_rows) == 0)  {
+        return(NULL)
+      } else {
+        current_matrix <- do.call(rbind, matrix_rows)
+        colnames(current_matrix) <- x_values
+        rownames(current_matrix) <- y_values
+        return(current_matrix)
+      }
     } else if (in_XY) {
       # X-Y metadata as a matrix
       if (length(matrix_rows) == 0)  {

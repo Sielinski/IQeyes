@@ -139,12 +139,11 @@ plot_scale <- function(z) {
 #' containing one row for each curvature \code{measurement}.
 #' @param interp
 #' A Boolean. \code{TRUE} to interpolate measurements.
-#' @param basic
-#' A Boolean. \code{TRUE} to forgo contours and colors.
 #' @param grid
 #' A Boolean. \code{TRUE} to include a background grid.
 #' @param labels
-#' A Boolean. \code{TRUE} to label the \emph{measured} curvature points.
+#' A Boolean. \code{TRUE} to label the \emph{measured} curvature points. Only
+#' works when data are interpreted.
 #' @param titles
 #' A Boolean. \code{TRUE} to include plot title(s).
 #' @param axes
@@ -157,10 +156,17 @@ plot_scale <- function(z) {
 #' @param circle_dia
 #' A number. \code{TRUE} to include a legend/key.
 #' @param points
-#' A Boolean. \code{TRUE} to points on the plot at the \emph{x}- and \emph{x}-
-#' coordinates of the \emph{measured} points.
+#' A Boolean. \code{TRUE} to show points on the plot at the \emph{x}- and
+#' \emph{x}-coordinates of the \emph{measured} points. Only works when data are
+#' interpreted.
 #' @param greyscale
 #' A Boolean. \code{TRUE} to render the contours in greyscale.
+#' @param theme_minimal
+#' A Boolean. \code{TRUE} to use ggplot's minimal theme (e.g., no background
+#' color).
+#' @param coord_fixed
+#' A Boolean. \code{TRUE} to ensure the \emph{x} and \emph{y} axes remain fixed
+#' (i.e., equal), regardless of differences in the available plot area.
 #'
 #' @return
 #' A ggplot object.
@@ -193,13 +199,13 @@ plot_scale <- function(z) {
 #' @importFrom ggplot2 scale_fill_grey
 #' @importFrom ggplot2 scale_fill_manual
 #' @importFrom ggplot2 coord_fixed
+#' @importFrom ggplot2 theme_minimal
 #' @importFrom ggforce geom_circle
 #'
 #' @export
 curvature_plot <-
   function(exam_curvature,
            interp = T,
-           basic = F,
            grid = F,
            labels = F,
            titles = T,
@@ -209,6 +215,7 @@ curvature_plot <-
            circle_dia = 9,
            points = F,
            greyscale = F,
+           theme_minimal = T,
            coord_fixed = T) {
 
     if (nrow(exam_curvature) == 0) warning('No data in exam_curvature.')
@@ -223,23 +230,23 @@ curvature_plot <-
 
     # interpolate data for the entire surface (this returns x, y, z)
     if (interp) {
-      interp_df <- exam_curvature |>
+      plot_dat <- exam_curvature |>
         interpolate_measurements()
     } else {
-      interp_df <- exam_curvature |>
+      plot_dat <- exam_curvature |>
         select(x, y, measurement) |>
         rename(z = measurement)
     }
 
     # convert curvature radius (R) to power in diopters
     if (exam_record$surface == 'FRONT') {
-      interp_df <- interp_df |>
+      plot_dat <- plot_dat |>
         dplyr::mutate(power = round(anterior_power(z), 1))
       # calculate power
       exam_curvature <- exam_curvature |>
         dplyr::mutate(power = round(anterior_power(measurement), 1))
     } else if (exam_record$surface == 'BACK') {
-      interp_df <- interp_df |>
+      plot_dat <- plot_dat |>
         dplyr::mutate(power = round(posterior_power(z), 1))
       exam_curvature <- exam_curvature |>
         dplyr::mutate(power = round(posterior_power(measurement), 1))
@@ -247,27 +254,24 @@ curvature_plot <-
 
     if (truncate_circle) {
       radius <- circle_dia / 2
-      interp_df <- interp_df |>
+      plot_dat <- plot_dat |>
         dplyr::filter(sqrt((x ^ 2) + (y ^ 2)) <= radius)
       exam_curvature <- exam_curvature |>
         dplyr::filter(sqrt((x ^ 2) + (y ^ 2)) <= radius)
     }
 
-    breaks_vector <- plot_scale(interp_df$power)
+    breaks_vector <- plot_scale(plot_dat$power)
 
-    p <- ggplot2::ggplot()
-
-    if (!basic) {
-      p <- p +
-        ggplot2::geom_contour_filled(data = interp_df,
+    p <- ggplot2::ggplot() +
+        ggplot2::geom_contour_filled(data = plot_dat,
                                      ggplot2::aes(x = x, y = y, z = power),
           # need breaks to match with color scale
           breaks = breaks_vector,
           show.legend = legend,
           na.rm = T
         ) +
+        # this shows the curvature scale from high to low (top to bottom)
         ggplot2::guides(fill = ggplot2::guide_legend(reverse = T, title = 'Curvature'))
-    }
 
     if (grid) {
       # a simple radial background
@@ -277,8 +281,12 @@ curvature_plot <-
     }
 
     if (points) {
-      p <- p +
-        ggplot2::geom_point(data = exam_curvature, ggplot2::aes(x = x, y = y))
+      if (!interp) {
+        warning('Can plot points only when curvature data has been interpolated.')
+      } else {
+        p <- p +
+          ggplot2::geom_point(data = exam_curvature, ggplot2::aes(x = x, y = y))
+      }
     }
 
     if (titles) {
@@ -291,8 +299,12 @@ curvature_plot <-
     }
 
     if (labels) {
-      p <- p +
-        ggplot2::geom_label(data = exam_curvature, ggplot2::aes(x = x, y = y, label = power), size = 2)
+      if (!interp) {
+        warning('Can plot labels only when curvature data has been interpolated.')
+      } else {
+        p <- p +
+          ggplot2::geom_label(data = exam_curvature, ggplot2::aes(x = x, y = y, label = power), size = 2)
+      }
     }
 
     if (!axes) {
@@ -305,12 +317,17 @@ curvature_plot <-
         ggplot2::scale_fill_grey()
     } else {
       p <- p +
-        ggplot2::scale_fill_manual(values = plot_color_scale(interp_df$power, length(breaks_vector)))
+        ggplot2::scale_fill_manual(values = plot_color_scale(plot_dat$power, length(breaks_vector)))
     }
 
     if (coord_fixed) {
       p <- p +
         ggplot2::coord_fixed()
+    }
+
+    if (theme_minimal) {
+      p <- p +
+        ggplot2::theme_minimal()
     }
 
     return(p)
