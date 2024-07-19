@@ -345,9 +345,9 @@ rotate_shape <- function(points, theta_deg) {
 }
 
 
-#############################
+##############################
 ## interpolate_measurements
-#############################
+##############################
 
 #' Interpolate measurements over an expanded grid
 #'

@@ -2,57 +2,70 @@
 % Please edit documentation in R/k_next.R
 \name{k_next}
 \alias{k_next}
-\title{Finds k-next}
+\title{Find the peaks on a curvature map}
 \usage{
-k_next(exam_curvature, just_points = F)
+k_next(curvature_m, ignore_singletons = T)
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \code{sample_curvature}.}
+\item{curvature_m}{A square numeric matrix. The rows must be labeled with their respective
+\emph{y}-axis positions, and the columns with their respective \emph{x}-axis
+positions. The values of the matrix must be the dioptric power at each
+(\emph{x}, \emph{y}) position.}
 
-\item{just_points}{A Boolean. \code{TRUE} to return the points that comprise the primary peak.}
+\item{ignore_singletons}{A Boolean. \code{TRUE} to ignore peaks that contain just one point.}
 }
 \value{
-If \code{just_points} = \code{T}, \code{k_next()} returns a copy of
-\code{exam_curvature} with an additional column \code{peak_id} identifying
-the peak that each measured point belongs to.
-
-If \code{just_points} = \code{F}, \code{k_next()} returns a one-row data
-frame containing the \code{join_fields} and a variety of metadata related to
-k-next:
+Returns a data frame that contains one row for each peak on the curvature
+map. The first few columns of the data frame will contain the
+\code{join_fields}. The remaining columns describe the characteristics of
+each peak:
 
 \describe{
-\item{k_max}{The dioptric power of K-max}
-\item{k_next}{The dioptric power of K-next}
-\item{ring_diam}{The radial distance of K-next from the vertex.}
-\item{angle}{The radial angle of K-next (in degrees).}
-\item{k_max_coverage}{The percentage of points on the cornea that descend
-from K-max.}
-\item{max_next_alignment_deg}{The angle (in degrees) between K-next and the
-projection of K-max in its opposite direction. See details below.}
-\item{max_next_distance_mm}{The Euclidean distance (in mm) between K-max and
-K-next.}
-\item{peak_count}{Number of peaks found on the cornea.}
+\item{peak_id}{The ordinal of the peak, ranked by the dioptric power of the
+peak's apex. The row with \code{peak_id == 1} will be K-max and the row with
+\code{peak_id == 2} will be K-next.}
+\item{x}{The peak's \emph{x}-axis position. See details.}
+\item{y}{The peak's \emph{y}-axis position.}
+\item{power}{The dioptric power of the peak.}
+\item{pct_coverage}{The percentage of points on the cornea that descend
+from the peak.}
+\item{r}{The radial distance of the peak from the vertex (in mm).}
+\item{theta}{The angle of the peak from the 3 o'clock position (in
+radians).}
+\item{angle}{The angle of the peak from the 3 o'clock position (in
+degrees).}
+\item{alignment_deg}{The angle (in degrees) between a peak and the
+projection of K-max in its opposite direction. Quantifies the departure from
+symmetry. When K-max and another peak (particularly K-next) are
+symmetrically aligned, their radial axes are 180° apart. As such,
+\code{alignment_deg} is calculated as 180° \emph{minus} the smallest angle,
+so when K-max and another peak are 180° apart, the result is 0°. Generally,
+the smallest angle between the K-max and another peak will be less than
+180°, and the departure from symmetry will be larger.}
+\item{distance_to_max}{The Euclidean distance (in mm) between the peak and
+another peak.}
 }
 }
 \description{
-Find the secondary peak on a curvature map.
+Finds the points of maximum dioptric power on a curvature map, including
+K-max, K-next, and any other peaks.
 }
 \details{
-The algorithm to identify K-next is based on measured (i.e., not interpreted)
-points only, so K-next itself is one of the measured points.
-
-\code{max_next_alignment_deg} quantifies the departure from symmetry. When
-K-max and K-next are symmetrically aligned, their radial axes are 180° apart.
-\code{max_next_alignment_deg} is calculated as 180° \emph{minus} the smallest
-angle, so when K-max and K-next are 180° apart, the result is 0°. Generally,
-the smallest angle between the K-max and K-next will be less than 180°, and
-the departure from symmetry will be larger. If there is no K-next,
-\code{max_next_alignment_deg} is \code{NA}.
+Oftentimes, a peak is comprised of several points with the same dioptric
+power. When that happens, the (\emph{x}, \emph{y}) position of the peak is
+calculated as the centroid of those points.
 }
 \examples{
-k_next(sample_curvature) |>
-  dplyr::select(-all_of(join_fields))
+interpolate_measurements(sample_curvature) |>
+  dplyr::mutate(power = anterior_power(z)) |>
+  dplyr::select(x, y, power) |>
+  reshape2::acast(y ~ x, value.var = 'power') |>
+  k_next()
 
+}
+\seealso{
+Other K-next: 
+\code{\link{find_peaks}()},
+\code{\link{k_next_old}()}
 }
 \concept{K-next}

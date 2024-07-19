@@ -156,7 +156,7 @@ array_position <- function(matrix, row_index = NULL, col_index = NULL, row_label
 
   # Get the row and column indices
   if (is.null(row_index) & !is.null(row_label)) row_index <- which(rownames(matrix) == row_label)
-  if (is.null(col_index) & !is.null(col_label)) row_index <- which(rownames(matrix) == col_label)
+  if (is.null(col_index) & !is.null(col_label)) col_index <- which(colnames(matrix) == col_label)
 
   if (is.null(row_index) | is.null(col_index)) warning('Must provide both a row and a column.')
 
