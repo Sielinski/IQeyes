@@ -40,7 +40,8 @@ get_contour(sample_curvature, contour_power = 45.5) |>
   head()
 
 curvature_plot(sample_curvature, labels = F) +
-  ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5))
+ ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5),
+                     ggplot2::aes(x, y))
 
 }
 \seealso{

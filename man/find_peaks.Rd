@@ -36,6 +36,7 @@ find_peaks(test_m)
 }
 \seealso{
 Other K-next: 
+\code{\link{antipodal_power}()},
 \code{\link{k_next}()},
 \code{\link{k_next_old}()}
 }

@@ -223,7 +223,8 @@ contour_max_diameter <- 4.5  # Not currently used
 #'   head()
 #'
 #' curvature_plot(sample_curvature, labels = F) +
-#'   ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5))
+#'  ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5),
+#'                      ggplot2::aes(x, y))
 #'
 #' @family Contours
 #'

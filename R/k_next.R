@@ -76,9 +76,9 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 }
 
 
-############
-## k_next
-############
+################
+## k_next_old
+################
 
 #' Find k-next
 #' @description
@@ -516,7 +516,7 @@ find_peaks <- function(input_matrix) {
 #' @export
 k_next <- function(curvature_m, ignore_singletons = T) {
   if (is.null(curvature_m)) {
-    invisible(exam_record)
+    invisible(curvature_m)
 
   } else {
     # find the peaks
@@ -607,4 +607,92 @@ k_next <- function(curvature_m, ignore_singletons = T) {
 
     return(peaks_summary)
   }
+}
+
+
+#####################
+## antipodal_power
+#####################
+
+#' Dioptric power at the antipode of K-max
+#'
+#' @description
+#' Returns the dioptric power at the antipode of K-max.
+
+#' @param exam_record
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
+#' @param exam_k_max
+#' A data frame containing the [IQeyes::join_fields] and the \code{x}, \code{y},
+#' and \code{measurement} of K-max.
+#' @param interp
+#' A Boolean. \code{TRUE} to interpolate measurements. See details.
+#'
+#' @return
+#' A one-row data frame containing the [IQeyes::join_fields] and the following
+#' columns:
+#'
+#' \describe{
+#'  \item{k_max}{Dioptric power of K-max.}
+#'  \item{opposite_power}{Dioptric power of the antipode.}
+#'  \item{x}{The \emph{x}-axis position of the measurement. See details.}
+#'  \item{y}{The \emph{y}-axis position of the measurement.}
+#'  \item{opposite_x}{The \emph{x}-axis position of the antipode. See details.}
+#'  \item{opposite_y}{The \emph{y}-axis position of the antipode.}
+#'  \item{euch_dist}{Euchlidean distance of the measurement from the antipod.}
+#' }
+#'
+#' @details
+#' The antipode of K-max is the point directly opposite of K-max on the
+#' curvature map. Since measurement data for that \emph{exact} position is
+#' rarely available, this function finds the point that's nearest to the
+#' antipode and returns its position and power.
+#'
+#' The [IQeyes::join_fields] in the returned data frame come from the
+#' \code{exam_k_max}.
+#'
+#' @family K-next
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr mutate
+#' @importFrom dplyr cross_join
+#' @importFrom dplyr slice_min
+#' @importFrom tidyselect all_of
+#' @importFrom tidyselect starts_with
+#'
+#' @export
+antipodal_power <- function(exam_curvature, exam_k_max, interp = F) {
+
+  if (interp) {
+    z_dat <- exam_curvature |>
+      interpolate_measurements()
+  } else {
+    z_dat <- exam_curvature |>
+      select(x, y, measurement) |>
+      rename(z = measurement)
+  }
+
+  # establish the antipod of K-max
+  exam_k_max <- exam_k_max |>
+    dplyr::select(tidyselect::all_of(join_fields), x, y, measurement) |>
+    dplyr::mutate(opposite_x = -x,
+                  opposite_y = -y,
+                  k_max = anterior_power(measurement)) |>
+    dplyr::select(tidyselect::all_of(join_fields), tidyselect::starts_with('opposite'), k_max)
+
+  if (nrow(exam_k_max) == 0) {
+    warning('K-max not found.')
+    return(invisible(exam_curvature))
+  }
+
+  # find the measurement that's closest to the antipodal position of K-max
+  antipodal_power <- exam_k_max |>
+    dplyr::cross_join(z_dat) |>
+    dplyr::mutate(euch_dist = sqrt((x - opposite_x) ^ 2 + (y - opposite_y) ^ 2)) |>
+    dplyr::slice_min(order_by = euch_dist, n = 1, by = tidyselect::all_of(join_fields)) |>
+    dplyr::mutate(opposite_power = anterior_power(z)) |>
+    dplyr::select(all_of(join_fields), k_max, opposite_power, x, y, opposite_x, opposite_y, euch_dist)
+
+  return(antipodal_power)
+
 }

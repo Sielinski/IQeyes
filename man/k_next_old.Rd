@@ -57,6 +57,7 @@ k_next_old(sample_curvature) |>
 }
 \seealso{
 Other K-next: 
+\code{\link{antipodal_power}()},
 \code{\link{find_peaks}()},
 \code{\link{k_next}()}
 }

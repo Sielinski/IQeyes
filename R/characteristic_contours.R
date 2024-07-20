@@ -31,6 +31,7 @@
 #' containing a single point are considered candidates. In the unlikely case
 #' that no contours have segments containing points, all contours are
 #' considered candidates.
+#'
 #' @examples
 #' candidate_contours(sample_curvature)
 #'
@@ -155,7 +156,7 @@ candidate_contours <- function(exam_curvature) {
 #' @description
 #' Identifies the contours of an exam that are candidates for the
 #' characteristic contour, and calculates the number of \emph{other}
-#' contours that exist between the candidate contour and K-max and K-next.
+#' contours that exist between a candidate contour and both K-max and K-next.
 #' @param exam_curvature
 #' A data frame containing one row for each curvature \code{measurement} and the
 #' same columns as [IQeyes::sample_curvature].
@@ -174,8 +175,8 @@ candidate_contours <- function(exam_curvature) {
 #' When trying to identify an exam's characteristic contour, the actual values
 #' of K-max and K-next don't matter, but the relative context that they create
 #' is important. This function quantifies that context by counting the number of
-#' \emph{other} contours that exist between a candidate contour and K-max and
-#' K-next.
+#' \emph{other} contours that exist between a candidate contour and both K-max
+#' and K-next.
 #'
 #' Internally, this function calls [IQeyes::k_next] and
 #' [IQeyes::candidate_contours].
