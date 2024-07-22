@@ -23,7 +23,7 @@ data.frame(x = 1:15, y = sort(rpois(15, 42), decreasing = T)) |>
 
 }
 \seealso{
-Other Statistical Functions: 
+Other statistical functions: 
 \code{\link{d_mode}()},
 \code{\link{mean_folded_normal}()},
 \code{\link{mean_half_normal}()},
@@ -33,4 +33,4 @@ Other Statistical Functions:
 \code{\link{z_score}()},
 \code{\link{z_to_pct}()}
 }
-\concept{Statistical Functions}
+\concept{statistical functions}

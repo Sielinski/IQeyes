@@ -32,8 +32,8 @@ The date and time fields in the \code{patient} and \code{examination}
 sections are \emph{not} converted to lubridate date and time types.
 }
 \seealso{
-Other Utilities: 
+Other utilities: 
 \code{\link{convert_name}()},
 \code{\link{read_pentacam_csv}()}
 }
-\concept{Utilities}
+\concept{utilities}

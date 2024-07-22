@@ -20,7 +20,7 @@ d_mode(rnorm(1000, mean = 2))
 
 }
 \seealso{
-Other Statistical Functions: 
+Other statistical functions: 
 \code{\link{knee}()},
 \code{\link{mean_folded_normal}()},
 \code{\link{mean_half_normal}()},
@@ -30,4 +30,4 @@ Other Statistical Functions:
 \code{\link{z_score}()},
 \code{\link{z_to_pct}()}
 }
-\concept{Statistical Functions}
+\concept{statistical functions}

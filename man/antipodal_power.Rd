@@ -2,7 +2,7 @@
 % Please edit documentation in R/k_next.R
 \name{antipodal_power}
 \alias{antipodal_power}
-\title{Dioptric power at the antipod of K-max}
+\title{Dioptric power at the antipode of K-max}
 \usage{
 antipodal_power(exam_curvature, exam_k_max, interp = F)
 }
@@ -21,19 +21,22 @@ columns:
 
 \describe{
 \item{k_max}{Dioptric power of K-max.}
-\item{opposite_power}{Dioptric power of the antipod.}
+\item{opposite_power}{Dioptric power of the antipode.}
 \item{x}{The \emph{x}-axis position of the measurement. See details.}
 \item{y}{The \emph{y}-axis position of the measurement.}
-\item{opposite_x}{The \emph{x}-axis position of the antipod. See details.}
-\item{opposite_y}{The \emph{y}-axis position of the antipod.}
+\item{opposite_x}{The \emph{x}-axis position of the antipode. See details.}
+\item{opposite_y}{The \emph{y}-axis position of the antipode.}
 \item{euch_dist}{Euchlidean distance of the measurement from the antipod.}
 }
 }
 \description{
-Returns the dioptric power at the antipod of K-max.
+Returns the dioptric power at the antipode of K-max.
 }
 \details{
-The antipod of K-max is directly opposite K-max on the curvature map.
+The antipode of K-max is the point directly opposite of K-max on the
+curvature map. Since measurement data for that \emph{exact} position is
+rarely available, this function finds the point that's nearest to the
+antipode and returns its position and power.
 
 The \link{join_fields} in the returned data frame come from the
 \code{exam_k_max}.

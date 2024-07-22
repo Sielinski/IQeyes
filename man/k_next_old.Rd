@@ -7,8 +7,8 @@
 k_next_old(exam_curvature, just_points = F)
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \code{sample_curvature}.}
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
+containing one row for each curvature \code{measurement}.}
 
 \item{just_points}{A Boolean. \code{TRUE} to return the points that comprise the primary peak.}
 }

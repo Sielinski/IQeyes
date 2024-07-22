@@ -102,7 +102,7 @@ absolute_color_scale <- data.frame(value = absolute_scale,
 #'   anterior_power() |>
 #'   plot_scale()
 #'
-#' @family Plots
+#' @family plots
 #'
 #' @importFrom dplyr between
 #'
@@ -179,7 +179,7 @@ plot_scale <- function(z) {
 #' @examples
 #' curvature_plot(sample_curvature)
 #'
-#' @family Plots
+#' @family plots
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr all_of

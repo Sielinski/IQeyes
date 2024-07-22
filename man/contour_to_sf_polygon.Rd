@@ -29,7 +29,7 @@ fewer than \code{required_points} will be disregarded.
 }
 \examples{
 contour_to_sf_polygon(
-  contour = get_contour(sample_curvature, contour_power = 44.5)
+  contour = get_contour(sample_curvature, interp = T, contour_power = 44.5)
 )
 
 reference_contours |>
@@ -38,9 +38,9 @@ reference_contours |>
 
 }
 \seealso{
-Other Polygons: 
+Other polygons: 
 \code{\link{silhouette_overlap}()},
 \code{\link{silhouette_overlap_group}()},
 \code{\link{silhouette_plot}()}
 }
-\concept{Polygons}
+\concept{polygons}

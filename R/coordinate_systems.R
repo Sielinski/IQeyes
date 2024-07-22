@@ -21,7 +21,7 @@
 #' smallest_angle(45, 90)
 #' smallest_angle(90, 45)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 smallest_angle <- function(angle_1, angle_2) {
@@ -56,7 +56,7 @@ smallest_angle <- Vectorize(smallest_angle)
 #' @examples
 #' signed_smallest_angle(45, 90)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 signed_smallest_angle <- function(angle_1, angle_2) {
@@ -94,7 +94,7 @@ signed_smallest_angle <- Vectorize(signed_smallest_angle)
 #' @examples
 #' polar_to_cartesian(1, 45)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 polar_to_cartesian <- function(radius, angle_deg) {
@@ -127,7 +127,7 @@ polar_to_cartesian <- function(radius, angle_deg) {
 #' @examples
 #' cartesian_to_polar(-1, 0)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 cartesian_to_polar <- function(x, y) {
@@ -155,7 +155,7 @@ cartesian_to_polar <- function(x, y) {
 #' @examples
 #' cartesian_degrees(2, 2)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 cartesian_degrees <- function(x, y) {
@@ -183,7 +183,7 @@ cartesian_degrees <- function(x, y) {
 #' @examples
 #' deg_to_rad(180)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 deg_to_rad <- function(angle_deg) angle_deg * pi / 180
@@ -203,7 +203,7 @@ deg_to_rad <- function(angle_deg) angle_deg * pi / 180
 #' @examples
 #' rad_to_deg(pi)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 rad_to_deg <- function(angle_rad) angle_rad * 180 / pi
@@ -226,7 +226,7 @@ rad_to_deg <- function(angle_rad) angle_rad * 180 / pi
 #' @examples
 #' euclidean_dist(2, 2)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 euclidean_dist <- function(x, y) {
@@ -254,7 +254,7 @@ euclidean_dist <- function(x, y) {
 #' within_360(42)
 #' within_360(-22)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 within_360 <- function(angle) {
@@ -291,7 +291,7 @@ within_360 <- Vectorize(within_360)
 #' within_2pi(pi)
 #' within_2pi(-pi)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 within_2pi <- function(angle) {
@@ -327,7 +327,7 @@ within_2pi <- Vectorize(within_2pi)
 #' @examples
 #' matrix(rep(seq(1:5), 2), ncol = 2) |> rotate_shape(180)
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @export
 rotate_shape <- function(points, theta_deg) {
@@ -359,10 +359,13 @@ rotate_shape <- function(points, theta_deg) {
 #' A data frame containing one row for each \code{measurement}. Each row must contain
 #' at least three columns: a set of Cartesian coordinates (\code{x} and
 #' \code{y}) and a \code{measurement}.
+#' @param radius
+#' A number. Extent of the corneal radius to interpolate.
 #' @param ...
 #' Additional parameters that get passed to \code{akima::interp()}
 #' @return
 #' A new data frame with the interpolated measurements.
+#'
 #' @details
 #' The \emph{x} and \emph{y} axes of the expanded grid will contain the same
 #' number of unique values as original axes, but they will be equally spaced
@@ -374,13 +377,13 @@ rotate_shape <- function(points, theta_deg) {
 #' interpolate_measurements(sample_curvature) |>
 #'    head()
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @importFrom dplyr filter
 #' @importFrom akima interp
 #'
 #' @export
-interpolate_measurements <- function(source_dat, ...) {
+interpolate_measurements <- function(source_dat, radius = 4.5, ...) {
 
   #source_dat <- sample_curvature
 
@@ -390,7 +393,7 @@ interpolate_measurements <- function(source_dat, ...) {
   # Create a grid that spans the extents of the measured x and y axes
   #x_range <- with(source_dat, seq(min(x), max(x), length.out = length(unique(x))))
   #y_range <- with(source_dat, seq(min(y), max(y), length.out = length(unique(y))))
-  y_range <- x_range <- seq(-4.5, 4.5, 0.1)
+  y_range <- x_range <- seq(-radius, radius, 0.1)
   grid <- expand.grid(x = x_range, y = y_range)
 
   # Interpolate z values on the grid
@@ -443,7 +446,7 @@ interpolate_measurements <- function(source_dat, ...) {
 #' quadrant_eye(1, 1, 'left')
 #' quadrant_eye(1, 1, 'right')
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @importFrom dplyr filter
 #'
@@ -489,11 +492,11 @@ quadrant_eye <- Vectorize(quadrant_eye)
 #' The Hausdorff distance between the two contours.
 #' @examples
 #' hausdorff_distance(
-#'   contour_A = get_contour(sample_curvature, contour_power = 44),
-#'   contour_B = get_contour(sample_curvature, contour_power = 44.5)
+#'   contour_A = get_contour(sample_curvature, interp = T, contour_power = 44),
+#'   contour_B = get_contour(sample_curvature, interp = T, contour_power = 44.5)
 #' )
 #'
-#' @family Coordinate Systems
+#' @family coordinate systems
 #'
 #' @importFrom pracma hausdorff_dist
 #' @importFrom dplyr select

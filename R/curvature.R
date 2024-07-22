@@ -17,7 +17,7 @@
 #' @examples
 #' true_net_power(7, 5)
 #'
-#' @family Curvature
+#' @family curvature
 #'
 #' @export
 true_net_power <- function(R_front, R_back){
@@ -44,7 +44,7 @@ true_net_power <- function(R_front, R_back){
 #' @examples
 #' anterior_power(7)
 #'
-#' @family Curvature
+#' @family curvature
 #'
 #' @export
 anterior_power <- function(R) 337.5 / R
@@ -67,7 +67,7 @@ anterior_power <- function(R) 337.5 / R
 #' @examples
 #' posterior_power(5)
 #'
-#' @family Curvature
+#' @family curvature
 #'
 #' @export
 posterior_power <- function(R) 30 / R  # 1.376/1.336 ≈ 0.30
@@ -91,7 +91,7 @@ posterior_power <- function(R) 30 / R  # 1.376/1.336 ≈ 0.30
 #' @examples
 #' kappa_from_radius(7)
 #'
-#' @family Curvature
+#' @family curvature
 #'
 #' @export
 kappa_from_radius <- function(R) 1/R

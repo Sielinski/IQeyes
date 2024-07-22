@@ -50,7 +50,7 @@ signed_pct_diff <- Vectorize(signed_pct_diff)
 #' logit(p = 0.5)
 #' logit(1/2)
 #'
-#' @family Mathematics
+#' @family mathematics
 #'
 #' @export
 logit <- function(p) {
@@ -84,7 +84,7 @@ logit <- Vectorize(logit)
 #' logistic(x = 64)
 #' logistic(Inf)
 #'
-#' @family Mathematics
+#' @family mathematics
 #'
 #' @export
 logistic <- function(x) {
@@ -108,7 +108,7 @@ logistic <- function(x) {
 #' @examples
 #' nearest(0.75, 0.2)
 #'
-#' @family Mathematics
+#' @family mathematics
 #'
 #' @export
 nearest <- function(x, y) round(x / y) * y
@@ -149,7 +149,7 @@ nearest <- function(x, y) round(x / y) * y
 #' # find the row and column of index 2
 #' arrayInd(2, dim(matrix(seq(1:9), nrow = 3, ncol = 3, byrow = T)))
 #'
-#' @family Mathematics
+#' @family mathematics
 #'
 #' @export
 array_position <- function(matrix, row_index = NULL, col_index = NULL, row_label = NULL, col_label = NULL) {

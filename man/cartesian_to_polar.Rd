@@ -24,7 +24,7 @@ cartesian_to_polar(-1, 0)
 
 }
 \seealso{
-Other Coordinate Systems: 
+Other coordinate systems: 
 \code{\link{cartesian_degrees}()},
 \code{\link{deg_to_rad}()},
 \code{\link{euclidean_dist}()},
@@ -39,4 +39,4 @@ Other Coordinate Systems:
 \code{\link{within_2pi}()},
 \code{\link{within_360}()}
 }
-\concept{Coordinate Systems}
+\concept{coordinate systems}

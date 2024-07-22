@@ -25,7 +25,7 @@ z_score(0.5, mean = 0, sd = 1)
 
 }
 \seealso{
-Other Statistical Functions: 
+Other statistical functions: 
 \code{\link{d_mode}()},
 \code{\link{knee}()},
 \code{\link{mean_folded_normal}()},
@@ -35,4 +35,4 @@ Other Statistical Functions:
 \code{\link{sd_half_normal}()},
 \code{\link{z_to_pct}()}
 }
-\concept{Statistical Functions}
+\concept{statistical functions}

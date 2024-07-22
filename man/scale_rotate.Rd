@@ -42,8 +42,8 @@ scale_rotate(sample_curvature, axs = 33.6) |>
 
 }
 \seealso{
-Other Contours: 
+Other contours: 
 \code{\link{get_contour}()},
 \code{\link{get_contour_levels}()}
 }
-\concept{Contours}
+\concept{contours}

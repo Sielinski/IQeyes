@@ -4,12 +4,14 @@
 \alias{interpolate_measurements}
 \title{Interpolate measurements over an expanded grid}
 \usage{
-interpolate_measurements(source_dat, ...)
+interpolate_measurements(source_dat, radius = 4.5, ...)
 }
 \arguments{
 \item{source_dat}{A data frame containing one row for each \code{measurement}. Each row must contain
 at least three columns: a set of Cartesian coordinates (\code{x} and
 \code{y}) and a \code{measurement}.}
+
+\item{radius}{A number. Extent of the corneal radius to interpolate.}
 
 \item{...}{Additional parameters that get passed to \code{akima::interp()}}
 }
@@ -34,7 +36,7 @@ interpolate_measurements(sample_curvature) |>
 
 }
 \seealso{
-Other Coordinate Systems: 
+Other coordinate systems: 
 \code{\link{cartesian_degrees}()},
 \code{\link{cartesian_to_polar}()},
 \code{\link{deg_to_rad}()},
@@ -49,4 +51,4 @@ Other Coordinate Systems:
 \code{\link{within_2pi}()},
 \code{\link{within_360}()}
 }
-\concept{Coordinate Systems}
+\concept{coordinate systems}

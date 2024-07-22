@@ -27,9 +27,9 @@ logit(1/2)
 \seealso{
 \code{\link[=logistic]{logistic()}}
 
-Other Mathematics: 
+Other mathematics: 
 \code{\link{array_position}()},
 \code{\link{logistic}()},
 \code{\link{nearest}()}
 }
-\concept{Mathematics}
+\concept{mathematics}

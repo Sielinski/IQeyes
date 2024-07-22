@@ -12,7 +12,7 @@ curvature_meridians(
 )
 }
 \arguments{
-\item{exam_curvature}{A data frame having the same columns as \link{sample_curvature} and
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
 containing one row for each curvature \code{measurement}.}
 
 \item{exam_astig}{A data frame having the same columns as \link{sample_astig} and containing
@@ -55,4 +55,4 @@ curvature_meridians(sample_curvature, sample_astig) |>
   dplyr::select(-tidyselect::all_of(join_fields))
 
 }
-\concept{Meridians}
+\concept{meridians}

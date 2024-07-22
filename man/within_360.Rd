@@ -27,7 +27,7 @@ within_360(-22)
 
 }
 \seealso{
-Other Coordinate Systems: 
+Other coordinate systems: 
 \code{\link{cartesian_degrees}()},
 \code{\link{cartesian_to_polar}()},
 \code{\link{deg_to_rad}()},
@@ -42,4 +42,4 @@ Other Coordinate Systems:
 \code{\link{smallest_angle}()},
 \code{\link{within_2pi}()}
 }
-\concept{Coordinate Systems}
+\concept{coordinate systems}

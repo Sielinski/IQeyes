@@ -4,11 +4,13 @@
 \alias{get_contour}
 \title{Get contour}
 \usage{
-get_contour(exam_curvature, add_edge = F, contour_power)
+get_contour(exam_curvature, interp = F, add_edge = F, contour_power)
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \link{sample_curvature}.}
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
+containing one row for each curvature \code{measurement}.}
+
+\item{interp}{A Boolean. \code{TRUE} to interpolate measurements. See details.}
 
 \item{add_edge}{A Boolean. If the contour extends beyond the edge of the scanned cornea,
 \code{TRUE} will add the edge of the scanned area, connecting the ends of the
@@ -16,8 +18,8 @@ contour and fully enclosing it. The \code{segment_id} for the added edge will
 be \code{0}. If the contour doesn't extend beyond the edge of the cornea, no
 edge will be added.}
 
-\item{contour_power}{A number identifying the power of the contour to return. Valid values for an
-exam can be determined by calling \link{get_contour_levels}.}
+\item{contour_power}{Required. A number identifying the power of the contour to return. Valid
+values for an exam can be determined by calling \link{get_contour_levels}.}
 }
 \value{
 A data frame containing one row for each point of the contour and the same
@@ -28,25 +30,30 @@ Returns the \emph{x} and \emph{y} coordinates of the contour for an exam,
 \code{exam_curvature}, at the specified power, \code{contour_power}.
 }
 \details{
-A contour is comprised of one or more segments, uniquely identified by
-\code{segment_id}.
+This function requires a fairly high degree of resolution. If more data
+are needed, use the parameter \code{interp = T}.
+
+The resulting contour will be comprised of one or more segments, uniquely
+identified by \code{segment_id}.
 
 This function doesn't currently work for posterior surfaces because
 \link{plot_scale} presumes the color scale is on the "absolute
 scale", which is designed for the dioptric power of anterior surfaces.
 }
 \examples{
-get_contour(sample_curvature, contour_power = 45.5) |>
+get_contour(sample_curvature, interp = T, contour_power = 45.5) |>
   head()
 
 curvature_plot(sample_curvature, labels = F) +
- ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5),
-                     ggplot2::aes(x, y))
+ggplot2::geom_point(data = get_contour(sample_curvature,
+                                       interp = T,
+                                       contour_power = 45.5),
+                    ggplot2::aes(x, y))
 
 }
 \seealso{
-Other Contours: 
+Other contours: 
 \code{\link{get_contour_levels}()},
 \code{\link{scale_rotate}()}
 }
-\concept{Contours}
+\concept{contours}

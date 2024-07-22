@@ -28,7 +28,12 @@ For convenience, the polygons for the reference shapes
 (\link{IQeyes:reference_polygons}) are included in this package.
 }
 \examples{
-sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
+sample_polygon <- get_contour(
+  sample_curvature,
+  interp = T,
+  add_edge = T,
+  contour_power = 45.5
+) |>
   scale_rotate(axs = 33.6) |>
   contour_to_sf_polygon()
 
@@ -40,9 +45,9 @@ silhouette_plot(
 
 }
 \seealso{
-Other Polygons: 
+Other polygons: 
 \code{\link{contour_to_sf_polygon}()},
 \code{\link{silhouette_overlap}()},
 \code{\link{silhouette_overlap_group}()}
 }
-\concept{Polygons}
+\concept{polygons}

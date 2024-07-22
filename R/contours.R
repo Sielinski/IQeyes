@@ -3,10 +3,12 @@
 ##################
 
 #' Scale and rotate
+#'
 #' @description
 #' Scales and rotates a shape defined by a set of \emph{x} and \emph{y}
 #' coordinates. Can be either a curvature (e.g., [IQeyes::sample_curvature]) or
 #' contour data frame (e.g., [IQeyes::sample_contour]).
+#'
 #' @param shape
 #' A data frame containing one row for each point that defines a shape (e.g.,
 #' a silhouette or contour). Currently, \code{scale_rotate()} expects the
@@ -16,9 +18,11 @@
 #' axis of astigmatism for an exam.
 #' @param r_target
 #' A number defining the target radial length of the scaled shape.
+#'
 #' @return
 #' A data frame containing the same columns as \code{shape} with transformed
 #' \emph{x} and \emph{y} coordinates. No other values are changed.
+#'
 #' @details
 #' The angle of rotation is determined by the primary axis of astigmatism for
 #' the exam. If \code{axs} > 90, its value is shifted by -180°, ensuring that
@@ -27,13 +31,14 @@
 #' The scaling factor is determined by the max radial length of any point on the
 #' shape, not the end-to-end length of the shape, which is especially
 #' important for asymmetric shapes.
+#'
 #' @examples
 #' scale_rotate(sample_contour, axs = 33.6) |>
 #'   head()
 #' scale_rotate(sample_curvature, axs = 33.6) |>
 #'   head()
 #'
-#' @family Contours
+#' @family contours
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr inner_join
@@ -100,23 +105,28 @@ scale_rotate <- function(shape, axs = 0, r_target = 4) {
 ########################
 
 #' Get contour levels
+#'
 #' @description
 #' Returns the full range of contours and the number of segments needed to plot
 #' \code{exam_curvature} on a curvature map.
+#'
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as [IQeyes::sample_curvature].
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
+#'
 #' @return
 #' A table. The table's labels identify the contour levels, and the values in
 #' the table identify the number of segments that comprise the contour.
+#'
 #' @details
 #' This function doesn't currently work for posterior surfaces because
 #' [IQeyes::plot_scale] presumes the color scale is on the "absolute
 #' scale", which is designed for the dioptric power of anterior surfaces.
+#'
 #' @examples
 #' get_contour_levels(sample_curvature)
 #'
-#' @family Contours
+#' @family contours
 #'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr filter
@@ -125,44 +135,55 @@ scale_rotate <- function(shape, axs = 0, r_target = 4) {
 #' @export
 get_contour_levels <- function(exam_curvature) {
 
+  #exam_curvature <- sample_curvature |> interpolate_measurements()
+  #exam_curvature <- z_dat
+
   if (nrow(exam_curvature) == 0) warning('No data in exam_curvature.')
 
-  # calculate power
-  exam_curvature <- exam_curvature |>
-    dplyr::mutate(z = anterior_power(measurement)) |>
-    dplyr::filter(!is.na(z))
+  if (!'power' %in% colnames(exam_curvature)) {
+    # calculate power
+    if ('measurement' %in% colnames(exam_curvature)) {
+      exam_curvature <- exam_curvature |>
+        dplyr::mutate(power = anterior_power(measurement))
+    } else if ('z' %in% colnames(exam_curvature)) {
+      exam_curvature <- exam_curvature |>
+        dplyr::mutate(power = anterior_power(z))
+    } else {
+      warning('Power data not found in exam_curvature.')
+      invisible(exam_curvature)
+    }
+  }
 
-  # Create a grid that spans the extents of the measured x and y axes
-  x_range <- with(exam_curvature, seq(min(x), max(x), length.out = length(unique(x))))
-  y_range <- with(exam_curvature, seq(min(y), max(y), length.out = length(unique(y))))
-
-  # Interpolate z values on the grid
-  interpolated <-
-    with(exam_curvature,
-         akima::interp(x, y, z,
-                       xo = x_range,
-                       yo = y_range,
-                       duplicate = 'strip'
-         ))
+  # turn the data frame into a matrix
+  curvature_m <- reshape2::acast(data = exam_curvature,
+                                 formula = y ~ x,
+                                 value.var = 'power')
 
   # identify the corresponding range of breakpoints for a contour plot.
   # note that the interpolated data might not include the highest peak, so
   # determine the break points for the contour lines on the interpolated data
-  z_levels <- plot_scale(interpolated$z)
-
-  # otherwise, get the range from the measured data, not the interpolated data
-  #z_levels <- plot_scale(plot_dat$z)
+  contour_levels <- plot_scale(curvature_m)
 
   # get contour lines for the identified breakpoints
   # the contour lines will be at the boundaries between bins
   # their names start at the upper bound of the first bin
-  contours_lst <- contourLines(interpolated, nlevels = length(z_levels), levels = z_levels)
+  # for contourLines, x is rows and y is cols: they are *not* Cartesian
+  # coordinates, so we have to swap our Cartesian x and y
+  contours_lst <- contourLines(x = rownames(curvature_m) |> as.numeric() |> round(1),
+                               y = colnames(curvature_m) |> as.numeric() |> round(1),
+                               z = curvature_m,
+                               levels = contour_levels)
+
+  if (length(contours_lst) == 0) {
+    warning('exam_curvature does not have enough points to identify contours.')
+    invisible(exam_curvature)
+  }
 
   # identify the levels for each list item
-  contour_levels <- sapply(contours_lst, function(item) item$level)
+  item_levels <- sapply(contours_lst, function(item) item$level)
 
   # count the number of list items (i.e., the number of contour lines) that comprise each level
-  segment_counts <- contour_levels |>
+  segment_counts <- item_levels |>
     table()
 
   return(segment_counts)
@@ -193,12 +214,16 @@ contour_max_diameter <- 4.5  # Not currently used
 #################
 
 #' Get contour
+#'
 #' @description
 #' Returns the \emph{x} and \emph{y} coordinates of the contour for an exam,
 #' \code{exam_curvature}, at the specified power, \code{contour_power}.
+#'
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as [IQeyes::sample_curvature].
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
+#' @param interp
+#' A Boolean. \code{TRUE} to interpolate measurements. See details.
 #' @param add_edge
 #' A Boolean. If the contour extends beyond the edge of the scanned cornea,
 #' \code{TRUE} will add the edge of the scanned area, connecting the ends of the
@@ -206,94 +231,139 @@ contour_max_diameter <- 4.5  # Not currently used
 #' be \code{0}. If the contour doesn't extend beyond the edge of the cornea, no
 #' edge will be added.
 #' @param contour_power
-#' A number identifying the power of the contour to return. Valid values for an
-#' exam can be determined by calling [IQeyes::get_contour_levels].
+#' Required. A number identifying the power of the contour to return. Valid
+#' values for an exam can be determined by calling [IQeyes::get_contour_levels].
+#'
 #' @return
 #' A data frame containing one row for each point of the contour and the same
 #' columns as [IQeyes::sample_contour].
+#'
 #' @details
-#' A contour is comprised of one or more segments, uniquely identified by
-#' \code{segment_id}.
+#' This function requires a fairly high degree of resolution. If more data
+#' are needed, use the parameter \code{interp = T}.
+#'
+#' The resulting contour will be comprised of one or more segments, uniquely
+#' identified by \code{segment_id}.
 #'
 #' This function doesn't currently work for posterior surfaces because
 #' [IQeyes::plot_scale] presumes the color scale is on the "absolute
 #' scale", which is designed for the dioptric power of anterior surfaces.
+#'
 #' @examples
-#' get_contour(sample_curvature, contour_power = 45.5) |>
+#' get_contour(sample_curvature, interp = T, contour_power = 45.5) |>
 #'   head()
 #'
 #' curvature_plot(sample_curvature, labels = F) +
-#'  ggplot2::geom_point(data = get_contour(sample_curvature, contour_power = 45.5),
-#'                      ggplot2::aes(x, y))
+#' ggplot2::geom_point(data = get_contour(sample_curvature,
+#'                                        interp = T,
+#'                                        contour_power = 45.5),
+#'                     ggplot2::aes(x, y))
 #'
-#' @family Contours
+#' @family contours
 #'
+#' @importFrom dplyr rename
 #' @importFrom dplyr select
 #' @importFrom dplyr filter
 #' @importFrom dplyr mutate
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr bind_cols
-#' @importFrom akima interp
 #'
 #' @export
-get_contour <- function(exam_curvature, add_edge = F, contour_power) {
+get_contour <- function(exam_curvature, interp = F, add_edge = F, contour_power) {
+
+  # exam_curvature <- sample_curvature
 
   # preserve the exam details (i.e., join fields and surface)
   exam_record <- exam_curvature |>
     dplyr::select(tidyselect::all_of(join_fields), surface) |>
     unique()
 
-  if (nrow(exam_record) > 1) warning('More than one exam record contained in exam_curvature.')
+  if (nrow(exam_record) > 1) {
+    warning('More than one exam (or surface) contained in exam_curvature.')
+    invisible(exam_curvature)
+  }
 
-  # code in the following if-block is the same as get_contour_levels()
-  # TODO: refactor to reduce replication
-  if (T) {
-    if (nrow(exam_curvature) == 0) warning('No data in exam_curvature.')
-
-    # calculate power
+  # This function requires a fairly high degree of resolution. If more data
+  # are needed, they can be interpolated
+  if (interp) {
     exam_curvature <- exam_curvature |>
-      dplyr::mutate(z = anterior_power(measurement)) |>
-      dplyr::filter(!is.na(z))
+      interpolate_measurements() |>
+      # the output of interpolate_measurements() is a z column: rename
+      dplyr::rename(measurement = z) |>
+      #dplyr::mutate(surface = 'FRONT') |>
+      dplyr::cross_join(exam_record)
+  }
 
-    # Create a grid that spans the extents of the measured x and y axes
-    x_range <- with(exam_curvature, seq(min(x), max(x), length.out = length(unique(x))))
-    y_range <- with(exam_curvature, seq(min(y), max(y), length.out = length(unique(y))))
+  # the code in this if-block is the same as get_contour_levels
+  if (T) {
+    if (!'power' %in% colnames(exam_curvature)) {
+      if ('measurement' %in% colnames(exam_curvature)) {
+        # calculate power
+        exam_curvature <- exam_curvature |>
+          dplyr::mutate(power = anterior_power(measurement))
+      } else if ('z' %in% colnames(exam_curvature)) {
+        exam_curvature <- exam_curvature |>
+          dplyr::mutate(power = anterior_power(z))
+      } else {
+        warning('Power data not found in exam_curvature.')
+        invisible(exam_curvature)
+      }
+    }
 
-    # Interpolate z values on the grid
-    interpolated <-
-      with(exam_curvature,
-           akima::interp(x, y, z,
-                         xo = x_range,
-                         yo = y_range,
-                         duplicate = 'strip'
-           ))
+    # turn the data frame into a matrix
+    # formula expects the rows (y) to be on the left-hand side
+    # this function inverts the y-axis values
+    curvature_m <- reshape2::acast(data = exam_curvature,
+                                   formula = y ~ x,
+                                   value.var = 'power')
 
     # identify the corresponding range of breakpoints for a contour plot.
     # note that the interpolated data might not include the highest peak, so
     # determine the break points for the contour lines on the interpolated data
-    z_levels <- plot_scale(interpolated$z)
+    contour_levels <- plot_scale(curvature_m)
 
-    # otherwise, get the range from the measured data, not the interpolated data
-    #z_levels <- plot_scale(plot_dat$z)
+    #if (F) {
+    #  ggplot(exam_curvature, aes(x = x, y = y, z = power)) +
+    #    geom_contour(breaks = contour_levels)
+    #
+    #  reshape2::melt(curvature_m, varnames = c('y', 'x'), value.name = "power", na.rm = T) |>
+    #    ggplot(aes(x = x, y = y, z = power)) +
+    #    geom_contour(breaks = contour_levels)
+    #}
 
     # get contour lines for the identified breakpoints
     # the contour lines will be at the boundaries between bins
     # their names start at the upper bound of the first bin
-    contours_lst <- contourLines(interpolated, nlevels = length(z_levels), levels = z_levels)
+    # for contourLines, x is rows and y is cols: they are *not* Cartesian
+    # coordinates, so we have to swap our Cartesian x and y
+    contours_lst <- contourLines(x = rownames(curvature_m) |> as.numeric() |> round(1),
+                                 y = colnames(curvature_m) |> as.numeric() |> round(1),
+                                 z = curvature_m,
+                                 levels = contour_levels)
+
+    if (length(contours_lst) == 0) {
+      warning('exam_curvature does not have enough points to identify contours.')
+      invisible(exam_curvature)
+    }
 
     # identify the levels for each list item
-    contour_levels <- sapply(contours_lst, function(item) item$level)
+    item_levels <- sapply(contours_lst, function(item) item$level)
 
     # count the number of list items (i.e., the number of contour lines) that comprise each level
-    segment_counts <- contour_levels |>
+    segment_counts <- item_levels |>
       table()
   }
 
   # if contour_power is specified, use that
   if (is.na(contour_power)) {
     warning('contour_power must be specified.')
+    invisible(exam_curvature)
+
   } else {
-    if(is.na(segment_counts[as.character(contour_power)])) warning('No contour at specified power.')
+    if(is.na(segment_counts[as.character(contour_power)])) {
+      warning('No contour at the specified contour_power.')
+      invisible(exam_curvature)
+    }
     break_name <- as.character(contour_power)
   }
 
@@ -306,16 +376,20 @@ get_contour <- function(exam_curvature, add_edge = F, contour_power) {
   contours_lst <- contours_lst[target_items]
 
   # collate the points that comprise the shape's outline
+  # again, for contourLines, x is rows and y is cols: they are *not* Cartesian
+  # coordinates, so we have to swap x and y
   outline <-
     lapply(seq_along(contours_lst), function(i) {
-      data.frame(x = contours_lst[[i]]$x,
-                 y = contours_lst[[i]]$y,
-                 # keep track of the individual contours
+      data.frame(x = contours_lst[[i]]$y,
+                 y = contours_lst[[i]]$x,
+                 # keep track of the individual segments
                  segment_id = i,
                  # remember the value of the characteristic contour
                  contour = contours_lst[[i]]$level)
     }) |>
     dplyr::bind_rows()
+
+  #ggplot2::ggplot(outline, ggplot2::aes(x = x, y = y, color = as.factor(segment_id))) + ggplot2::geom_point()
 
   if (add_edge) {
     # TODO: arrange the points in the same way as the other contours
@@ -323,26 +397,35 @@ get_contour <- function(exam_curvature, add_edge = F, contour_power) {
 
     # TODO: make sure this works for multiple segments
 
-    z_NA <- is.na(interpolated$z)
+    # establish the boundary of the cornea
+    z_NA <- is.na(curvature_m)
 
-    edge_bottom <- apply(!z_NA, 1, function(x) find_edge(x, 'min'))
-    edge_top <- apply(!z_NA, 1, function(x) find_edge(x, 'max'))
-    edge_left <- apply(!z_NA, 2, function(x) find_edge(x, 'min'))
-    edge_right <- apply(!z_NA, 2, function(x) find_edge(x, 'max'))
+    # find the matrix indices of the cornea's boundary from the left and right
+    edge_right <- apply(!z_NA, 1, function(x) find_edge(x, 'max'))
+    edge_left <- apply(!z_NA, 1, function(x) find_edge(x, 'min'))
+    edge_bottom <- apply(!z_NA, 2, function(x) find_edge(x, 'max'))
+    edge_top <- apply(!z_NA, 2, function(x) find_edge(x, 'min'))
 
-    # x and y are reversed (sort of): the first index of the grid is x, so a
-    # "View" of the transpose puts x and y on the Cartesian coordinate system
-    #View(t(interpolated$z))
+    x_values <- colnames(curvature_m) |> as.numeric()
+    y_values <- rownames(curvature_m) |> as.numeric()
 
+    # turn those coordinates into a data frame
     edge_coords <- data.frame(
-      idx_x = c(edge_left, edge_right, seq_along(interpolated$x), seq_along(interpolated$x)),
-      idx_y = c(seq_along(interpolated$y), seq_along(interpolated$y), edge_top, edge_bottom)
+      idx_y = c(seq_along(edge_left), seq_along(edge_right), edge_bottom, edge_top),
+      idx_x = c(edge_left, edge_right, seq_along(edge_bottom), seq_along(edge_top))
     ) |>
       dplyr::filter(!is.na(idx_x), !is.na(idx_y))  |>
-      dplyr::mutate(x = interpolated$x[idx_x],
-             y = interpolated$y[idx_y],
-             z = interpolated$z[cbind(idx_x, idx_y)],
-             contour = z_levels[findInterval(z, z_levels)])
+      dplyr::mutate(x = x_values[idx_x],
+             y = y_values[idx_y],
+             power = curvature_m[cbind(idx_y, idx_x)],
+             interval = findInterval(power, contour_levels)) |>
+      unique()
+
+    # filter out intervals that are below legitimate levels
+    # TODO: Why are there illegitimate levels
+    edge_coords <- edge_coords |>
+      dplyr::filter(interval > 0) |>
+      dplyr::mutate(contour = contour_levels[findInterval(power, contour_levels)])
 
     outline <- edge_coords |>
       dplyr::filter(contour == as.numeric(break_name)) |>
@@ -357,4 +440,3 @@ get_contour <- function(exam_curvature, add_edge = F, contour_power) {
   exam_record |>
     dplyr::bind_cols(outline)
 }
-

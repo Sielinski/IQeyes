@@ -32,7 +32,7 @@ sample_curvature$measurement |>
 
 }
 \seealso{
-Other Plots: 
+Other plots: 
 \code{\link{curvature_plot}()}
 }
-\concept{Plots}
+\concept{plots}

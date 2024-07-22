@@ -43,8 +43,8 @@ software. This function automatically converts semicolons to the delimiter
 character passed in as a parameter.
 }
 \seealso{
-Other Utilities: 
+Other utilities: 
 \code{\link{convert_name}()},
 \code{\link{parse_csv_to_list}()}
 }
-\concept{Utilities}
+\concept{utilities}

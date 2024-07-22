@@ -2,7 +2,7 @@
 ## candidate_contours
 ########################
 
-#' Identify candidates for the characteristic contour
+#' Identify candidates for characteristic contour
 #' @description
 #' Identifies the contours of an exam that are candidates for the
 #' characteristic contour.
@@ -10,6 +10,9 @@
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
 #' containing one row for each curvature \code{measurement}.
+#' @param exam_peaks
+#' A data frame with the same structure as the output of [IQeyes::k_next],
+#' containing one row for each peak.
 #'
 #' @return
 #' An \emph{n}-row data frame containing one row for each candidate contour. Each
@@ -24,6 +27,11 @@
 #' }
 #'
 #' @details
+#' This function is generally called by [IQeyes::contour_context], which
+#' pre-processes the incoming \code{exam_curvature} and calls [IQeyes::k_next]
+#' using that pre-processed data. If calling this function directly, ensure that
+#' \code{exam_curvature} and \code{exam_peaks} are based on the same data.
+#'
 #' The underlying algorithm operates at the segment level. If any contour has a
 #' segment that contains both K-max and K-next, only contours with segments
 #' containing both points are considered candidates. If no contour has a segment
@@ -35,7 +43,7 @@
 #' @examples
 #' candidate_contours(sample_curvature)
 #'
-#' @family Characteristic Contours
+#' @family characteristic contours
 #'
 #' @importFrom dplyr select
 #' @importFrom dplyr mutate
@@ -44,12 +52,13 @@
 #' @importFrom dplyr bind_rows
 #' @importFrom dplyr bind_cols
 #' @importFrom dplyr filter
+#' @importFrom dplyr if_else
 #' @importFrom dplyr case_when
 #' @importFrom tidyselect all_of
 #' @importFrom sp point.in.polygon
 #'
 #' @export
-candidate_contours <- function(exam_curvature) {
+candidate_contours <- function(exam_curvature, exam_peaks) {
 
   #exam_curvature <- sample_curvature
 
@@ -58,23 +67,30 @@ candidate_contours <- function(exam_curvature) {
     dplyr::select(tidyselect::all_of(join_fields), surface) |>
     unique()
 
-  # get k_next and its x- and y-coordinates
-  point_dat <- k_next(exam_curvature) |>
-    dplyr::mutate(x = polar_to_cartesian(ring_diam, angle)$x,
-           y = polar_to_cartesian(ring_diam, angle)$y) |>
-    dplyr::mutate(point_name = 'k_next') |>
-    dplyr::rename(power = k_next,
-           radius = ring_diam) |>
-    dplyr::select(point_name, x, y, radius, power)
+  # get just k_max and k_next and their coordinates
+  point_dat <- exam_peaks |>
+    dplyr::filter(peak_id <= 2) |>
+    dplyr::mutate(point_name = dplyr::if_else(peak_id == 1, 'k_max', 'k_next')) |>
+    dplyr::select(point_name, x, y, r, power) |>
+    dplyr::rename(radius = r)
 
-  # add k_max and its x- and y-coordinates
-  point_dat <- exam_curvature |>
-    dplyr::filter(column_name == 'R_min') |>
-    dplyr::mutate(power = anterior_power(measurement),
-                  point_name = 'k_max') |>
-    dplyr::rename(radius = ring_diam) |>
-    dplyr::select(colnames(point_dat)) |>
-    dplyr::bind_rows(point_dat)
+  # get k_next and its x- and y-coordinates
+  #point_dat <- k_next_old(exam_curvature) |>
+  #  dplyr::mutate(x = polar_to_cartesian(ring_diam, angle)$x,
+  #         y = polar_to_cartesian(ring_diam, angle)$y) |>
+  #  dplyr::mutate(point_name = 'k_next') |>
+  #  dplyr::rename(power = k_next,
+  #         radius = ring_diam) |>
+  #  dplyr::select(point_name, x, y, radius, power)
+  #
+  ## add k_max and its x- and y-coordinates
+  #point_dat <- exam_curvature |>
+  #  dplyr::filter(column_name == 'R_min') |>
+  #  dplyr::mutate(power = anterior_power(measurement),
+  #                point_name = 'k_max') |>
+  #  dplyr::rename(radius = ring_diam) |>
+  #  dplyr::select(colnames(point_dat)) |>
+  #  dplyr::bind_rows(point_dat)
 
   # is k_next within the plotted region of the curvature map?
   # is k_max within the plotted region of the curvature map?
@@ -151,22 +167,26 @@ candidate_contours <- function(exam_curvature) {
 ## contour_context
 #####################
 
-#' Identify candidates for characteristic contour and calculate their distance
-#' from K-max and K-next
+#' Identify candidates for characteristic contour
+#'
 #' @description
 #' Identifies the contours of an exam that are candidates for the
 #' characteristic contour, and calculates the number of \emph{other}
 #' contours that exist between a candidate contour and both K-max and K-next.
+#'
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as [IQeyes::sample_curvature].
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
+#'
 #' @return
 #' A data frame, containing the output of [IQeyes::candidate_contours] and three
 #' additional columns:
 #'
 #' \describe{
-#'  \item{k_max_distance}{The number of other contours between a candidate and K-max.}
-#'  \item{k_next_distance}{The number of other contours between a candidate and K-next.}
+#'  \item{k_max_distance}{The number of other contours between a candidate and
+#'  K-max.}
+#'  \item{k_next_distance}{The number of other contours between a candidate and
+#'  K-next.}
 #'  \item{k_max_next_distance}{The difference between \code{k_max_distance} and
 #' \code{k_next_distance}.}
 #' }
@@ -182,25 +202,56 @@ candidate_contours <- function(exam_curvature) {
 #' [IQeyes::candidate_contours].
 #'
 #' @examples
-#' contour_context(sample_curvature) |>
+#' contour_context(sample_curvature, interp = T) |>
 #'   dplyr::select(-tidyselect::all_of(join_fields))
 #'
-#' @family Characteristic Contours
+#' @family characteristic contours
 #'
 #' @importFrom dplyr select
 #' @importFrom tidyselect all_of
 #'
 #' @export
-contour_context <- function(exam_curvature) {
+contour_context <- function(exam_curvature, interp = F) {
 
   #exam_curvature <- sample_curvature
 
+  # preserve the exam details (i.e., join fields and surface)
+  exam_record <- exam_curvature |>
+    dplyr::select(tidyselect::all_of(join_fields), surface) |>
+    unique()
+
+  if (interp) {
+    z_dat <- exam_curvature |>
+      interpolate_measurements()
+  } else {
+    z_dat <- exam_curvature |>
+      dplyr::select(x, y, measurement) |>
+      dplyr::rename(z = measurement)
+  }
+
+  # get exam's curvature peaks
+  exam_peaks <- z_dat |>
+    dplyr::mutate(power = anterior_power(z)) |>
+    reshape2::acast(y ~ x, value.var = 'power') |>
+    k_next()
+
+  k_values <- exam_peaks |>
+    dplyr::filter(peak_id <= 2) |>
+    dplyr::mutate(point_name = dplyr::if_else(peak_id == 1, 'k_max', 'k_next')) |>
+    dplyr::select(point_name, power) |>
+    tidyr::pivot_wider(names_from = point_name, values_from = power) |>
+    dplyr::cross_join(exam_record)
+
   # get the values of k_max and k_next
-  k_values <- k_next(exam_curvature) |>
-    dplyr::select(tidyselect::all_of(join_fields), k_max, k_next)
+  #k_values <- k_next_old(exam_curvature) |>
+  #  dplyr::select(tidyselect::all_of(join_fields), k_max, k_next)
 
   # get the candidate contours
-  candidates <- candidate_contours(exam_curvature)
+  candidates <- z_dat |>
+    dplyr::mutate(power = anterior_power(z)) |>
+    dplyr::rename(measurement = z) |>
+    dplyr::cross_join(exam_record) |> #View()
+    candidate_contours(exam_peaks)
 
   # find contour that contains k_max (based on the absolute scale)
   k_max_interval <- findInterval(k_values$k_max, absolute_scale)
@@ -225,7 +276,6 @@ contour_context <- function(exam_curvature) {
   } else {
     candidates$k_next_distance <- NA
     candidates$k_max_next_distance <- NA
-
   }
 
   return(candidates)

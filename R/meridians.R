@@ -42,7 +42,7 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' @description
 #' Find the semi-meridians for an exam at three diameters (3, 5, and 7 mm).
 #' @param exam_curvature
-#' A data frame having the same columns as [IQeyes::sample_curvature] and
+#' A data frame with the same structure as [IQeyes::sample_curvature],
 #' containing one row for each curvature \code{measurement}.
 #' @param exam_astig
 #' A data frame having the same columns as [IQeyes::sample_astig] and containing
@@ -80,7 +80,7 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' curvature_meridians(sample_curvature, sample_astig) |>
 #'   dplyr::select(-tidyselect::all_of(join_fields))
 #'
-#' @family Meridians
+#' @family meridians
 #'
 #' @importFrom dplyr mutate
 #' @importFrom dplyr inner_join

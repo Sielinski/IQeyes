@@ -16,7 +16,7 @@
 #' @examples
 #' sd_half_normal(abs(rnorm(10)))
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 sd_half_normal <- function(x, ...) sd(x, ...) * sqrt(1 - 2 / pi)
@@ -40,7 +40,7 @@ sd_half_normal <- function(x, ...) sd(x, ...) * sqrt(1 - 2 / pi)
 #' @examples
 #' mean_half_normal(abs(rnorm(10)))
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 mean_half_normal <- function(x, ...) sd(x, ...) * sqrt(2 / pi)
@@ -64,7 +64,7 @@ mean_half_normal <- function(x, ...) sd(x, ...) * sqrt(2 / pi)
 #' @examples
 #' mean_folded_normal(mu = 3, sigma = 1)
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 mean_folded_normal <- function(mu, sigma) {
@@ -92,7 +92,7 @@ mean_folded_normal <- function(mu, sigma) {
 #' @examples
 #' sd_folded_normal(mu = 3, sigma = 1)
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 sd_folded_normal <- function(mu, sigma) {
@@ -120,7 +120,7 @@ sd_folded_normal <- function(mu, sigma) {
 #' z_to_pct(z = 3, two_tail = T)
 #' z_to_pct(c(1, 2, 3), two_tail = F)
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 z_to_pct <- function(z, two_tail = T) {
@@ -155,7 +155,7 @@ z_to_pct <- function(z, two_tail = T) {
 #' pct_to_z(pct = 0.5, two_tail = F)
 #' pct_to_z(c(-0.5, 0.5), two_tail = T)
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 pct_to_z <- function(pct, two_tail = T) {
@@ -187,7 +187,7 @@ pct_to_z <- function(pct, two_tail = T) {
 #' @examples
 #' z_score(0.5, mean = 0, sd = 1)
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 z_score <- function(x, mean, sd) {
@@ -209,7 +209,7 @@ z_score <- function(x, mean, sd) {
 #' @examples
 #' d_mode(rnorm(1000, mean = 2))
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 d_mode <- function(x) {
@@ -239,7 +239,7 @@ d_mode <- function(x) {
 #' data.frame(x = 1:15, y = sort(rpois(15, 42), decreasing = T)) |>
 #'   knee()
 #'
-#' @family Statistical Functions
+#' @family statistical functions
 #'
 #' @export
 knee <- function(df) {

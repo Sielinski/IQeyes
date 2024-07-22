@@ -7,7 +7,8 @@
 find_peaks(input_matrix)
 }
 \arguments{
-\item{input_matrix}{A square numeric matrix.}
+\item{input_matrix}{A square numeric matrix. If input_matrix is not square, this function will
+introduce rows or columns of \code{NA}, as necessary.}
 }
 \value{
 A numeric matrix with the same dimensions as \code{input_matrix}. The values

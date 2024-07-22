@@ -54,16 +54,20 @@ rotated, the necessary transforms must be performed prior to calling
 }
 \examples{
 silhouette_overlap_group(
- contour_exam = get_contour(sample_curvature, contour_power = 45.5) |> scale_rotate(axs = 33.6),
- show_plot = T,
- return_detail = T
+  contour_exam = get_contour(
+    sample_curvature,
+    interp = T,
+    contour_power = 45.5
+  ) |> scale_rotate(axs = 33.6),
+  show_plot = T,
+  return_detail = T
 )
 
 }
 \seealso{
-Other Polygons: 
+Other polygons: 
 \code{\link{contour_to_sf_polygon}()},
 \code{\link{silhouette_overlap}()},
 \code{\link{silhouette_plot}()}
 }
-\concept{Polygons}
+\concept{polygons}

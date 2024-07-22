@@ -71,7 +71,7 @@ curvature_plot(sample_curvature)
 
 }
 \seealso{
-Other Plots: 
+Other plots: 
 \code{\link{plot_scale}()}
 }
-\concept{Plots}
+\concept{plots}

@@ -2,13 +2,16 @@
 % Please edit documentation in R/characteristic_contours.R
 \name{candidate_contours}
 \alias{candidate_contours}
-\title{Identify candidates for the characteristic contour}
+\title{Identify candidates for characteristic contour}
 \usage{
-candidate_contours(exam_curvature)
+candidate_contours(exam_curvature, exam_peaks)
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
 containing one row for each curvature \code{measurement}.}
+
+\item{exam_peaks}{A data frame with the same structure as the output of \link{k_next},
+containing one row for each peak.}
 }
 \value{
 An \emph{n}-row data frame containing one row for each candidate contour. Each
@@ -27,6 +30,11 @@ Identifies the contours of an exam that are candidates for the
 characteristic contour.
 }
 \details{
+This function is generally called by \link{contour_context}, which
+pre-processes the incoming \code{exam_curvature} and calls \link{k_next}
+using that pre-processed data. If calling this function directly, ensure that
+\code{exam_curvature} and \code{exam_peaks} are based on the same data.
+
 The underlying algorithm operates at the segment level. If any contour has a
 segment that contains both K-max and K-next, only contours with segments
 containing both points are considered candidates. If no contour has a segment
@@ -40,7 +48,7 @@ candidate_contours(sample_curvature)
 
 }
 \seealso{
-Other Characteristic Contours: 
+Other characteristic contours: 
 \code{\link{contour_context}()}
 }
-\concept{Characteristic Contours}
+\concept{characteristic contours}

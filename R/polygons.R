@@ -27,14 +27,14 @@
 #'
 #' @examples
 #' contour_to_sf_polygon(
-#'   contour = get_contour(sample_curvature, contour_power = 44.5)
+#'   contour = get_contour(sample_curvature, interp = T, contour_power = 44.5)
 #' )
 #'
 #' reference_contours |>
 #'   dplyr::filter(cluster == 7) |>
 #'   contour_to_sf_polygon()
 #'
-#' @family Polygons
+#' @family polygons
 #'
 #' @importFrom sf st_sf
 #' @importFrom sf st_sfc
@@ -56,7 +56,7 @@
 #' @export
 contour_to_sf_polygon <- function(contour, required_points = 4) {
 
-  # contour <- get_contour(sample_curvature, contour_power = 46)[1:4, ]
+  # contour <- get_contour(sample_curvature, interp = T, contour_power = 46)[1:4, ]
 
   if (required_points < 4) {
     warning('required_points must be greater than 4: resetting to 4.')
@@ -185,12 +185,12 @@ contour_to_sf_polygon <- function(contour, required_points = 4) {
 #'
 #' @examples
 #' silhouette_overlap(
-#'   contour_A = get_contour(sample_curvature, contour_power = 44),
-#'   contour_B = get_contour(sample_curvature, contour_power = 44.5),
+#'   contour_A = get_contour(sample_curvature, interp = T, contour_power = 44),
+#'   contour_B = get_contour(sample_curvature, interp = T, contour_power = 44.5),
 #'   show_plot = T
 #' )
 #'
-#' @family Polygons
+#' @family polygons
 #'
 #' @importFrom sf st_intersection
 #' @importFrom sf st_area
@@ -281,12 +281,16 @@ silhouette_overlap <- function(contour_A, contour_B, show_plot = F) {
 #'
 #' @examples
 #' silhouette_overlap_group(
-#'  contour_exam = get_contour(sample_curvature, contour_power = 45.5) |> scale_rotate(axs = 33.6),
-#'  show_plot = T,
-#'  return_detail = T
+#'   contour_exam = get_contour(
+#'     sample_curvature,
+#'     interp = T,
+#'     contour_power = 45.5
+#'   ) |> scale_rotate(axs = 33.6),
+#'   show_plot = T,
+#'   return_detail = T
 #' )
 #'
-#' @family Polygons
+#' @family polygons
 #'
 #' @importFrom dplyr group_by
 #' @importFrom dplyr group_split
@@ -378,7 +382,12 @@ silhouette_overlap_group <- function(contour_exam,
 #' A ggplot2 object that that shows the overlapping silhouettes.
 #'
 #' @examples
-#' sample_polygon <- get_contour(sample_curvature, add_edge = T, contour_power = 45.5) |>
+#' sample_polygon <- get_contour(
+#'   sample_curvature,
+#'   interp = T,
+#'   add_edge = T,
+#'   contour_power = 45.5
+#' ) |>
 #'   scale_rotate(axs = 33.6) |>
 #'   contour_to_sf_polygon()
 #'
@@ -388,7 +397,7 @@ silhouette_overlap_group <- function(contour_exam,
 #'   highlight_cluster = 1
 #' )
 #'
-#' @family Polygons
+#' @family polygons
 #'
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 geom_sf

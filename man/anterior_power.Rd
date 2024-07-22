@@ -24,9 +24,9 @@ anterior_power(7)
 \emph{Pentacam Interpretation Guide}, pp 6-7.
 }
 \seealso{
-Other Curvature: 
+Other curvature: 
 \code{\link{kappa_from_radius}()},
 \code{\link{posterior_power}()},
 \code{\link{true_net_power}()}
 }
-\concept{Curvature}
+\concept{curvature}

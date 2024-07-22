@@ -2,22 +2,23 @@
 % Please edit documentation in R/characteristic_contours.R
 \name{contour_context}
 \alias{contour_context}
-\title{Identify candidates for characteristic contour and calculate their distance
-from K-max and K-next}
+\title{Identify candidates for characteristic contour}
 \usage{
-contour_context(exam_curvature)
+contour_context(exam_curvature, interp = F)
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \link{sample_curvature}.}
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
+containing one row for each curvature \code{measurement}.}
 }
 \value{
 A data frame, containing the output of \link{candidate_contours} and three
 additional columns:
 
 \describe{
-\item{k_max_distance}{The number of other contours between a candidate and K-max.}
-\item{k_next_distance}{The number of other contours between a candidate and K-next.}
+\item{k_max_distance}{The number of other contours between a candidate and
+K-max.}
+\item{k_next_distance}{The number of other contours between a candidate and
+K-next.}
 \item{k_max_next_distance}{The difference between \code{k_max_distance} and
 \code{k_next_distance}.}
 }
@@ -38,12 +39,12 @@ Internally, this function calls \link{k_next} and
 \link{candidate_contours}.
 }
 \examples{
-contour_context(sample_curvature) |>
+contour_context(sample_curvature, interp = T) |>
   dplyr::select(-tidyselect::all_of(join_fields))
 
 }
 \seealso{
-Other Characteristic Contours: 
+Other characteristic contours: 
 \code{\link{candidate_contours}()}
 }
-\concept{Characteristic Contours}
+\concept{characteristic contours}

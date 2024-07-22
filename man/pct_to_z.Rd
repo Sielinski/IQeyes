@@ -26,7 +26,7 @@ pct_to_z(c(-0.5, 0.5), two_tail = T)
 
 }
 \seealso{
-Other Statistical Functions: 
+Other statistical functions: 
 \code{\link{d_mode}()},
 \code{\link{knee}()},
 \code{\link{mean_folded_normal}()},
@@ -36,4 +36,4 @@ Other Statistical Functions:
 \code{\link{z_score}()},
 \code{\link{z_to_pct}()}
 }
-\concept{Statistical Functions}
+\concept{statistical functions}

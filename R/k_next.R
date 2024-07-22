@@ -84,8 +84,8 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 #' @description
 #' Finds the secondary peak on a curvature map.
 #' @param exam_curvature
-#' A data frame containing one row for each curvature \code{measurement} and the
-#' same columns as \code{sample_curvature}.
+#' A data frame with the same structure as [IQeyes::sample_curvature],
+#' containing one row for each curvature \code{measurement}.
 #' @param just_points
 #' A Boolean. \code{TRUE} to return the points that comprise the primary peak.
 #' @return
@@ -351,16 +351,44 @@ k_next_old <- function(exam_curvature, just_points = F) {
 }
 
 
+# Function to make a matrix square
+make_square <- function(mat) {
+  # Get the number of rows and columns
+  n_rows <- nrow(mat)
+  n_cols <- ncol(mat)
+
+  # Check if the matrix is already square
+  if (n_rows == n_cols) return(mat)
+
+  # Determine the size of the new square matrix
+  max_dim <- max(n_rows, n_cols)
+
+  # Create a new square matrix with dimensions max_dim x max_dim, filled with NA
+  square_mat <- matrix(NA, nrow = max_dim, ncol = max_dim)
+
+  # Copy the original matrix into the new square matrix
+  square_mat[1:n_rows, 1:n_cols] <- mat
+
+  # Transfer row and column names?
+
+  return(square_mat)
+}
+
+
 ################
 ## Find Peaks
 ################
 
 #' Find the peak points of a square numeric matrix.
+#'
 #' @description
 #' Finds the peak points (i.e., max values) and the points that descend from
 #' them in an \emph{n}x\emph{n} matrix.
+#'
 #' @param input_matrix
-#' A square numeric matrix.
+#' A square numeric matrix. If input_matrix is not square, this function will
+#' introduce rows or columns of \code{NA}, as necessary.
+#'
 #' @return
 #' A numeric matrix with the same dimensions as \code{input_matrix}. The values
 #' in the matrix identify the peaks and the points that descend from them. The
@@ -385,6 +413,9 @@ k_next_old <- function(exam_curvature, just_points = F) {
 #'
 #' @export
 find_peaks <- function(input_matrix) {
+
+  input_matrix <- make_square(input_matrix)
+
   n <- nrow(input_matrix)
   result <- matrix(0, n, n)
   peak_counter <- 1
@@ -515,12 +546,16 @@ find_peaks <- function(input_matrix) {
 #'
 #' @export
 k_next <- function(curvature_m, ignore_singletons = T) {
+
   if (is.null(curvature_m)) {
     invisible(curvature_m)
 
   } else {
     # find the peaks
     curvature_peaks <- find_peaks(curvature_m)
+
+    # curvature_peaks may have gotten resized, so fix that
+    curvature_peaks <- curvature_peaks[1:nrow(curvature_m), 1:ncol(curvature_m)]
 
     # count the number of non-zero points, used as the denominator for
     # pct_coverage
@@ -563,7 +598,7 @@ k_next <- function(curvature_m, ignore_singletons = T) {
 
         # determine whether the peak has enough points to use {sf}
         if (nrow(current_peak_apex) > 4) {
-          peak_polygon <- contour_to_sf_polygon(cross_join(exam_record, current_peak_apex))
+          peak_polygon <- contour_to_sf_polygon(current_peak_apex)
 
           peak_centroid <- sf::st_centroid(peak_polygon) |>
             unlist(use.names = F)

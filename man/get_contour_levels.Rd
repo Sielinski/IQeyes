@@ -7,8 +7,8 @@
 get_contour_levels(exam_curvature)
 }
 \arguments{
-\item{exam_curvature}{A data frame containing one row for each curvature \code{measurement} and the
-same columns as \link{sample_curvature}.}
+\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
+containing one row for each curvature \code{measurement}.}
 }
 \value{
 A table. The table's labels identify the contour levels, and the values in
@@ -28,8 +28,8 @@ get_contour_levels(sample_curvature)
 
 }
 \seealso{
-Other Contours: 
+Other contours: 
 \code{\link{get_contour}()},
 \code{\link{scale_rotate}()}
 }
-\concept{Contours}
+\concept{contours}

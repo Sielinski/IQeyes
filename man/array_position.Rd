@@ -44,9 +44,9 @@ arrayInd(2, dim(matrix(seq(1:9), nrow = 3, ncol = 3, byrow = T)))
 
 }
 \seealso{
-Other Mathematics: 
+Other mathematics: 
 \code{\link{logistic}()},
 \code{\link{logit}()},
 \code{\link{nearest}()}
 }
-\concept{Mathematics}
+\concept{mathematics}

@@ -33,7 +33,7 @@
 #' software. This function automatically converts semicolons to the delimiter
 #' character passed in as a parameter.
 #'
-#' @family Utilities
+#' @family utilities
 #'
 #' @importFrom readr read_lines
 #' @importFrom readr locale
@@ -155,7 +155,7 @@ read_pentacam_csv <- function(file_name,
 #' @examples
 #' convert_name('r4.0 324°')
 #'
-#' @family Utilities
+#' @family utilities
 #'
 #' @importFrom stringr str_replace
 #' @importFrom stringr str_replace_all
@@ -211,7 +211,7 @@ convert_name <- function(name) {
 #' The date and time fields in the \code{patient} and \code{examination}
 #' sections are \emph{not} converted to lubridate date and time types.
 #'
-#' @family Utilities
+#' @family utilities
 #'
 #' @importFrom readr read_lines
 #' @importFrom readr locale

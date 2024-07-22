@@ -26,7 +26,7 @@ z_to_pct(c(1, 2, 3), two_tail = F)
 
 }
 \seealso{
-Other Statistical Functions: 
+Other statistical functions: 
 \code{\link{d_mode}()},
 \code{\link{knee}()},
 \code{\link{mean_folded_normal}()},
@@ -36,4 +36,4 @@ Other Statistical Functions:
 \code{\link{sd_half_normal}()},
 \code{\link{z_score}()}
 }
-\concept{Statistical Functions}
+\concept{statistical functions}

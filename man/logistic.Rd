@@ -27,9 +27,9 @@ logistic(Inf)
 \seealso{
 \code{\link[=logit]{logit()}}
 
-Other Mathematics: 
+Other mathematics: 
 \code{\link{array_position}()},
 \code{\link{logit}()},
 \code{\link{nearest}()}
 }
-\concept{Mathematics}
+\concept{mathematics}
