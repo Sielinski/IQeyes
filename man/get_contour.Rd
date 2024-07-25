@@ -4,11 +4,12 @@
 \alias{get_contour}
 \title{Get contour}
 \usage{
-get_contour(exam_curvature, interp = F, add_edge = F, contour_power)
+get_contour(exam_curvature, interp = F, add_edge = F, contour_power = NA)
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 
 \item{interp}{A Boolean. \code{TRUE} to interpolate measurements. See details.}
 

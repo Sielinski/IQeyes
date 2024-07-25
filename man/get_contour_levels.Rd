@@ -8,7 +8,8 @@ get_contour_levels(exam_curvature)
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 }
 \value{
 A table. The table's labels identify the contour levels, and the values in

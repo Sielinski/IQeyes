@@ -8,7 +8,8 @@ contour_context(exam_curvature, interp = F)
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 }
 \value{
 A data frame, containing the output of \link{candidate_contours} and three

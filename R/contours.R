@@ -112,7 +112,8 @@ scale_rotate <- function(shape, axs = 0, r_target = 4) {
 #'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #'
 #' @return
 #' A table. The table's labels identify the contour levels, and the values in
@@ -150,7 +151,7 @@ get_contour_levels <- function(exam_curvature) {
         dplyr::mutate(power = anterior_power(z))
     } else {
       warning('Power data not found in exam_curvature.')
-      invisible(exam_curvature)
+      return(NA)
     }
   }
 
@@ -176,7 +177,7 @@ get_contour_levels <- function(exam_curvature) {
 
   if (length(contours_lst) == 0) {
     warning('exam_curvature does not have enough points to identify contours.')
-    invisible(exam_curvature)
+    return(NA)
   }
 
   # identify the levels for each list item
@@ -206,6 +207,7 @@ find_edge <- function(x, min_max = 'min') {
   }
 }
 
+
 # Establish the max ring_diam to use for finding the characteristic contour
 contour_max_diameter <- 4.5  # Not currently used
 
@@ -221,7 +223,8 @@ contour_max_diameter <- 4.5  # Not currently used
 #'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #' @param interp
 #' A Boolean. \code{TRUE} to interpolate measurements. See details.
 #' @param add_edge
@@ -269,18 +272,22 @@ contour_max_diameter <- 4.5  # Not currently used
 #' @importFrom dplyr bind_cols
 #'
 #' @export
-get_contour <- function(exam_curvature, interp = F, add_edge = F, contour_power) {
+get_contour <- function(exam_curvature, interp = F, add_edge = F, contour_power = NA) {
 
   # exam_curvature <- sample_curvature
 
   # preserve the exam details (i.e., join fields and surface)
-  exam_record <- exam_curvature |>
-    dplyr::select(tidyselect::all_of(join_fields), surface) |>
-    unique()
+  exam_record <- exam_curvature[1, ] |>
+    dplyr::select(tidyselect::all_of(join_fields), surface)
 
   if (nrow(exam_record) > 1) {
     warning('More than one exam (or surface) contained in exam_curvature.')
-    invisible(exam_curvature)
+    return(NA)
+  }
+
+  if (is.na(contour_power) || length(contour_power) == 0) {
+    warning('contour_power must be specified.')
+    return(exam_record)
   }
 
   # This function requires a fairly high degree of resolution. If more data
@@ -306,7 +313,7 @@ get_contour <- function(exam_curvature, interp = F, add_edge = F, contour_power)
           dplyr::mutate(power = anterior_power(z))
       } else {
         warning('Power data not found in exam_curvature.')
-        invisible(exam_curvature)
+        return(invisible(exam_record))
       }
     }
 
@@ -343,7 +350,7 @@ get_contour <- function(exam_curvature, interp = F, add_edge = F, contour_power)
 
     if (length(contours_lst) == 0) {
       warning('exam_curvature does not have enough points to identify contours.')
-      invisible(exam_curvature)
+      return(invisible(exam_record))
     }
 
     # identify the levels for each list item
@@ -354,18 +361,12 @@ get_contour <- function(exam_curvature, interp = F, add_edge = F, contour_power)
       table()
   }
 
-  # if contour_power is specified, use that
-  if (is.na(contour_power)) {
-    warning('contour_power must be specified.')
-    invisible(exam_curvature)
-
-  } else {
-    if(is.na(segment_counts[as.character(contour_power)])) {
-      warning('No contour at the specified contour_power.')
-      invisible(exam_curvature)
-    }
-    break_name <- as.character(contour_power)
+  # ensure that specified contour_power is an option
+  if(is.na(segment_counts[as.character(contour_power)])) {
+    warning('No contour at the specified contour_power.')
+    return(invisible(exam_record))
   }
+  break_name <- as.character(contour_power)
 
   # get item(s) from the list of contours that match the identified break_name
   target_items <- lapply(contours_lst, function(i) i$level == break_name) |>

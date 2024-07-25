@@ -35,15 +35,11 @@ radians).}
 \item{angle}{The angle of the peak from the 3 o'clock position (in
 degrees).}
 \item{alignment_deg}{The angle (in degrees) between a peak and the
-projection of K-max in its opposite direction. Quantifies the departure from
-symmetry. When K-max and another peak (particularly K-next) are
-symmetrically aligned, their radial axes are 180° apart. As such,
-\code{alignment_deg} is calculated as 180° \emph{minus} the smallest angle,
-so when K-max and another peak are 180° apart, the result is 0°. Generally,
-the smallest angle between the K-max and another peak will be less than
-180°, and the departure from symmetry will be larger.}
+projection of K-max in its opposite direction. See details.}
 \item{distance_to_max}{The Euclidean distance (in mm) between the peak and
-another peak.}
+K-max.}
+\item{diff_power}{The difference in power (in diopters) between the peak
+and K-max peak.}
 }
 }
 \description{
@@ -54,6 +50,14 @@ K-max, K-next, and any other peaks.
 Oftentimes, a peak is comprised of several points with the same dioptric
 power. When that happens, the (\emph{x}, \emph{y}) position of the peak is
 calculated as the centroid of those points.
+
+\code{alignment_deg} quantifies departure from symmetry. When K-max and
+another peak (particularly K-next) are symmetrically aligned, their radial
+axes are 180° apart. As such, \code{alignment_deg} is calculated as 180°
+\emph{minus} the smallest angle, so when K-max and another peak are 180°
+apart, the result is 0°. Generally, the smallest angle between the K-max and
+another peak will be less than 180°, and the departure from symmetry will be
+larger.
 }
 \examples{
 interpolate_measurements(sample_curvature) |>

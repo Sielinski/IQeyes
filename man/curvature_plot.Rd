@@ -22,7 +22,8 @@ curvature_plot(
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 
 \item{interp}{A Boolean. \code{TRUE} to interpolate measurements.}
 

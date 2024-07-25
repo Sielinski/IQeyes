@@ -41,9 +41,11 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' Find an exam's semi-meridians
 #' @description
 #' Find the semi-meridians for an exam at three diameters (3, 5, and 7 mm).
+#'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #' @param exam_astig
 #' A data frame having the same columns as [IQeyes::sample_astig] and containing
 #' one row for each of the three ring diameters.
@@ -52,6 +54,7 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' surface of the cornea, respectively.
 #' @param interp
 #' A Boolean. \code{TRUE} to interpolate measurements along the rings.
+#'
 #' @return
 #' A data frame containing one row for each semi-meridian.
 #'
@@ -106,9 +109,8 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
   #exam_curvature <- sample_curvature
   #exam_astig <- sample_astig
 
-  exam_record <- exam_curvature |>
-    dplyr::select(tidyselect::all_of(join_fields)) |>
-    unique()
+  exam_record <- exam_curvature[1, ] |>
+    dplyr::select(tidyselect::all_of(join_fields))
 
   if (interp) {
     # interpolate measurement

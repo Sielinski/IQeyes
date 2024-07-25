@@ -83,11 +83,14 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 #' Find k-next
 #' @description
 #' Finds the secondary peak on a curvature map.
+#'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #' @param just_points
 #' A Boolean. \code{TRUE} to return the points that comprise the primary peak.
+#'
 #' @return
 #' If \code{just_points} = \code{T}, \code{k_next()} returns a copy of
 #' \code{exam_curvature} with an additional column \code{peak_id} identifying
@@ -109,6 +112,8 @@ adjacent_points_diameter <- function(source_dat, pt, target_diam) {
 #'  \item{max_next_distance_mm}{The Euclidean distance (in mm) between K-max and
 #'  K-next.}
 #'  \item{peak_count}{Number of peaks found on the cornea.}
+#'  \item{max_next_delta}{The difference in power (in diopters) between K-max
+#'  and K-next.}
 #' }
 #'
 #' @details
@@ -515,21 +520,25 @@ find_peaks <- function(input_matrix) {
 #'  \item{angle}{The angle of the peak from the 3 o'clock position (in
 #'  degrees).}
 #'  \item{alignment_deg}{The angle (in degrees) between a peak and the
-#'  projection of K-max in its opposite direction. Quantifies the departure from
-#'  symmetry. When K-max and another peak (particularly K-next) are
-#'  symmetrically aligned, their radial axes are 180° apart. As such,
-#'  \code{alignment_deg} is calculated as 180° \emph{minus} the smallest angle,
-#'  so when K-max and another peak are 180° apart, the result is 0°. Generally,
-#'  the smallest angle between the K-max and another peak will be less than
-#'  180°, and the departure from symmetry will be larger.}
+#'  projection of K-max in its opposite direction. See details.}
 #'  \item{distance_to_max}{The Euclidean distance (in mm) between the peak and
-#'  another peak.}
+#'  K-max.}
+#'  \item{diff_power}{The difference in power (in diopters) between the peak
+#'  and K-max peak.}
 #' }
 #'
 #' @details
 #' Oftentimes, a peak is comprised of several points with the same dioptric
 #' power. When that happens, the (\emph{x}, \emph{y}) position of the peak is
 #' calculated as the centroid of those points.
+#'
+#' \code{alignment_deg} quantifies departure from symmetry. When K-max and
+#' another peak (particularly K-next) are symmetrically aligned, their radial
+#' axes are 180° apart. As such, \code{alignment_deg} is calculated as 180°
+#' \emph{minus} the smallest angle, so when K-max and another peak are 180°
+#' apart, the result is 0°. Generally, the smallest angle between the K-max and
+#' another peak will be less than 180°, and the departure from symmetry will be
+#' larger.
 #'
 #' @examples
 #' interpolate_measurements(sample_curvature) |>
@@ -548,7 +557,7 @@ find_peaks <- function(input_matrix) {
 k_next <- function(curvature_m, ignore_singletons = T) {
 
   if (is.null(curvature_m)) {
-    invisible(curvature_m)
+    return(NA)
 
   } else {
     # find the peaks
@@ -640,6 +649,11 @@ k_next <- function(curvature_m, ignore_singletons = T) {
     peaks_summary$distance_to_max <- sqrt((peaks_summary$x[1] - peaks_summary$x) ^ 2 + (peaks_summary$y[1] - peaks_summary$y) ^ 2)
     peaks_summary$distance_to_max[1] <- NA
 
+    # calculate difference in power from K-max
+    peaks_summary$diff_power <- peaks_summary$power[1] - peaks_summary$power
+    peaks_summary$diff_power[1] <- NA
+
+
     return(peaks_summary)
   }
 }
@@ -653,10 +667,11 @@ k_next <- function(curvature_m, ignore_singletons = T) {
 #'
 #' @description
 #' Returns the dioptric power at the antipode of K-max.
-
-#' @param exam_record
-#' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#'
+#' @param exam_curvature
+#' A data frame containing, at a minimum, the \code{x}- and \code{y}-axis
+#' position of each curvature (i.e., radius of curvature) \code{measurement}.
+#' One row for each \code{measurement}.
 #' @param exam_k_max
 #' A data frame containing the [IQeyes::join_fields] and the \code{x}, \code{y},
 #' and \code{measurement} of K-max.
@@ -674,7 +689,8 @@ k_next <- function(curvature_m, ignore_singletons = T) {
 #'  \item{y}{The \emph{y}-axis position of the measurement.}
 #'  \item{opposite_x}{The \emph{x}-axis position of the antipode. See details.}
 #'  \item{opposite_y}{The \emph{y}-axis position of the antipode.}
-#'  \item{euch_dist}{Euchlidean distance of the measurement from the antipod.}
+#'  \item{euch_dist}{Euchlidean distance of the selected \code{measurement} from
+#'  the location of "exact" antipode of K-max. See details.}
 #' }
 #'
 #' @details
@@ -707,7 +723,8 @@ antipodal_power <- function(exam_curvature, exam_k_max, interp = F) {
       rename(z = measurement)
   }
 
-  # establish the antipod of K-max
+  # establish the antipode of K-max
+  # K-max is at (x, y), the antiode is at (-x, -y)
   exam_k_max <- exam_k_max |>
     dplyr::select(tidyselect::all_of(join_fields), x, y, measurement) |>
     dplyr::mutate(opposite_x = -x,
@@ -717,14 +734,14 @@ antipodal_power <- function(exam_curvature, exam_k_max, interp = F) {
 
   if (nrow(exam_k_max) == 0) {
     warning('K-max not found.')
-    return(invisible(exam_curvature))
+    return(NA)
   }
 
   # find the measurement that's closest to the antipodal position of K-max
   antipodal_power <- exam_k_max |>
     dplyr::cross_join(z_dat) |>
     dplyr::mutate(euch_dist = sqrt((x - opposite_x) ^ 2 + (y - opposite_y) ^ 2)) |>
-    dplyr::slice_min(order_by = euch_dist, n = 1, by = tidyselect::all_of(join_fields)) |>
+    dplyr::slice_min(order_by = euch_dist, n = 1, with_ties = F, by = tidyselect::all_of(join_fields)) |>
     dplyr::mutate(opposite_power = anterior_power(z)) |>
     dplyr::select(all_of(join_fields), k_max, opposite_power, x, y, opposite_x, opposite_y, euch_dist)
 

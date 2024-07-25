@@ -13,7 +13,8 @@ curvature_meridians(
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 
 \item{exam_astig}{A data frame having the same columns as \link{sample_astig} and containing
 one row for each of the three ring diameters.}

@@ -136,7 +136,8 @@ plot_scale <- function(z) {
 #'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #' @param interp
 #' A Boolean. \code{TRUE} to interpolate measurements.
 #' @param grid
@@ -222,9 +223,8 @@ curvature_plot <-
 
     # establish join_fields (and surface) from exam_curvature, which will be
     # used for the chart's labels
-    exam_record <- exam_curvature |>
-      dplyr::select(tidyselect::all_of(join_fields), surface) |>
-      unique()
+    exam_record <- exam_curvature[1, ] |>
+      dplyr::select(tidyselect::all_of(join_fields), surface)
 
     if (nrow(exam_record) > 1) warning('More than one exam record contained in exam_curvature.')
 

@@ -8,7 +8,8 @@ k_next_old(exam_curvature, just_points = F)
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 
 \item{just_points}{A Boolean. \code{TRUE} to return the points that comprise the primary peak.}
 }
@@ -33,6 +34,8 @@ projection of K-max in its opposite direction. See details below.}
 \item{max_next_distance_mm}{The Euclidean distance (in mm) between K-max and
 K-next.}
 \item{peak_count}{Number of peaks found on the cornea.}
+\item{max_next_delta}{The difference in power (in diopters) between K-max
+and K-next.}
 }
 }
 \description{

@@ -9,7 +9,8 @@
 #'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #' @param exam_peaks
 #' A data frame with the same structure as the output of [IQeyes::k_next],
 #' containing one row for each peak.
@@ -41,7 +42,19 @@
 #' considered candidates.
 #'
 #' @examples
-#' candidate_contours(sample_curvature)
+#' exam_interp <- interpolate_measurements(sample_curvature)
+#'
+#' exam_peaks <- exam_interp |>
+#'   dplyr::mutate(power = anterior_power(z)) |>
+#'   dplyr::select(x, y, power) |>
+#'   reshape2::acast(y ~ x, value.var = 'power') |>
+#'   k_next()
+#'
+#' exam_curvature <- sample_curvature[1, ] |>
+#'   dplyr::select(tidyselect::all_of(join_fields), 'surface') |>
+#'   dplyr::cross_join(exam_interp)
+#'
+#' candidate_contours(exam_curvature, exam_peaks)
 #'
 #' @family characteristic contours
 #'
@@ -63,9 +76,8 @@ candidate_contours <- function(exam_curvature, exam_peaks) {
   #exam_curvature <- sample_curvature
 
   # preserve the exam details (i.e., join fields and surface)
-  exam_record <- exam_curvature |>
-    dplyr::select(tidyselect::all_of(join_fields), surface) |>
-    unique()
+  exam_record <- exam_curvature[1, ] |>
+    dplyr::select(tidyselect::all_of(join_fields), surface)
 
   # get just k_max and k_next and their coordinates
   point_dat <- exam_peaks |>
@@ -156,7 +168,7 @@ candidate_contours <- function(exam_curvature, exam_peaks) {
   candidates <- data.frame(contour = as.numeric(names(segments)),
                            segments = as.numeric(segments),
                            r_max = r_max,
-                           r_next = r_next
+                           r_next = ifelse(length(r_next) == 0, NA, r_next)
   )
 
   return(dplyr::bind_cols(exam_record, candidates))
@@ -176,7 +188,8 @@ candidate_contours <- function(exam_curvature, exam_peaks) {
 #'
 #' @param exam_curvature
 #' A data frame with the same structure as [IQeyes::sample_curvature],
-#' containing one row for each curvature \code{measurement}.
+#' containing one row for each curvature (i.e., radius of curvature)
+#' \code{measurement}.
 #'
 #' @return
 #' A data frame, containing the output of [IQeyes::candidate_contours] and three
@@ -216,9 +229,8 @@ contour_context <- function(exam_curvature, interp = F) {
   #exam_curvature <- sample_curvature
 
   # preserve the exam details (i.e., join fields and surface)
-  exam_record <- exam_curvature |>
-    dplyr::select(tidyselect::all_of(join_fields), surface) |>
-    unique()
+  exam_record <- exam_curvature[1, ] |>
+    dplyr::select(tidyselect::all_of(join_fields), surface)
 
   if (interp) {
     z_dat <- exam_curvature |>
@@ -263,7 +275,7 @@ contour_context <- function(exam_curvature, interp = F) {
   candidates$k_max_distance <- k_max_distance
 
   # repeat for k_next (if it exists)
-  if (!is.na(k_values$k_next)) {
+  if ('k_next' %in% colnames(k_values) && !is.na(k_values$k_next)) {
     k_next_interval <- findInterval(k_values$k_next, absolute_scale)
     k_next_distance <- k_next_interval - seq_along(absolute_scale)
     k_next_distance <- k_next_distance[which(absolute_scale %in% candidates$contour)]

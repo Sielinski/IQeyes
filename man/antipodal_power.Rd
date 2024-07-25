@@ -7,13 +7,14 @@
 antipodal_power(exam_curvature, exam_k_max, interp = F)
 }
 \arguments{
+\item{exam_curvature}{A data frame containing, at a minimum, the \code{x}- and \code{y}-axis
+position of each curvature (i.e., radius of curvature) \code{measurement}.
+One row for each \code{measurement}.}
+
 \item{exam_k_max}{A data frame containing the \link{join_fields} and the \code{x}, \code{y},
 and \code{measurement} of K-max.}
 
 \item{interp}{A Boolean. \code{TRUE} to interpolate measurements. See details.}
-
-\item{exam_record}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
 }
 \value{
 A one-row data frame containing the \link{join_fields} and the following
@@ -26,7 +27,8 @@ columns:
 \item{y}{The \emph{y}-axis position of the measurement.}
 \item{opposite_x}{The \emph{x}-axis position of the antipode. See details.}
 \item{opposite_y}{The \emph{y}-axis position of the antipode.}
-\item{euch_dist}{Euchlidean distance of the measurement from the antipod.}
+\item{euch_dist}{Euchlidean distance of the selected \code{measurement} from
+the location of "exact" antipode of K-max. See details.}
 }
 }
 \description{

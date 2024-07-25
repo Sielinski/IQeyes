@@ -356,23 +356,26 @@ rotate_shape <- function(points, theta_deg) {
 #' grid of Cartesian coordinates (\emph{x} and \emph{y}).
 #'
 #' @param source_dat
-#' A data frame containing one row for each \code{measurement}. Each row must contain
-#' at least three columns: a set of Cartesian coordinates (\code{x} and
-#' \code{y}) and a \code{measurement}.
+#' A data frame containing one row for each \code{measurement} (i.e., radius of
+#' curvature). Each row must contain at least three columns: a set of Cartesian
+#' coordinates (\code{x} and \code{y}) and a \code{measurement}.
 #' @param radius
 #' A number. Extent of the corneal radius to interpolate.
 #' @param ...
 #' Additional parameters that get passed to \code{akima::interp()}
+#'
 #' @return
 #' A new data frame with the interpolated measurements.
 #'
 #' @details
-#' The \emph{x} and \emph{y} axes of the expanded grid will contain the same
-#' number of unique values as original axes, but they will be equally spaced
-#' along those axes.
+#' This function interpolates measurements at the same 0.1 mm grain as the
+#' Pentacam's more detailed files. Rather than going from -5 to 5 along the
+#' \code{x} and \code{y} axes (like the Petacam), the resulting grid will go
+#' from -\code{radius} to +\code{radius}.
 #'
 #' The interpolated measurements will \emph{not} necessarily include the
 #' original measurements.
+#'
 #' @examples
 #' interpolate_measurements(sample_curvature) |>
 #'    head()

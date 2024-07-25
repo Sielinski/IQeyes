@@ -8,7 +8,8 @@ candidate_contours(exam_curvature, exam_peaks)
 }
 \arguments{
 \item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature \code{measurement}.}
+containing one row for each curvature (i.e., radius of curvature)
+\code{measurement}.}
 
 \item{exam_peaks}{A data frame with the same structure as the output of \link{k_next},
 containing one row for each peak.}
@@ -44,7 +45,19 @@ that no contours have segments containing points, all contours are
 considered candidates.
 }
 \examples{
-candidate_contours(sample_curvature)
+exam_interp <- interpolate_measurements(sample_curvature)
+
+exam_peaks <- exam_interp |>
+  dplyr::mutate(power = anterior_power(z)) |>
+  dplyr::select(x, y, power) |>
+  reshape2::acast(y ~ x, value.var = 'power') |>
+  k_next()
+
+exam_curvature <- sample_curvature[1, ] |>
+  dplyr::select(tidyselect::all_of(join_fields), 'surface') |>
+  dplyr::cross_join(exam_interp)
+
+candidate_contours(exam_curvature, exam_peaks)
 
 }
 \seealso{
