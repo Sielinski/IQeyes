@@ -46,7 +46,6 @@ The \link{join_fields} in the returned data frame come from the
 \seealso{
 Other K-next: 
 \code{\link{find_peaks}()},
-\code{\link{k_next}()},
-\code{\link{k_next_old}()}
+\code{\link{k_next}()}
 }
 \concept{K-next}

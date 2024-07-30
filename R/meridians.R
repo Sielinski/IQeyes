@@ -52,8 +52,13 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' @param cornea_surface
 #' A string, either 'FRONT' or 'BACK', indicating the anterior or posterior
 #' surface of the cornea, respectively.
+#' @param from_vertex
+#' A Boolean. \code{TRUE} to use the vertex as the starting point for the
+#' semi-meridians. \code{FALSE} (the default), to use the end point of the
+#' prior semi-meridian. (The 3 mm semi-meridian always uses the vertex as its
+#' starting point.)
 #' @param interp
-#' A Boolean. \code{TRUE} to interpolate measurements along the rings.
+#' A Boolean. \code{TRUE} to interpolate measurements.
 #'
 #' @return
 #' A data frame containing one row for each semi-meridian.
@@ -65,8 +70,8 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #'  \item{axis}{Either the \code{flat} or \code{steep} axis of astigmatism,
 #'  identifying the semi-meridian's reference axis.}
 #'  \item{between_min_max}{A Boolean identifying whether the semi-meridian was
-#'  found within a 180° window (±90°) of the opposite angle of astigmatism (or
-#'  the reflective "hemisphere").}
+#'  found within a 180° window "above" or "below" the opposite angle of
+#'  astigmatism. See details.}
 #'  \item{theta}{Offset angle (in degrees) from the 3 o'clock position.}
 #'  \item{power}{Dioptric power of of the semi-meridian. When actual
 #'  measurement data are used, \code{power} will be the power at the end radius
@@ -75,9 +80,19 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' }
 #'
 #' @details
-#' This function identifies the radial arms with the highest and lowest average
-#' power within 180° windows (±90°) of the axes of astigmatism (as determined
-#' by the Pentacam) at the 3, 5, and 7 mm ring diameters.
+#' The Pentacam provides the flat axis of astigmatism for the 3, 5, and 7 mm
+#' rings. This function looks "above" and "below" each of these axes for the
+#' steepest semi-meridians (i.e., the radial arms with the highest average
+#' power within these 180° windows.)
+#'
+#' Presuming that the steep axis of astigmatism is perpendicular to the flat
+#' axis, this function likewise looks "above" and "below" the perpendicular axes
+#' for the flattest semi-meridians (i.e., the radial arms with the lowest
+#' average power).
+#'
+#' Note that multiple semi-meridians can have the same power. When that happens,
+#' this function will return the radial arm at the mid-point of the largest
+#' cluster of radial arms with the same power.
 #'
 #' @examples
 #' curvature_meridians(sample_curvature, sample_astig) |>
@@ -104,7 +119,11 @@ radial_arms <- generate_radial_arms(radius, grain, angles)
 #' @importFrom dplyr slice_max
 #'
 #' @export
-curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FRONT', interp = T) {
+curvature_meridians <- function(exam_curvature,
+                                exam_astig,
+                                cornea_surface = 'FRONT',
+                                from_vertex = F,
+                                interp = T) {
 
   #exam_curvature <- sample_curvature
   #exam_astig <- sample_astig
@@ -141,6 +160,9 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
                   starting_radius = radius - dplyr::if_else(radius == 1.5, radius, 1),
                   # the steep axis is perpendicular
                   steep = within_360(flat - 90)) |>
+    # if from_vertex is set to T, then use the vertex (0) as the starting point
+    # of the radial arm
+    dplyr::mutate(starting_radius = ifelse(from_vertex, 0, starting_radius)) |>
     tidyr::pivot_longer(cols = c(flat, steep), names_to = 'axis', values_to = 'angle') |>
     # calculate the angle opposite to the axis
     dplyr::mutate(opposite = within_360(angle + 180),
@@ -269,4 +291,61 @@ curvature_meridians <- function(exam_curvature, exam_astig, cornea_surface = 'FR
   exam_record |>
     dplyr::cross_join(meridian_angles)
 
+}
+
+
+##########
+## srax
+##########
+
+#' Calculate the skewed radial axis (SRAX) for an exam
+#'
+#' @description
+#' The SRAX is 180 minus the smallest angle between the steepest radial axes
+#' "above" and "below" the flat axis of astigmatism.
+#'
+#' @param exam_meridians
+#' A data frame with the same structure as the output of
+#' [IQeyes::curvature_meridians].
+#' @param radius
+#' A number identifying the radius of the axes to use for the skew calculation.
+#'
+#' @return
+#' A data frame containing the \code{join_fields} and \code{srax}, the skew of
+#' radial axes.
+#'
+#' @details
+#' The formal definition of SRAX uses the horizontal meridian to split the
+#' cornea into hemispheres. Presuming that [IQeyes::curvature_meridians] is used
+#' to identify the steepest radial axes, this function uses the flat axis of
+#' astigmatism identified by the Pentacam at the 3, 5, or 7 mm ring.
+#'
+#' @references
+#' Rabinowitz, Yaron S. "Videokeratographic Indices to Aid in Screening for
+#' Keratoconus." \emph{Journal of Refractive Surgery}, 1995 Sep-Oct;11(5):371-9.
+#' \url{https://doi.org/10.3928/1081-597X-19950901-14}.
+#'
+#' @examples
+#' curvature_meridians(sample_curvature, sample_astig) |>
+#'   srax()
+#'
+#' @family meridians
+#'
+#' @importFrom dplyr select
+#' @importFrom dplyr filter
+#' @importFrom dplyr bind_rows
+#' @importFrom tidyselect all_of
+#'
+#' @export
+srax <- function(exam_meridians, radius = 1.5) {
+
+  exam_record <- exam_meridians[1, ] |>
+    dplyr::select(tidyselect::all_of(join_fields))
+
+  target_meridians <- exam_meridians |>
+    dplyr::filter(radius == radius, axis == 'steep')
+
+  srax <- 180 - smallest_angle(target_meridians$theta[1], target_meridians$theta[2])
+
+  return(dplyr::bind_cols(exam_record, srax = srax))
 }

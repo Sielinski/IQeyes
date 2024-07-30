@@ -8,6 +8,7 @@ curvature_meridians(
   exam_curvature,
   exam_astig,
   cornea_surface = "FRONT",
+  from_vertex = F,
   interp = T
 )
 }
@@ -22,7 +23,12 @@ one row for each of the three ring diameters.}
 \item{cornea_surface}{A string, either 'FRONT' or 'BACK', indicating the anterior or posterior
 surface of the cornea, respectively.}
 
-\item{interp}{A Boolean. \code{TRUE} to interpolate measurements along the rings.}
+\item{from_vertex}{A Boolean. \code{TRUE} to use the vertex as the starting point for the
+semi-meridians. \code{FALSE} (the default), to use the end point of the
+prior semi-meridian. (The 3 mm semi-meridian always uses the vertex as its
+starting point.)}
+
+\item{interp}{A Boolean. \code{TRUE} to interpolate measurements.}
 }
 \value{
 A data frame containing one row for each semi-meridian.
@@ -34,8 +40,8 @@ A data frame containing one row for each semi-meridian.
 \item{axis}{Either the \code{flat} or \code{steep} axis of astigmatism,
 identifying the semi-meridian's reference axis.}
 \item{between_min_max}{A Boolean identifying whether the semi-meridian was
-found within a 180° window (±90°) of the opposite angle of astigmatism (or
-the reflective "hemisphere").}
+found within a 180° window "above" or "below" the opposite angle of
+astigmatism. See details.}
 \item{theta}{Offset angle (in degrees) from the 3 o'clock position.}
 \item{power}{Dioptric power of of the semi-meridian. When actual
 measurement data are used, \code{power} will be the power at the end radius
@@ -47,13 +53,27 @@ will be the average power of the semi-meridian segment. }
 Find the semi-meridians for an exam at three diameters (3, 5, and 7 mm).
 }
 \details{
-This function identifies the radial arms with the highest and lowest average
-power within 180° windows (±90°) of the axes of astigmatism (as determined
-by the Pentacam) at the 3, 5, and 7 mm ring diameters.
+The Pentacam provides the flat axis of astigmatism for the 3, 5, and 7 mm
+rings. This function looks "above" and "below" each of these axes for the
+steepest semi-meridians (i.e., the radial arms with the highest average
+power within these 180° windows.)
+
+Presuming that the steep axis of astigmatism is perpendicular to the flat
+axis, this function likewise looks "above" and "below" the perpendicular axes
+for the flattest semi-meridians (i.e., the radial arms with the lowest
+average power).
+
+Note that multiple semi-meridians can have the same power. When that happens,
+this function will return the radial arm at the mid-point of the largest
+cluster of radial arms with the same power.
 }
 \examples{
 curvature_meridians(sample_curvature, sample_astig) |>
   dplyr::select(-tidyselect::all_of(join_fields))
 
+}
+\seealso{
+Other meridians: 
+\code{\link{srax}()}
 }
 \concept{meridians}

@@ -70,7 +70,6 @@ interpolate_measurements(sample_curvature) |>
 \seealso{
 Other K-next: 
 \code{\link{antipodal_power}()},
-\code{\link{find_peaks}()},
-\code{\link{k_next_old}()}
+\code{\link{find_peaks}()}
 }
 \concept{K-next}

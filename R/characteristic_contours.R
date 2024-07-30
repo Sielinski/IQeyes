@@ -247,6 +247,10 @@ contour_context <- function(exam_curvature, interp = F) {
     reshape2::acast(y ~ x, value.var = 'power') |>
     k_next()
 
+  # if the power of the K-max is infinite, we probably don't have any
+  # measurement data, probably due to a file read error, but handle it here
+  if (is.infinite(exam_peaks$power[1])) return(invisible(exam_record))
+
   k_values <- exam_peaks |>
     dplyr::filter(peak_id <= 2) |>
     dplyr::mutate(point_name = dplyr::if_else(peak_id == 1, 'k_max', 'k_next')) |>
