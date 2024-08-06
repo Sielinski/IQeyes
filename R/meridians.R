@@ -147,6 +147,9 @@ curvature_meridians <- function(exam_curvature,
     dplyr::inner_join(exam_curvature, by = c('x', 'y')) |>
     dplyr::mutate(power = anterior_power(measurement))
 
+  # confirm that we have good astig data
+  if (nrow(exam_astig) != 3 || anyNA(exam_astig$axs)) return(invisible(exam_record))
+
   # create the astig windows: goal is to look above and below both the flat and
   # steep axes (as determined by the Pentacam at the 3, 5, and 7 mm diameters)
   astig_windows <- exam_astig |>
@@ -162,7 +165,7 @@ curvature_meridians <- function(exam_curvature,
                   steep = within_360(flat - 90)) |>
     # if from_vertex is set to T, then use the vertex (0) as the starting point
     # of the radial arm
-    dplyr::mutate(starting_radius = ifelse(from_vertex, 0, starting_radius)) |>
+    dplyr::mutate(starting_radius = (if (from_vertex) 0 else starting_radius)) |>
     tidyr::pivot_longer(cols = c(flat, steep), names_to = 'axis', values_to = 'angle') |>
     # calculate the angle opposite to the axis
     dplyr::mutate(opposite = within_360(angle + 180),

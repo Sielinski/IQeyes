@@ -306,7 +306,8 @@ silhouette_overlap_group <- function(contour_exam,
                                      return_detail = F) {
 
   # convert contours to polygons
-  poly_exam <- contour_to_sf_polygon(contour_exam)
+  #poly_exam <- contour_to_sf_polygon(contour_exam)
+  poly_exam <- st_as_sf(contour_exam)
 
   # calculate the average overlap of the exam with each member of the group
   mean_overlap_group <- poly_group |>

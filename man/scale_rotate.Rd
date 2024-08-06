@@ -37,6 +37,7 @@ important for asymmetric shapes.
 \examples{
 scale_rotate(sample_contour, axs = 33.6) |>
   head()
+
 scale_rotate(sample_curvature, axs = 33.6) |>
   head()
 

@@ -393,6 +393,8 @@ interpolate_measurements <- function(source_dat, radius = 4.5, ...) {
   source_dat <- source_dat |>
     dplyr::filter(!is.na(measurement))
 
+  if (nrow(source_dat) <= 1) return(invisible(source_dat))
+
   # Create a grid that spans the extents of the measured x and y axes
   #x_range <- with(source_dat, seq(min(x), max(x), length.out = length(unique(x))))
   #y_range <- with(source_dat, seq(min(y), max(y), length.out = length(unique(y))))

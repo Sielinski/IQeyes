@@ -7,7 +7,7 @@
 plot_scale(z)
 }
 \arguments{
-\item{z}{A numeric vector containing curvature measurements (in diopters). Currently
+\item{z}{A numeric vector containing power (in diopters). Currently
 works for \emph{anterior} surfaces only.}
 }
 \value{

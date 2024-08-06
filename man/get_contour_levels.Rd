@@ -7,9 +7,9 @@
 get_contour_levels(exam_curvature)
 }
 \arguments{
-\item{exam_curvature}{A data frame with the same structure as \link{sample_curvature},
-containing one row for each curvature (i.e., radius of curvature)
-\code{measurement}.}
+\item{exam_curvature}{A data frame of numeric values containing \code{x} and \code{y}, the
+Cartesian coordinates of a point, and either \code{z} (the anterior radius of
+curvature) or \code{power} (the dioptric power) at each (\code{x}, \code{y}).}
 }
 \value{
 A table. The table's labels identify the contour levels, and the values in
@@ -20,12 +20,16 @@ Returns the full range of contours and the number of segments needed to plot
 \code{exam_curvature} on a curvature map.
 }
 \details{
-This function doesn't currently work for posterior surfaces because
-\link{plot_scale} presumes the color scale is on the "absolute
-scale", which is designed for the dioptric power of anterior surfaces.
+This function returns valid contours for an exam based on the breaks defined
+by the color scale of \link{plot_scale}.
+
+Because \link{plot_scale} is designed for the dioptric power of anterior
+surfaces, this function works for anterior surfaces only.
 }
 \examples{
-get_contour_levels(sample_curvature)
+sample_curvature |>
+  interpolate_measurements() |>
+  get_contour_levels()
 
 }
 \seealso{

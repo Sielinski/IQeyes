@@ -86,7 +86,7 @@ absolute_color_scale <- data.frame(value = absolute_scale,
 #' Returns breaks for \code{z} (presumed to be in diopters) on the dioptric
 #' scale used to plot curvature maps.
 #' @param z
-#' A numeric vector containing curvature measurements (in diopters). Currently
+#' A numeric vector containing power (in diopters). Currently
 #' works for \emph{anterior} surfaces only.
 #' @return
 #' A numeric vector containing the breaks on the \emph{z}-axis scale (in
@@ -266,7 +266,7 @@ curvature_plot <-
         ggplot2::geom_contour_filled(data = plot_dat,
                                      ggplot2::aes(x = x, y = y, z = power),
           # need breaks to match with color scale
-          breaks = breaks_vector,
+          breaks = absolute_scale,
           show.legend = legend,
           na.rm = T
         ) +

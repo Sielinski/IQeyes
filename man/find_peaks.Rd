@@ -2,13 +2,12 @@
 % Please edit documentation in R/k_next.R
 \name{find_peaks}
 \alias{find_peaks}
-\title{Find the peak points of a square numeric matrix.}
+\title{Find the peak points of a numeric matrix.}
 \usage{
 find_peaks(input_matrix)
 }
 \arguments{
-\item{input_matrix}{A square numeric matrix. If input_matrix is not square, this function will
-introduce rows or columns of \code{NA}, as necessary.}
+\item{input_matrix}{A numeric matrix.}
 }
 \value{
 A numeric matrix with the same dimensions as \code{input_matrix}. The values
@@ -23,7 +22,7 @@ Any points that was \code{NA} in the \code{input_matrix} will be assigned 0.
 }
 \description{
 Finds the peak points (i.e., max values) and the points that descend from
-them in an \emph{n}x\emph{n} matrix.
+them in a numeric matrix.
 }
 \examples{
 test_m <- matrix(c(12, 12, 11, 12, 12,

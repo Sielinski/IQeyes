@@ -86,24 +86,6 @@ candidate_contours <- function(exam_curvature, exam_peaks) {
     dplyr::select(point_name, x, y, r, power) |>
     dplyr::rename(radius = r)
 
-  # get k_next and its x- and y-coordinates
-  #point_dat <- k_next_old(exam_curvature) |>
-  #  dplyr::mutate(x = polar_to_cartesian(ring_diam, angle)$x,
-  #         y = polar_to_cartesian(ring_diam, angle)$y) |>
-  #  dplyr::mutate(point_name = 'k_next') |>
-  #  dplyr::rename(power = k_next,
-  #         radius = ring_diam) |>
-  #  dplyr::select(point_name, x, y, radius, power)
-  #
-  ## add k_max and its x- and y-coordinates
-  #point_dat <- exam_curvature |>
-  #  dplyr::filter(column_name == 'R_min') |>
-  #  dplyr::mutate(power = anterior_power(measurement),
-  #                point_name = 'k_max') |>
-  #  dplyr::rename(radius = ring_diam) |>
-  #  dplyr::select(colnames(point_dat)) |>
-  #  dplyr::bind_rows(point_dat)
-
   # is k_next within the plotted region of the curvature map?
   # is k_max within the plotted region of the curvature map?
   r_max = point_dat$radius[which(point_dat$point_name == 'k_max')]
