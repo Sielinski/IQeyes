@@ -41,7 +41,8 @@ works when data are interpreted.}
 \item{truncate_circle}{A Boolean. \code{TRUE} to limit the curvature map to a diameter of
 \code{circle_dia}.}
 
-\item{circle_dia}{A number. \code{TRUE} to include a legend/key.}
+\item{circle_dia}{A numeric value. The diameter of the plotted region of the matrix. Used only
+if \code{truncate_circle} is \code{TRUE}.}
 
 \item{points}{A Boolean. \code{TRUE} to show points on the plot at the \emph{x}- and
 \emph{x}-coordinates of the \emph{measured} points. Only works when data are
@@ -73,6 +74,7 @@ curvature_plot(sample_curvature)
 }
 \seealso{
 Other plots: 
+\code{\link{plot_matrix}()},
 \code{\link{plot_scale}()}
 }
 \concept{plots}

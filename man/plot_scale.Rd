@@ -2,7 +2,7 @@
 % Please edit documentation in R/plots.R
 \name{plot_scale}
 \alias{plot_scale}
-\title{Returns breaks on the \emph{z}-axis scale used to plot curvature maps}
+\title{Contour breaks needed to plot an anterior curvature map}
 \usage{
 plot_scale(z)
 }
@@ -15,15 +15,13 @@ A numeric vector containing the breaks on the \emph{z}-axis scale (in
 diopters).
 }
 \description{
-Returns breaks for \code{z} (presumed to be in diopters) on the dioptric
-scale used to plot curvature maps.
+Returns the subset of contour breaks from \code{absolute_scale} required to
+plot a curvature map of the values in \code{z}.
 }
 \details{
-The contour levels on a curvature map are defined by the breaks of the
-color scale used to generate the map.
-
-\code{plot_scale()} presumes the curvature maps uses the Pentacam's American
-scale, which is designed for the dioptric power of anterior surfaces.
+The contour levels on a curvature map are defined by the breaks in
+\code{absolute_scale}, which is based on the Pentacam's American Style scale
+for the dioptric power of anterior curvature maps.
 }
 \examples{
 sample_curvature$measurement |>
@@ -33,6 +31,7 @@ sample_curvature$measurement |>
 }
 \seealso{
 Other plots: 
-\code{\link{curvature_plot}()}
+\code{\link{curvature_plot}()},
+\code{\link{plot_matrix}()}
 }
 \concept{plots}

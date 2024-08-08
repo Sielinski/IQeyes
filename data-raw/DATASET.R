@@ -120,3 +120,10 @@ usethis::use_data(char_fit, overwrite = T, internal = F)
 usethis::use_data(bowtie_fit, overwrite = T, internal = F)
 usethis::use_data(bowtie_roc_coords, overwrite = T, internal = F)
 usethis::use_data(bowtie_features, overwrite = T, internal = F)
+
+
+#################
+## Color scales
+#################
+
+source('color_scales.R')
